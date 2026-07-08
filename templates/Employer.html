@@ -1,0 +1,233 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CareerMomentum | Employer Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='form-style.css') }}" />
+</head>
+<body>
+  <header class="nav">
+    <div class="brand">CareerMomentum</div>
+    <a href="main_explore.html">← Back</a>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <div class="badge">AI Powered Hiring Tools</div>
+      <h1>Hire Smarter with <span class="grad">CareerMomentum</span></h1>
+      <p>Manage employer accounts, post jobs, and connect with top talent using a clean, AI-driven workspace designed to match your main CareerMomentum experience.</p>
+      <div class="stats">
+        <div class="stat"><b>50K+</b><span>Professionals reached</span></div>
+        <div class="stat"><b>1.5K+</b><span>Active listings</span></div>
+        <div class="stat"><b>24/7</b><span>Recruitment support</span></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="header-block">
+        <h2>Employer Portal</h2>
+        <p>Login for existing HR teams or create a new company account in seconds.</p>
+      </div>
+
+      <div class="toggle">
+        <button class="active" type="button" onclick="showLogin()">Login</button>
+        <button type="button" onclick="showRegister()">Register</button>
+      </div>
+
+      <div id="loginForm">
+        <div class="form-title">Welcome Back 👋</div>
+        <form action="/login" method="POST">
+          <input type="email" name="company_email" placeholder="Company Email" required>
+          <input type="password" name="password" placeholder="Password" required>
+          <button class="submit" type="submit">Login</button>
+        </form>
+      </div>
+
+      <div id="registerForm">
+        <div class="form-title">Create Employer Account</div>
+
+        <form action="/register" method="POST">
+          <input type="text" name="company_name" placeholder="Company Name" required>
+    
+          <input type="text" name="employer_name" placeholder="Name" required>
+    
+          <input type="email" name="company_email" placeholder="Company Email" required>
+    
+          <input type="tel" name="mobile_number" placeholder="Mobile Number" required>
+    
+          <input type="password" name="password" placeholder="Password" required>
+    
+          <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+    
+          <button class="submit" type="submit">Register</button>
+      </form>
+
+  <div class="note">Please use your official company email for verification.</div>
+</div>
+    </section>
+  </main>
+
+  <script>
+    const login = document.getElementById('loginForm');
+    const register = document.getElementById('registerForm');
+    const buttons = document.querySelectorAll('.toggle button');
+
+    function showLogin(){
+      login.style.display='block';
+      register.style.display='none';
+      buttons[0].classList.add('active');
+      buttons[1].classList.remove('active');
+    }
+
+    function showRegister(){
+      login.style.display='none';
+      register.style.display='block';
+      buttons[1].classList.add('active');
+      buttons[0].classList.remove('active');
+    }
+
+    document.querySelector('#loginForm form').addEventListener('submit', e => {
+      //e.preventDefault();
+      alert('Employer Login Successful!');
+    });
+
+    document.querySelector('#registerForm form').addEventListener('submit', e => {
+      //e.preventDefault();
+      alert('Employer Registration Successful!');
+      showLogin();
+    });
+  </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CareerMomentum | Employer Portal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="logo">CareerMomentum</div>
+    <div class="nav-buttons">
+      <a href="main_explore.html" class="btn btn-outline">← Back to Explore</a>
+    </div>
+  </nav>
+
+  <section class="hero employer-hero">
+    <div class="employer-shell">
+      <div class="hero-content">
+        <span class="hero-badge">AI Powered Hiring Tools</span>
+        <h1>Hire Smarter with <span class="highlight">CareerMomentum</span></h1>
+        <p>Manage employer accounts, post jobs, and connect with top talent using a clean, AI-driven workspace designed to match your main CareerMomentum experience.</p>
+
+        <div class="stat-grid">
+          <div class="stat-box">
+            <b>50K+</b>
+            <span>Professionals reached</span>
+          </div>
+          <div class="stat-box">
+            <b>1.5K+</b>
+            <span>Active listings</span>
+          </div>
+          <div class="stat-box">
+            <b>24/7</b>
+            <span>Recruitment support</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="employer-card search-box">
+        <div class="header-block">
+          <h2>Employer Portal</h2>
+          <p>Login for existing HR teams or create a new company account in seconds.</p>
+        </div>
+
+        <div class="toggle">
+          <button class="btn btn-tab active" type="button" onclick="showLogin()">Login</button>
+          <button class="btn btn-tab" type="button" onclick="showRegister()">Register</button>
+        </div>
+
+        <div id="loginForm">
+          <div class="form-title">Welcome Back 👋</div>
+          <form class="form-group" action="/login" method="POST">
+            <input class="form-input" type="email" name="company_email" placeholder="Company Email" required>
+            <input class="form-input" type="password" name="password" placeholder="Password" required>
+            <button class="btn btn-primary" type="submit">Login</button>
+          </form>
+        </div>
+
+        <div id="registerForm">
+          <div class="form-title">Create Employer Account</div>
+          <form class="form-group" action="/register" method="POST">
+            <input class="form-input" type="text" name="company_name" placeholder="Company Name" required>
+            <input class="form-input" type="text" name="employer_name" placeholder="Name" required>
+            <input class="form-input" type="email" name="company_email" placeholder="Company Email" required>
+            <input class="form-input" type="tel" name="mobile_number" placeholder="Mobile Number" required>
+            <input class="form-input" type="password" name="password" placeholder="Password" required>
+            <input class="form-input" type="password" name="confirm_password" placeholder="Confirm Password" required>
+            <button class="btn btn-primary" type="submit">Register</button>
+          </form>
+          <div class="form-note">Please use your official company email for verification.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div>
+      <div class="footer-logo">CareerMomentum</div>
+      <p>Helping companies and professionals find the right match, faster.</p>
+    </div>
+    <ul class="footer-links">
+      <li><a href="#">About</a></li>
+      <li><a href="#">Contact</a></li>
+      <li><a href="#">Privacy</a></li>
+    </ul>
+    <div class="footer-copy">&copy; 2026 CareerMomentum. All rights reserved.</div>
+  </footer>
+
+  <script>
+    const login = document.getElementById('loginForm');
+    const register = document.getElementById('registerForm');
+    const buttons = document.querySelectorAll('.toggle .btn-tab');
+
+    register.style.display = 'none';
+
+    function showLogin(){
+      login.style.display = 'block';
+      register.style.display = 'none';
+      buttons[0].classList.add('active');
+      buttons[1].classList.remove('active');
+    }
+
+    function showRegister(){
+      login.style.display = 'none';
+      register.style.display = 'block';
+      buttons[1].classList.add('active');
+      buttons[0].classList.remove('active');
+    }
+
+    document.querySelector('#loginForm form').addEventListener('submit', e => {
+      //e.preventDefault();
+      alert('Employer Login Successful!');
+    });
+
+    document.querySelector('#registerForm form').addEventListener('submit', e => {
+      //e.preventDefault();
+      alert('Employer Registration Successful!');
+      showLogin();
+    });
+  </script>
+</body>
+</html>

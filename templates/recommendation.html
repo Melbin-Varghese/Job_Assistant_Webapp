@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Job Recommender</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="jr-navbar">
+  <div class="jr-navbar-icon">🤖</div>
+  <div>
+    <div class="jr-navbar-title">AI Job Recommender</div>
+    <div class="jr-navbar-sub">Upload your resume — get matched roles + live job links</div>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<div class="jr-main">
+  <div class="jr-upload-card">
+    <h2>Upload Your Resume</h2>
+    <p>PDF or DOCX format supported</p>
+
+    <!-- DROP ZONE -->
+    <div class="jr-dropzone" id="dropzone">
+      <input type="file" id="resumeFile" accept=".pdf,.docx" />
+      <div class="jr-drop-icon">📄</div>
+      <div class="jr-drop-text">
+        Drag &amp; drop your resume here<br>
+        or <span onclick="document.getElementById('resumeFile').click()">browse files</span>
+      </div>
+    </div>
+
+    <!-- FILE INFO -->
+    <div class="jr-file-info" id="fileInfo">
+      <span class="jr-fi-icon">✅</span>
+      <span id="fileName">file.pdf</span>
+    </div>
+
+    <!-- BUTTON -->
+    <div>
+      <button class="jr-btn-analyze" id="analyzeBtn" onclick="analyze()" disabled>
+        🔍 Analyze Resume
+      </button>
+    </div>
+
+    <!-- LOADING -->
+    <div class="jr-loading" id="loading">
+      <div class="jr-spinner"></div>
+      <p>AI is analyzing your resume…</p>
+    </div>
+
+    <!-- ERROR -->
+    <div class="jr-error-box" id="errorBox"></div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results"></div>
+</div>
+
+<script>
+  const dropzone   = document.getElementById('dropzone');
+  const fileInput  = document.getElementById('resumeFile');
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  const fileInfo   = document.getElementById('fileInfo');
+  const fileNameEl = document.getElementById('fileName');
+  const loading    = document.getElementById('loading');
+  const errorBox   = document.getElementById('errorBox');
+  const results    = document.getElementById('results');
+
+  // drag & drop visual
+  dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('jr-drag-over'); });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('jr-drag-over'));
+  dropzone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropzone.classList.remove('jr-drag-over');
+    const f = e.dataTransfer.files[0];
+    if (f) setFile(f);
+  });
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) setFile(fileInput.files[0]);
+  });
+
+  function setFile(f) {
+    fileNameEl.textContent = f.name;
+    fileInfo.classList.add('jr-show');
+    analyzeBtn.disabled = false;
+    // transfer to the real input
+    const dt = new DataTransfer();
+    dt.items.add(f);
+    fileInput.files = dt.files;
+  }
+
+  async function analyze() {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    // reset
+    errorBox.classList.remove('jr-show');
+    results.innerHTML = '';
+    loading.classList.add('jr-show');
+    analyzeBtn.disabled = true;
+
+    const fd = new FormData();
+    fd.append('resume', file);
+
+    try {
+      const res  = await fetch('/recommend', { method: 'POST', body: fd });
+      const data = await res.json();
+      loading.classList.remove('jr-show');
+
+      if (!res.ok || data.error) {
+        showError(data.error || 'Something went wrong. Please try again.');
+        analyzeBtn.disabled = false;
+        return;
+      }
+
+      renderResults(data);
+    } catch (err) {
+      loading.classList.remove('jr-show');
+      showError('Network error: ' + err.message);
+      analyzeBtn.disabled = false;
+    }
+  }
+
+  function showError(msg) {
+    errorBox.textContent = '⚠️ ' + msg;
+    errorBox.classList.add('jr-show');
+  }
+
+  function renderResults(data) {
+    const rec  = data.recommendations;
+    const ext  = data.extracted;
+    const roles = rec.top_roles || [];
+
+    let html = '';
+
+    /* ── summary strip ── */
+    html += `
+    <div class="jr-summary-strip">
+      <div class="jr-sm-item">
+        <div class="jr-sm-label">Candidate Level</div>
+        <div class="jr-sm-val">🎓 ${rec.candidate_level || '—'}</div>
+      </div>
+      <div class="jr-sm-item">
+        <div class="jr-sm-label">Strongest Domain</div>
+        <div class="jr-sm-val">⚡ ${rec.strongest_domain || '—'}</div>
+      </div>
+      <div class="jr-sm-summary">${rec.summary || ''}</div>
+    </div>`;
+
+    /* ── stats row ── */
+    html += `
+    <div class="jr-stats-row">
+      <div class="jr-stat-chip">
+        <div class="jr-sc-val">${ext.words.toLocaleString()}</div>
+        <div class="jr-sc-lbl">Words</div>
+      </div>
+      <div class="jr-stat-chip">
+        <div class="jr-sc-val">${ext.chars.toLocaleString()}</div>
+        <div class="jr-sc-lbl">Characters</div>
+      </div>
+      <div class="jr-stat-chip">
+        <div class="jr-sc-val">${ext.lines}</div>
+        <div class="jr-sc-lbl">Lines</div>
+      </div>
+      <div class="jr-stat-chip">
+        <div class="jr-sc-val">${roles.length}</div>
+        <div class="jr-sc-lbl">Matched Roles</div>
+      </div>
+    </div>`;
+
+    /* ── roles ── */
+    html += `<div class="jr-section-title">🎯 Recommended Roles</div>`;
+    html += `<div class="jr-roles-grid">`;
+
+    roles.forEach((role, i) => {
+      const score = role.match_score || 0;
+      const links = role.job_links || {};
+
+      const haveSkills = (role.required_skills_present || [])
+        .map(s => `<span class="jr-skill-tag jr-have">✓ ${s}</span>`).join('');
+      const needSkills = (role.skills_to_add || [])
+        .map(s => `<span class="jr-skill-tag jr-need">+ ${s}</span>`).join('');
+
+      const linkBtns = Object.values(links)
+        .map(l => `<a class="jr-job-link" href="${l.url}" target="_blank"
+                      style="background:${l.color}">${l.name} →</a>`).join('');
+
+      html += `
+      <div class="jr-role-card">
+        <div class="jr-role-header">
+          <div class="jr-role-title">#${i+1} &nbsp;${role.title}</div>
+          <div class="jr-match-badge">${score}% Match</div>
+        </div>
+        <div class="jr-progress-wrap">
+          <div class="jr-progress-fill" style="width:${score}%"></div>
+        </div>
+        <div class="jr-role-reason">${role.reason || ''}</div>
+        <div class="jr-skills-row">${haveSkills}${needSkills}</div>
+        <div class="jr-job-links">${linkBtns}</div>
+      </div>`;
+    });
+
+    html += `</div>`;
+    results.innerHTML = html;
+    analyzeBtn.disabled = false;
+  }
+</script>
+</body>
+</html>

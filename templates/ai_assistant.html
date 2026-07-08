@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Career Copilot - CareerMomentum</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+
+  <!-- ===== Navbar (same as every page) ===== -->
+  <nav class="navbar">
+    <div class="logo">CareerMomentum</div>
+
+    <div class="nav-links">
+      <a href="main_explore.html">Resources</a>
+      <a href="main_explore.html" class="active">Dashboard</a>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="Employer.html" class="btn btn-outline">Employers</a>
+      <a href="login.html" class="btn btn-outline">Login</a>
+      <a href="register.html" class="btn btn-primary">Register</a>
+    </div>
+  </nav>
+
+  <!-- ===== Page banner ===== -->
+  <section class="page-banner">
+    <span class="badge">🧠 AI Career Coach</span>
+    <h1>Analyze, Improve, and Apply Smarter</h1>
+    <p>Upload your resume, paste a job description, and get tailored AI guidance for cover letters, skill gap analysis, interview prep, and more.</p>
+  </section>
+
+  <!-- ===== Form ===== -->
+  <section class="section">
+    <div class="form-card">
+
+      <form method="POST" enctype="multipart/form-data">
+
+        <div class="form-group">
+          <label for="task">Select Action</label>
+          <select id="task" name="task">
+            <option value="cover_letter">Generate Cover Letter</option>
+            <option value="interview">Mock Interview Questions</option>
+            <option value="analyze">Analyze Job Description</option>
+            <option value="skills">Skill Gap Analysis</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="resume">Upload Resume (PDF / DOCX)</label>
+          <input id="resume" type="file" name="resume" accept=".pdf,.docx" required>
+        </div>
+
+        <div class="form-group">
+          <label for="skills">Extracted Skills</label>
+          <textarea id="skills" rows="4" readonly placeholder="Skills will appear here automatically after uploading the resume.">{{ skills }}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="jd">Paste Job Description</label>
+          <textarea id="jd" rows="10" name="job_description" placeholder="Paste the complete Job Description here..." required></textarea>
+        </div>
+
+        <button class="btn btn-primary btn-block" type="submit">Generate Response</button>
+
+      </form>
+
+      {% if response %}
+      <div class="response-card">
+        <h3>AI Response</h3>
+        <div class="response-box">{{ response | safe }}</div>
+      </div>
+      {% endif %}
+
+    </div>
+  </section>
+
+  <!-- ===== Footer (same as every page) ===== -->
+  <footer class="footer">
+    <div>
+      <div class="footer-logo">CareerMomentum</div>
+      <p>Elevating careers through intelligent data and human-centric design.</p>
+    </div>
+
+    <div class="footer-links">
+      <a href="about.html">About</a>
+      <a href="privacy_policy.html">Privacy Policy</a>
+      <a href="contact.html">Contact</a>
+      <a href="terms_of_services.html">Terms Of Services</a>
+    </div>
+
+    <div class="footer-copy">© 2026 CareerMomentum. All rights reserved.</div>
+  </footer>
+
+</body>
+</html>

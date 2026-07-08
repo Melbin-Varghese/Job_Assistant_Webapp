@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CareerMomentum - Explore Your Career Path</title>
+ 
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+ 
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+ 
+  <!-- ===== Navbar ===== -->
+  <nav class="navbar">
+    <div class="logo">CareerMomentum</div>
+ 
+    <div class="nav-links">
+      <a href="resource.html">Resources</a>
+      <a href="main_explore.html" class="active">Dashboard</a>
+    </div>
+ 
+    <div class="nav-buttons">
+      <a href="Employer.html" class="btn btn-outline">Employers</a>
+      <a href="login.html" class="btn btn-outline">Login</a>
+      <a href="register.html" class="btn btn-primary">Register</a>
+    </div>
+  </nav>
+ 
+  <!-- ===== Hero ===== -->
+  <section class="hero">
+    <div class="hero-content">
+      <span class="hero-badge">✨ AI Powered Insights</span>
+      <h1>Explore Your Next <span class="highlight">Big Move</span></h1>
+      <p>Harness the power of career-focused AI to navigate the job market with precision. Discover opportunities that align with your true potential.</p>
+ 
+      <div class="search-box" id="search-container">
+        <div class="search-row" id="simple-search">
+          <input type="text" id="trigger-input" placeholder="Search jobs..." />
+          <button class="btn btn-primary">Search</button>
+        </div>
+ 
+        <div class="search-filters" id="expanded-filters">
+          <div class="filter-field">
+            <label>Job Title</label>
+            <input type="text" placeholder="Enter keywords" />
+          </div>
+          <div class="filter-field">
+            <label>Experience</label>
+            <select>
+              <option>Fresher</option>
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label>Location</label>
+            <input type="text" placeholder="Enter location" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+ 
+  <!-- ===== Popular Categories ===== -->
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <h2>Popular Categories</h2>
+        <p>Browse opportunities across trending industries and specialized career tracks.</p>
+      </div>
+      <a href="#" class="link-arrow">View All Categories →</a>
+    </div>
+ 
+    <div class="category-grid">
+      <div class="category-card">
+        <div class="category-icon">🛠️</div>
+        <span class="category-title">Engineering</span>
+        <span class="category-count">1.2k+ Positions</span>
+      </div>
+      <div class="category-card">
+        <div class="category-icon">🏠</div>
+        <span class="category-title">Remote</span>
+        <span class="category-count">850+ Jobs</span>
+      </div>
+      <div class="category-card">
+        <div class="category-icon">🎨</div>
+        <span class="category-title">Creative</span>
+        <span class="category-count">420+ Positions</span>
+      </div>
+      <div class="category-card">
+        <div class="category-icon">🏛️</div>
+        <span class="category-title">Finance</span>
+        <span class="category-count">610+ Positions</span>
+      </div>
+      <div class="category-card">
+        <div class="category-icon">📊</div>
+        <span class="category-title">Data Science</span>
+        <span class="category-count">290+ Positions</span>
+      </div>
+      <div class="category-card">
+        <div class="category-icon">📣</div>
+        <span class="category-title">Marketing</span>
+        <span class="category-count">540+ Jobs</span>
+      </div>
+      <div class="category-card">
+        <div class="category-icon">👥</div>
+        <span class="category-title">HR &amp; People</span>
+        <span class="category-count">180+ Jobs</span>
+      </div>
+      <div class="category-card">
+        <div class="category-icon">🏥</div>
+        <span class="category-title">Healthcare</span>
+        <span class="category-count">720+ Jobs</span>
+      </div>
+      <div class="category-card">
+        <div class="category-icon">💻</div>
+        <span class="category-title">Software Dev</span>
+        <span class="category-count">1.5k+ Jobs</span>
+      </div>
+      <div class="category-card">
+        <div class="category-icon">⋯</div>
+        <span class="category-title">All Industries</span>
+        <span class="category-count">5k+ Listings</span>
+      </div>
+    </div>
+  </section>
+ 
+  <!-- ===== Precision Career Tools ===== -->
+  <section class="section section-dark">
+    <div class="section-header center">
+      <h2>Precision Career Tools</h2>
+      <p>Our suite of AI-powered utilities designed to optimize every stage of your career journey, from application to interview.</p>
+    </div>
+ 
+    <div class="tool-grid">
+      <div class="tool-card">
+        <div class="tool-icon">📋</div>
+        <h3>ATS Score Checker</h3>
+        <p>Instantly analyze how well your resume matches specific job descriptions.</p>
+        <a href="ats_checker.html" class="btn btn-ghost">Try Now</a>
+      </div>
+ 
+      <div class="tool-card">
+        <div class="tool-icon">🔎</div>
+        <h3>Job Recommendation</h3>
+        <p>Get personalized job matches based on your unique skill set and preferences.</p>
+        <a href="recommendation.html" class="btn btn-ghost">Get Started</a>
+      </div>
+ 
+      <div class="tool-card">
+        <div class="tool-icon">✨</div>
+        <h3>Cover Letter Generator</h3>
+        <p>Generate tailored, professional cover letters in seconds using AI.</p>
+        <a href="cover_letter.html" class="btn btn-ghost">Try Now</a>
+      </div>
+ 
+      <div class="tool-card">
+        <div class="tool-icon">🧠</div>
+        <h3>AI Career Coach</h3>
+        <p>Receive 24/7 guidance on career transitions, salary negotiation, and growth.</p>
+        <a href="ai_assistant.html" class="btn btn-ghost">Get Started</a>
+      </div>
+ 
+      <div class="tool-card">
+        <div class="tool-icon">📝</div>
+        <h3>Resume Builder</h3>
+        <p>Create a high-impact, ATS-friendly resume with our intelligent editor.</p>
+        <a href="ats_checker.html" class="btn btn-ghost">Try Now</a>
+      </div>
+ 
+      <div class="tool-card">
+        <div class="tool-icon">🎥</div>
+        <h3>AI Mock Interview</h3>
+        <p>Practice with our specialized AI coach and get real-time performance feedback.</p>
+        <a href="ats_checker.html" class="btn btn-ghost">Get Started</a>
+      </div>
+    </div>
+  </section>
+ 
+  <!-- ===== Featured Opportunities ===== -->
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <h2>Featured Opportunities</h2>
+        <p>Top-tier roles curated based on market growth and salary trends.</p>
+      </div>
+    </div>
+ 
+    <div class="jobs-grid">
+      <div class="job-card job-card-large">
+        <span class="job-tag">High Growth</span>
+        <h3>Senior AI Product Manager</h3>
+        <p>Lead the next generation of creative AI products at a global tech leader. Requires strong technical foundation and user-centric design approach.</p>
+        <div class="job-meta">
+          <span>Hybrid - London</span>
+          <span>$180k - $240k</span>
+        </div>
+        <button class="btn btn-primary">Apply Now</button>
+      </div>
+ 
+      <div class="job-card job-card-row">
+        <div>
+          <h4>Visual Interaction Designer</h4>
+          <p>Momentum Labs • Remote</p>
+        </div>
+        <span class="arrow">→</span>
+      </div>
+ 
+      <div class="job-card">
+        <h4>Data Analyst</h4>
+        <p>Global FinTech</p>
+        <span class="job-salary">$120k/yr</span>
+      </div>
+ 
+      <div class="job-card">
+        <h4>Cloud Architect</h4>
+        <p>SkyScale Systems</p>
+        <span class="job-salary">$210k/yr</span>
+      </div>
+    </div>
+  </section>
+ 
+  <!-- ===== Call To Action ===== -->
+  <section class="section">
+    <div class="cta-box">
+      <h2>Ready to Accelerate Your Career?</h2>
+      <p>Join over 50,000 professionals who use CareerMomentum to land their dream roles with the help of AI.</p>
+      <div class="cta-buttons">
+        <button class="btn btn-primary">Get Started Free</button>
+        <button class="btn btn-light">Explore Features</button>
+      </div>
+    </div>
+  </section>
+ 
+  <!-- ===== Footer ===== -->
+  <footer class="footer">
+    <div>
+      <div class="footer-logo">CareerMomentum</div>
+      <p>Elevating careers through intelligent data and human-centric design.</p>
+    </div>
+ 
+    <div class="footer-links">
+      <a href="about.html">About</a>
+      <a href="privacy_policy.html">Privacy Policy</a>
+      <a href="contact.html">Contact</a>
+      <a href="terms_of_services.html">Terms Of Services</a>
+    </div>
+ 
+    <div class="footer-copy">© 2024 CareerMomentum. All rights reserved.</div>
+  </footer>
+ 
+  <!-- ===== Expandable search filters ===== -->
+  <script>
+    const triggerInput = document.getElementById('trigger-input');
+    const expandedFilters = document.getElementById('expanded-filters');
+    const searchContainer = document.getElementById('search-container');
+
+    triggerInput.addEventListener('focus', () => {
+      expandedFilters.classList.add('show');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!searchContainer.contains(e.target)) {
+        expandedFilters.classList.remove('show');
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATS Score Checker</title>
+    <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="atc-container">
+<div class="atc-hero">
+    <h1> Resume ATS Analyzer</h1>
+    <p>
+        Scan your resume. Match the job. Land the interview.
+    </p>
+    <div class="atc-hero-features">
+        <span> Keyword Match</span>
+        <span> Experience Fit</span>
+        <span> Impact Review</span>
+        <span> ATS Compatibility Score</span>
+    </div>
+</div>
+    
+    
+    <div class="atc-card">
+        <h2 style="justify-content:center;"><i class="fa-solid fa-file-arrow-up"></i>Upload Resume</h2>
+        <div class="atc-upload-box" onclick="document.getElementById('resumeInput').click()">
+            <div style="font-size:2rem;margin-bottom:8px">📁</div>
+            <p>
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                Click to upload your resume
+            </p>
+
+            <small>
+                Supports PDF • DOCX 
+            </small>
+
+            <div class="atc-file-label">
+                <span id="resumeLabel">No file chosen</span>
+                <span id="removeResume"
+                onclick="removeResume()"
+                style="display:none; cursor:pointer; color:red; font-weight:bold; margin-left:8px;">
+                ❌
+                </span>
+            </div>
+            <input type="file" id="resumeInput" accept=".pdf,.docx">
+        </div>
+    </div>
+
+    
+    <div class="atc-card">
+        <h2>
+            <i class="fa-solid fa-briefcase"></i>
+            Job Description
+        </h2>
+        <div class="atc-tab-row">
+            <div class="atc-tab atc-active" onclick="switchTab('paste')">✏️ Paste JD</div>
+            <div class="atc-tab" onclick="switchTab('upload')">📂 Upload JD File</div>
+        </div>
+
+        <div class="atc-jd-section atc-active" id="pasteSection">
+            <textarea id="jdText" placeholder="Paste the job description here..."></textarea>
+        </div>
+        <div class="atc-jd-section" id="uploadSection">
+            <div class="atc-upload-box" onclick="document.getElementById('jdInput').click()">
+                <div style="font-size:2rem;margin-bottom:8px">📂</div>
+                <p>Upload JD file (PDF, DOCX)</p>
+                <div class="atc-file-label" id="jdLabel">No file chosen</div>
+                <input type="file" id="jdInput" accept=".pdf,.docx">
+            </div>
+        </div>
+    </div>
+
+    <button onclick="checkATS()" class="atc-analyze-btn">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        Analyze Resume
+    </button>
+
+    <div class="atc-spinner" id="spinner">⏳ Analyzing your resume...</div>
+    <div class="atc-error" id="errorBox"></div>
+
+    <div class="atc-result-card" id="resultCard" style="margin-top:20px">
+        <h2 style="text-align:center;margin-bottom:16px;font-size:1.1rem;color:#4a5568">📊 ATS Analysis Result</h2>
+        <p id="analysisMode" 
+        style="text-align:center;color:#718096;font-weight:600;margin-bottom:15px;">
+        </p>
+
+        <div class="atc-score-card">
+
+            <div class="atc-progress-circle">
+
+                <svg width="220" height="220">
+
+                    <circle
+                        class="atc-bg-circle"
+                        cx="110"
+                        cy="110"
+                        r="90">
+                    </circle>
+
+                    <circle
+                        id="progressCircle"
+                        class="atc-progress"
+                        cx="110"
+                        cy="110"
+                        r="90">
+                    </circle>
+
+                </svg>
+
+                <div class="atc-score-text">
+                    <span id="overallScore">0%</span>
+                    <p>Overall ATS Score</p>
+                    <small id="scoreRemark"></small>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="atc-stats">
+
+            <div class="atc-stat-card atc-matched">
+                <i class="fa-solid fa-circle-check"></i>
+                <h3 id="matchedCount">0</h3>
+                <p>Matched Skills</p>
+            </div>
+
+            <div class="atc-stat-card atc-checked">
+                <i class="fa-solid fa-list-check"></i>
+                <h3 id="totalCount">0</h3>
+                <p>Skills Checked</p>
+            </div>
+
+            <div class="atc-stat-card atc-missing">
+                <i class="fa-solid fa-circle-xmark"></i>
+                <h3 id="missingCount">0</h3>
+                <p>Missing Skills</p>
+            </div>
+
+        </div>
+        
+        <div class="atc-meter"><div class="atc-meter-fill" id="meterFill" style="width:0%"></div></div>
+
+        <div style="margin-top:20px">
+
+            <p><b>Keyword Match</b> :
+                <span id="keywordScore"></span>%
+            </p>
+
+            <p><b>Experience</b> :
+                <span id="experienceScore"></span>%
+            </p>
+
+            <p><b>Formatting</b> :
+                <span id="formattingScore"></span>%
+            </p>
+
+            <p><b>Education</b> :
+                <span id="educationScore"></span>%
+            </p>
+
+            <p><b>Resume Quality</b> :
+                <span id="qualityScore"></span>%
+            </p>
+
+        </div>
+
+        <div class="atc-kw-section">
+            <h3>
+                <i class="fa-solid fa-circle-check"></i>
+                Matched Keywords
+            </h3>
+            <div class="atc-kw-wrap" id="matchedKw"></div>
+        </div>
+
+        <div class="atc-kw-section">
+            <h3>
+                <i class="fa-solid fa-circle-xmark"></i>
+                Missing Keywords
+            </h3>
+            <div class="atc-kw-wrap" id="missingKw"></div>
+        </div>
+
+        <div id="strengthSection">
+            <h4>
+                <i class="fa-solid fa-thumbs-up"></i>
+                Strengths
+            </h4>
+            <ul id="strengthList"></ul>
+        </div>
+
+        <div id="weaknessSection">
+        <h4>
+            <i class="fa-solid fa-lightbulb"></i>
+            Suggestions for Improvement
+        </h4>
+
+        <ul id="weaknessList"></ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    let activeTab = 'paste';
+
+    document.getElementById('resumeInput').addEventListener('change', function () {
+
+        if (this.files.length > 0) {
+
+            document.getElementById("resumeLabel").textContent =
+            "✅ " + this.files[0].name;
+
+            document.getElementById("removeResume").style.display = "inline";
+
+        } else {
+
+            document.getElementById("resumeLabel").textContent =
+            "No file chosen";
+
+            document.getElementById("removeResume").style.display = "none";
+        }
+
+    });
+
+    document.getElementById('jdInput').addEventListener('change', function() {
+        document.getElementById('jdLabel').textContent = this.files[0] ? '✅ ' + this.files[0].name : 'No file chosen';
+    });
+
+    function switchTab(tab) {
+        activeTab = tab;
+        document.querySelectorAll('.atc-tab').forEach((t, i) => {
+            t.classList.toggle('atc-active', (i === 0 && tab === 'paste') || (i === 1 && tab === 'upload'));
+        });
+        document.getElementById('pasteSection').classList.toggle('atc-active', tab === 'paste');
+        document.getElementById('uploadSection').classList.toggle('atc-active', tab === 'upload');
+    }
+
+    function removeResume() 
+    {
+    const input = document.getElementById("resumeInput");
+
+    input.value = "";
+
+    document.getElementById("resumeLabel").textContent =
+        "No file chosen";
+
+    document.getElementById("removeResume").style.display = "none";
+
+    }
+
+    function getScoreColor(score) {
+        if (score >= 75) return '#38a169';
+        if (score >= 50) return '#d69e2e';
+        return '#e53e3e';
+    }
+
+    async function checkATS() {
+        const resumeFile = document.getElementById('resumeInput').files[0];
+        if (!resumeFile) { showError('Please upload your resume (PDF or DOCX file)'); return; }
+
+        const jdText = document.getElementById('jdText').value.trim();
+        const jdFile = document.getElementById('jdInput').files[0];
+        
+
+        document.getElementById('spinner').style.display = 'block';
+        document.getElementById('errorBox').style.display = 'none';
+        document.getElementById('resultCard').style.display = 'none';
+
+        const formData = new FormData();
+
+        formData.append('resume', resumeFile);
+
+        if (jdText) {
+        formData.append('jd_text', jdText);
+        }
+
+        else if (jdFile) {
+        formData.append('jd_file', jdFile);
+        }
+
+        try {
+            const res = await fetch('/check-ats', { method: 'POST', body: formData });
+            const data = await res.json();
+
+            if (data.error) { showError(data.error); return; }
+
+            const score = data.overall_score;
+
+            document.getElementById("overallScore").textContent =score + "%";
+            const circle = document.getElementById("progressCircle");
+
+            const radius = 90;
+
+            const circumference = 2 * Math.PI * radius;
+
+            circle.style.strokeDasharray = circumference;
+
+            circle.style.strokeDashoffset =
+                circumference - (score / 100) * circumference;
+
+            let remark = "";
+
+            if (score >= 80)
+                remark = "Excellent Match";
+
+            else if (score >= 60)
+                remark = "Good Match";
+
+            else if (score >= 40)
+                remark = "Average Match";
+
+            else
+                remark = "Needs Improvement";
+
+            document.getElementById("scoreRemark").textContent = remark;
+
+            document.getElementById("keywordScore").textContent =
+            data.breakdown.keyword;
+
+            document.getElementById("experienceScore").textContent =
+            data.breakdown.experience;
+
+            document.getElementById("formattingScore").textContent =
+            data.breakdown.formatting;
+
+            document.getElementById("educationScore").textContent =
+            data.breakdown.education;
+
+            document.getElementById("qualityScore").textContent =
+            data.breakdown.quality;
+            
+            document.getElementById('matchedCount').textContent = data.matched.length;
+            document.getElementById('totalCount').textContent = data.total_skills;
+            document.getElementById('missingCount').textContent = data.missing.length;
+
+            document.getElementById('matchedKw').innerHTML = data.matched.map(k => `<span class="atc-kw atc-match">${k}</span>`).join('');
+            document.getElementById('missingKw').innerHTML = data.missing.map(k => `<span class="atc-kw atc-miss">${k}</span>`).join('');
+
+            document.getElementById("strengthList").innerHTML =
+            (data.strengths || [])
+            .map(item => `<li>${item}</li>`)
+            .join("");
+
+            document.getElementById("weaknessList").innerHTML =
+            (data.weaknesses || [])
+            .map(item => `<li>${item}</li>`)
+            .join("");
+
+            document.getElementById('resultCard').style.display = 'block';
+        } catch(e) {
+            showError('Something went wrong. Try again.');
+        }
+        document.getElementById('spinner').style.display = 'none';
+    }
+
+    function showError(msg) {
+        const el = document.getElementById('errorBox');
+        el.textContent = '❌ ' + msg;
+        el.style.display = 'block';
+        document.getElementById('spinner').style.display = 'none';
+    }
+</script>
+</body>
+</html>
