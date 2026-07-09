@@ -25,21 +25,16 @@ def resource():
     return render_template("resource.html")
 
 
-# ---------- Auth pages ----------
-@pages_bp.route("/login.html")
-def login():
-    return render_template("login.html")
-
-
-@pages_bp.route("/register.html")
-def register():
-    return render_template("register.html")
+# ---------- Seekers pages ----------
+@pages_bp.route("/user_login_register.html")
+def seekers():
+    return render_template("user_login_register.html")
 
 
 # ---------- Employer page ----------
-@pages_bp.route("/Employer.html")
+@pages_bp.route("/empolyer_login_register.html")
 def employer():
-    return render_template("Employer.html")
+    return render_template("empolyer_login_register.html")
 
 
 # ---------- Footer pages ----------

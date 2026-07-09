@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Login / Register - CareerMomentum</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}" />
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="navbar-logo">CareerMomentum</div>
+
+    <div class="nav-links">
+      <a href="resource.html" class="nav-link">Resources</a>
+      <a href="main_explore.html" class="nav-link">Dashboard</a>
+      <a href="about.html" class="nav-link">About</a>
+      <a href="contact.html" class="nav-link">Contact</a>
+
+      <div class="nav-buttons">
+        <a href="empolyer_login_register.html" class="btn btn-outline">Employers</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="auth-hero">
+      <div class="auth-grid">
+        <div class="auth-intro">
+          <span class="auth-intro-badge">
+            <span class="material-symbols-outlined">auto_awesome</span>
+            AI Powered Career Access
+          </span>
+
+          <h1>Welcome to <span class="highlight">CareerMomentum</span></h1>
+
+          <p>Sign in to access your dashboard, explore job recommendations, track applications, and use AI-powered tools built for your career growth.</p>
+
+          <div class="stat-row">
+            <div class="stat-pill">
+              <div class="stat-pill-value">50K+</div>
+              <div class="stat-pill-label">Professionals</div>
+            </div>
+            <div class="stat-pill">
+              <div class="stat-pill-value">1.5K+</div>
+              <div class="stat-pill-label">Listings</div>
+            </div>
+            <div class="stat-pill">
+              <div class="stat-pill-value">24/7</div>
+              <div class="stat-pill-label">Support</div>
+            </div>
+          </div>
+        </div>
+
+        <section class="auth-card">
+          <div class="auth-card-header">
+            <div class="auth-card-brand">CareerMomentum</div>
+            <h2 class="auth-card-title">Welcome</h2>
+            <p class="auth-card-sub">Sign in or create your profile to get started</p>
+          </div>
+
+          <!-- Tabs -->
+          <div class="auth-tabs">
+            <button id="loginTab" type="button" class="auth-tab active" onclick="switchTab('login')">Login</button>
+            <button id="registerTab" type="button" class="auth-tab" onclick="switchTab('register')">Register</button>
+          </div>
+
+          <!-- Login Form -->
+          <form id="loginForm" class="auth-form-section active">
+            <div class="form-field">
+              <label for="login-email">Email ID / Username</label>
+              <input id="login-email" type="text" placeholder="Enter your active Email ID" />
+            </div>
+
+            <div class="form-field">
+              <div class="form-field-top">
+                <label for="login-password">Password</label>
+                <a href="#">Forgot Password?</a>
+              </div>
+              <input id="login-password" type="password" placeholder="Enter your password" />
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Login</button>
+
+            <div class="auth-alt">
+              <div class="divider">
+                <span class="line"></span>
+                <span>Or</span>
+                <span class="line"></span>
+              </div>
+
+              <button type="button" class="btn-google">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" />
+                Sign in with Google
+              </button>
+            </div>
+          </form>
+
+          <!-- Register Form -->
+          <form id="registerForm" class="auth-form-section">
+            <div class="form-grid">
+              <div class="form-field">
+                <label for="register-fullname">Full Name <span class="required">*</span></label>
+                <input id="register-fullname" type="text" placeholder="Enter your name" required />
+              </div>
+
+              <div class="form-field">
+                <label for="register-email">Email ID <span class="required">*</span></label>
+                <input id="register-email" type="email" placeholder="Enter your email" required />
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="register-password">Password <span class="required">*</span></label>
+              <input id="register-password" type="password" placeholder="Minimum 6 characters" required />
+            </div>
+
+            <div class="form-field">
+              <label for="register-mobile">Mobile Number <span class="required">*</span></label>
+              <input id="register-mobile" type="tel" placeholder="+91 Enter your mobile number" required />
+            </div>
+
+            <div class="form-field">
+              <label for="register-work-status">Work Status <span class="required">*</span></label>
+              <div class="work-status-grid">
+                <label class="work-status-option">
+                  <input type="radio" name="work_status" value="experienced" required />
+                  <strong>Experienced</strong>
+                </label>
+
+                <label class="work-status-option">
+                  <input type="radio" name="work_status" value="fresher" required />
+                  <strong>Fresher</strong>
+                </label>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Register Now</button>
+          </form>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function switchTab(tab) {
+      const loginTab = document.getElementById('loginTab');
+      const registerTab = document.getElementById('registerTab');
+      const loginForm = document.getElementById('loginForm');
+      const registerForm = document.getElementById('registerForm');
+
+      if (tab === 'login') {
+        loginTab.classList.add('active');
+        registerTab.classList.remove('active');
+        loginForm.classList.add('active');
+        registerForm.classList.remove('active');
+      } else {
+        registerTab.classList.add('active');
+        loginTab.classList.remove('active');
+        registerForm.classList.add('active');
+        loginForm.classList.remove('active');
+      }
+    }
+
+    // Handle form submissions
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      // Add your login logic here
+      alert('Login submitted!');
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      // Add your register logic here
+      alert('Registration submitted!');
+    });
+  </script>
+</body>
+</html>
