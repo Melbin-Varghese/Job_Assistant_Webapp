@@ -68,11 +68,19 @@
             <button id="registerTab" type="button" class="auth-tab" onclick="switchTab('register')">Register</button>
           </div>
 
+          {% if error %}
+          <div class="form-error">{{ error }}</div>
+          {% endif %}
+          {% if success %}
+          <div class="form-success">{{ success }}</div>
+          {% endif %}
+
           <!-- Login Form -->
-          <form id="loginForm" class="auth-form-section active">
+          <form id="loginForm" class="auth-form-section{% if active_tab == 'login' %} active{% endif %}"
+                action="{{ url_for('seeker_auth.seeker_login') }}" method="POST">
             <div class="form-field">
               <label for="login-email">Email ID / Username</label>
-              <input id="login-email" type="text" placeholder="Enter your active Email ID" />
+              <input id="login-email" name="email" type="text" placeholder="Enter your active Email ID" required />
             </div>
 
             <div class="form-field">
@@ -80,7 +88,7 @@
                 <label for="login-password">Password</label>
                 <a href="#">Forgot Password?</a>
               </div>
-              <input id="login-password" type="password" placeholder="Enter your password" />
+              <input id="login-password" name="password" type="password" placeholder="Enter your password" required />
             </div>
 
             <button type="submit" class="btn btn-primary btn-block">Login</button>
@@ -100,27 +108,28 @@
           </form>
 
           <!-- Register Form -->
-          <form id="registerForm" class="auth-form-section">
+          <form id="registerForm" class="auth-form-section{% if active_tab == 'register' %} active{% endif %}"
+                action="{{ url_for('seeker_auth.seeker_register') }}" method="POST">
             <div class="form-grid">
               <div class="form-field">
                 <label for="register-fullname">Full Name <span class="required">*</span></label>
-                <input id="register-fullname" type="text" placeholder="Enter your name" required />
+                <input id="register-fullname" name="full_name" type="text" placeholder="Enter your name" required />
               </div>
 
               <div class="form-field">
                 <label for="register-email">Email ID <span class="required">*</span></label>
-                <input id="register-email" type="email" placeholder="Enter your email" required />
+                <input id="register-email" name="email" type="email" placeholder="Enter your email" required />
               </div>
             </div>
 
             <div class="form-field">
               <label for="register-password">Password <span class="required">*</span></label>
-              <input id="register-password" type="password" placeholder="Minimum 6 characters" required />
+              <input id="register-password" name="password" type="password" placeholder="Minimum 6 characters" required />
             </div>
 
             <div class="form-field">
               <label for="register-mobile">Mobile Number <span class="required">*</span></label>
-              <input id="register-mobile" type="tel" placeholder="+91 Enter your mobile number" required />
+              <input id="register-mobile" name="mobile_number" type="tel" placeholder="+91 Enter your mobile number" required />
             </div>
 
             <div class="form-field">
@@ -164,19 +173,6 @@
         loginForm.classList.remove('active');
       }
     }
-
-    // Handle form submissions
-    document.getElementById('loginForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      // Add your login logic here
-      alert('Login submitted!');
-    });
-
-    document.getElementById('registerForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      // Add your register logic here
-      alert('Registration submitted!');
-    });
   </script>
 </body>
 </html>

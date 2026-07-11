@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>CareerMomentum Recruiter Dashboard</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}" />
+
+  <style>
+    /* ---- Navbar layout fix ----
+       Forces logo / centered search / right-side actions onto one row,
+       regardless of how .navbar is defined in user.css. Scoped to this
+       row only so it won't fight other page styles. */
+    .navbar {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .navbar-search-wrap {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .navbar-search-wrap .content-search {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .navbar .topbar-actions {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">CareerMomentum</div>
+
+    <div class="navbar-search-wrap">
+      <div class="content-search">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" placeholder="Search candidates, jobs, or analytics..." />
+      </div>
+    </div>
+
+    <div class="topbar-actions">
+      
+      <div class="topbar-divider"></div>
+      <a href="{{ url_for('employer_pages.profile') }}" style="text-decoration:none;">
+        <div class="user-chip">
+          <div>
+            <p class="user-chip-name">{{ current_user.employer_name }}</p>
+            <p class="user-chip-role">{{ current_user.company_name }}</p>
+          </div>
+          <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ current_user.employer_name|urlencode }}" alt="{{ current_user.employer_name }}" />
+        </div>
+      </a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="dashboard-hero">
+      <div class="dashboard-wrap">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <div class="sidebar-profile">
+            <div class="sidebar-avatar">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+            </div>
+            <div>
+              <p class="sidebar-profile-name">CareerMomentum</p>
+              <p class="sidebar-profile-status">Recruiter Suite</p>
+            </div>
+          </div>
+
+          <nav class="sidebar-nav">
+            <a href="{{ url_for('employer_pages.dashboard') }}">
+              <span class="material-symbols-outlined">dashboard</span>
+              <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('employer_pages.jobs') }}">
+              <span class="material-symbols-outlined">work</span>
+              <span>Jobs</span>
+            </a>
+            <a href="{{ url_for('employer_pages.candidates') }}" class="active">
+              <span class="material-symbols-outlined">group</span>
+              <span>Candidates</span>
+            </a>
+            <a href="{{ url_for('employer_pages.settings') }}">
+              <span class="material-symbols-outlined">settings</span>
+              <span>Settings & Suuport</span>
+            </a>
+            
+            
+          </nav>
+
+          
+
+          >
+        </aside>
+
+        <!-- Main content -->
+        <div class="dashboard-main">
+
+          <!-- Stat cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="material-symbols-outlined stat-card-icon">work</span>
+              <p class="stat-label">Total Jobs</p>
+              <div class="stat-value-row">
+                <h3 class="stat-value">42</h3>
+                <span class="stat-delta">
+                  <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">trending_up</span> +12%
+                </span>
+              </div>
+              <div class="stat-bar">
+                <div class="stat-bar-fill" style="width: 66%"></div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <span class="material-symbols-outlined stat-card-icon">group</span>
+              <p class="stat-label">Total Candidates</p>
+              <div class="stat-value-row">
+                <h3 class="stat-value">1,284</h3>
+                <span class="stat-delta">
+                  <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">trending_up</span> +8%
+                </span>
+              </div>
+              <div class="stat-bar">
+                <div class="stat-bar-fill" style="width: 75%"></div>
+              </div>
+            </div>
+
+            <div class="stat-card">
+              <span class="material-symbols-outlined stat-card-icon">assignment_ind</span>
+              <p class="stat-label">New Applications</p>
+              <div class="stat-value-row">
+                <h3 class="stat-value">156</h3>
+                <span class="stat-delta warn">
+                  <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">trending_down</span> -2%
+                </span>
+              </div>
+              <div class="stat-bar">
+                <div class="stat-bar-fill" style="width: 50%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Chart + AI Insights -->
+          
+              
+              
+              
+           
+             
+              
+          </div>
+
+          <!-- Candidates table -->
+          
+           
+                    
+                  </tr>
+
+                  
+
+                
+            
+
+      </div>
+    </section>
+  </main>
+  <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  <script>
+    // Force the correct sidebar item to be highlighted for THIS page,
+    // regardless of any active-state logic in script.js (fixes the
+    // "Jobs stays highlighted on the Dashboard page" issue).
+    (function () {
+      document.querySelectorAll('.sidebar-nav a').forEach(function (link) {
+        link.classList.remove('active');
+      });
+      var current = document.querySelector('.sidebar-nav a[href$="empo_dashboard.html"]');
+      if (current) current.classList.add('active');
+    })();
+  </script>
+</body>
+</html>

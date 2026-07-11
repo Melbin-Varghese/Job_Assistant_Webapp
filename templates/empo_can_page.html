@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Candidates — CareerMomentum Recruiter Dashboard</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}" />
+
+  <style>
+    /* ---- Page-specific styles for the Candidates screen ----
+       Reuses existing table-panel / data-table / candidate-cell / app-status
+       classes from user.css (same ones used on the dashboard's
+       "Candidates to Review" table) so the look stays identical. */
+
+    .cand-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 20px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .cand-header h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #e7ecf3;
+      margin: 0 0 4px 0;
+    }
+
+    .cand-header p {
+      color: #93a0b4;
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .cand-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .cand-search {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #101a2c;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 10px 14px;
+      flex: 1;
+      min-width: 220px;
+      max-width: 340px;
+    }
+
+    .cand-search .material-symbols-outlined {
+      font-size: 18px;
+      color: #93a0b4;
+    }
+
+    .cand-search input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #e7ecf3;
+      font-family: 'Inter', sans-serif;
+      font-size: 13.5px;
+      width: 100%;
+    }
+
+    .cand-search input::placeholder { color: #5b6b82; }
+
+    .cand-filter {
+      background: #101a2c;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #e7ecf3;
+      font-family: 'Inter', sans-serif;
+      font-size: 13.5px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .cand-filter:focus {
+      border-color: #14b8a6;
+    }
+
+    .cand-count-chip {
+      margin-left: auto;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #93a0b4;
+      background: #101a2c;
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 8px 14px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .cand-count-chip strong { color: #14b8a6; }
+
+    /* row hidden by filters */
+    .data-table tbody tr.is-hidden { display: none; }
+
+    .cand-empty-row td {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6b7280;
+      font-size: 13.5px;
+    }
+
+    .cand-btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #14b8a6, #0d9488);
+      color: #06231f;
+      border: none;
+      border-radius: 10px;
+      padding: 9px 16px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+    }
+
+    .cand-btn-primary:hover { filter: brightness(1.05); }
+
+    /* ---- Navbar layout fix ----
+       Forces logo / centered search / right-side actions onto one row. */
+    .navbar {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .navbar-search-wrap {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .navbar-search-wrap .content-search {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .navbar .topbar-actions {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">CareerMomentum</div>
+
+    <div class="navbar-search-wrap">
+      <div class="content-search">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" placeholder="Search candidates, jobs, or analytics..." />
+      </div>
+    </div>
+
+    <div class="topbar-actions">
+      
+      <div class="topbar-divider"></div>
+      <a href="{{ url_for('employer_pages.profile') }}" style="text-decoration:none;">
+        <div class="user-chip">
+          <div>
+            <p class="user-chip-name">{{ current_user.employer_name }}</p>
+            <p class="user-chip-role">{{ current_user.company_name }}</p>
+          </div>
+          <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ current_user.employer_name|urlencode }}" alt="{{ current_user.employer_name }}" />
+        </div>
+      </a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="dashboard-hero">
+      <div class="dashboard-wrap">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <div class="sidebar-profile">
+            <div class="sidebar-avatar">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+            </div>
+            <div>
+              <p class="sidebar-profile-name">CareerMomentum</p>
+              <p class="sidebar-profile-status">Recruiter Suite</p>
+            </div>
+          </div>
+
+          <nav class="sidebar-nav">
+            <a href="{{ url_for('employer_pages.dashboard') }}">
+              <span class="material-symbols-outlined">dashboard</span>
+              <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('employer_pages.jobs') }}">
+              <span class="material-symbols-outlined">work</span>
+              <span>Jobs</span>
+            </a>
+            <a href="{{ url_for('employer_pages.candidates') }}" class="active">
+              <span class="material-symbols-outlined">group</span>
+              <span>Candidates</span>
+            </a>
+            <a href="{{ url_for('employer_pages.settings') }}">
+              <span class="material-symbols-outlined">settings</span>
+              <span>Settings & Support</span>
+            </a>
+            
+            
+          </nav>
+
+          
+
+          
+        </aside>
+
+        <!-- Main content -->
+        <div class="dashboard-main">
+          <div class="cand-header">
+            <div>
+              <h2>Candidates to Review</h2>
+              <p>Everyone who applied to a job <strong style="color:#e7ecf3;">you posted</strong>, scored and ranked by Lumina AI.</p>
+            </div>
+          </div>
+
+          <div class="jp-no-jobs-banner" id="noJobsBanner" style="display:none; background:#101a2c; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:18px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span class="material-symbols-outlined" style="color:#14b8a6; font-size:22px;">info</span>
+              <div>
+                <p style="margin:0; font-weight:700; color:#e7ecf3; font-size:14px;">You haven't posted any jobs yet</p>
+                <p style="margin:2px 0 0; color:#93a0b4; font-size:12.5px;">Post a job to start receiving and reviewing applicants here.</p>
+              </div>
+            </div>
+            <button class="cand-btn-primary" onclick="window.location.href='/templates/empo_job_posting_page.html'">
+              <span class="material-symbols-outlined" style="font-size:16px;">add_circle</span>
+              Post a Job
+            </button>
+          </div>
+
+          <div class="cand-toolbar">
+            <div class="cand-search">
+              <span class="material-symbols-outlined">search</span>
+              <input type="text" id="candSearch" placeholder="Search by name, email, or role..." />
+            </div>
+
+            <select class="cand-filter" id="roleFilter">
+              <option value="all">All Roles</option>
+              <option value="Senior Product Designer">Senior Product Designer</option>
+              <option value="UX Strategist">UX Strategist</option>
+              <option value="Recruitment Analyst">Recruitment Analyst</option>
+              <option value="Frontend Engineer">Frontend Engineer</option>
+              <option value="Data Analyst">Data Analyst</option>
+            </select>
+
+            <select class="cand-filter" id="statusFilter">
+              <option value="all">All Statuses</option>
+              <option value="New">New</option>
+              <option value="Shortlisted">Shortlisted</option>
+              <option value="Interview">Interview</option>
+              <option value="Offer">Offer</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+
+            <span class="cand-count-chip"><strong id="candCount">0</strong> candidates shown</span>
+          </div>
+
+          <!-- Candidates table -->
+          <div class="table-panel">
+            <div class="table-panel-header">
+              <div>
+                <h3>All Candidates</h3>
+                <p>Applicants matched by Lumina AI scoring across every open role.</p>
+              </div>
+              <button class="panel-link" style="background:none; border:none; cursor:pointer;" onclick="window.location.href='/templates/empo_can_page'">
+              <span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle;">add</span>
+              Post a Job
+              </button>
+            </div>
+
+            <div style="overflow-x:auto;">
+              <table class="data-table" id="candidatesTable">
+                <thead>
+                  <tr>
+                    <th>Candidate</th>
+                    <th>Role</th>
+                    <th>Match</th>
+                    <th>Status</th>
+                    <th class="right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="candidatesBody">
+                  <tr data-name="Aisha Rahman" data-email="aisha.r@example.com" data-role="Senior Product Designer" data-status="Interview">
+                    <td>
+                      <div class="candidate-cell">
+                        <div class="candidate-avatar">AR</div>
+                        <div>
+                          <p class="candidate-name">Aisha Rahman</p>
+                          <p class="candidate-email">aisha.r@example.com</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td>Senior Product Designer</td>
+                    <td>
+                      <div class="match-bar-row">
+                        <div class="match-bar-track"><div class="match-bar-fill" style="width: 94%"></div></div>
+                        <span class="match-bar-value">94%</span>
+                      </div>
+                    </td>
+                    <td><span class="app-status interviewing">Interview</span></td>
+                    <td class="right">
+                      <button class="table-icon-btn" title="View profile"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span></button>
+                      <button class="table-icon-btn" title="Edit"><span class="material-symbols-outlined" style="font-size:18px;">edit</span></button>
+                    </td>
+                  </tr>
+
+                  <tr data-name="Marcus Stone" data-email="marcus.s@example.com" data-role="UX Strategist" data-status="Shortlisted">
+                    <td>
+                      <div class="candidate-cell">
+                        <div class="candidate-avatar">MS</div>
+                        <div>
+                          <p class="candidate-name">Marcus Stone</p>
+                          <p class="candidate-email">marcus.s@example.com</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td>UX Strategist</td>
+                    <td>
+                      <div class="match-bar-row">
+                        <div class="match-bar-track"><div class="match-bar-fill" style="width: 88%"></div></div>
+                        <span class="match-bar-value">88%</span>
+                      </div>
+                    </td>
+                    <td><span class="app-status review">Shortlisted</span></td>
+                    <td class="right">
+                      <button class="table-icon-btn" title="View profile"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span></button>
+                      <button class="table-icon-btn" title="Edit"><span class="material-symbols-outlined" style="font-size:18px;">edit</span></button>
+                    </td>
+                  </tr>
+
+                  <tr data-name="Daniel Cho" data-email="daniel.c@example.com" data-role="Recruitment Analyst" data-status="New">
+                    <td>
+                      <div class="candidate-cell">
+                        <div class="candidate-avatar">DC</div>
+                        <div>
+                          <p class="candidate-name">Daniel Cho</p>
+                          <p class="candidate-email">daniel.c@example.com</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td>Recruitment Analyst</td>
+                    <td>
+                      <div class="match-bar-row">
+                        <div class="match-bar-track"><div class="match-bar-fill" style="width: 76%"></div></div>
+                        <span class="match-bar-value">76%</span>
+                      </div>
+                    </td>
+                    <td><span class="app-status applied">New</span></td>
+                    <td class="right">
+                      <button class="table-icon-btn" title="View profile"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span></button>
+                      <button class="table-icon-btn" title="Edit"><span class="material-symbols-outlined" style="font-size:18px;">edit</span></button>
+                    </td>
+                  </tr>
+
+                  <tr data-name="Priya Nair" data-email="priya.n@example.com" data-role="Frontend Engineer" data-status="Offer">
+                    <td>
+                      <div class="candidate-cell">
+                        <div class="candidate-avatar">PN</div>
+                        <div>
+                          <p class="candidate-name">Priya Nair</p>
+                          <p class="candidate-email">priya.n@example.com</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td>Frontend Engineer</td>
+                    <td>
+                      <div class="match-bar-row">
+                        <div class="match-bar-track"><div class="match-bar-fill" style="width: 91%"></div></div>
+                        <span class="match-bar-value">91%</span>
+                      </div>
+                    </td>
+                    <td><span class="app-status interviewing">Offer</span></td>
+                    <td class="right">
+                      <button class="table-icon-btn" title="View profile"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span></button>
+                      <button class="table-icon-btn" title="Edit"><span class="material-symbols-outlined" style="font-size:18px;">edit</span></button>
+                    </td>
+                  </tr>
+
+                  <tr data-name="Rahul Verma" data-email="rahul.v@example.com" data-role="Data Analyst" data-status="Rejected">
+                    <td>
+                      <div class="candidate-cell">
+                        <div class="candidate-avatar">RV</div>
+                        <div>
+                          <p class="candidate-name">Rahul Verma</p>
+                          <p class="candidate-email">rahul.v@example.com</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td>Data Analyst</td>
+                    <td>
+                      <div class="match-bar-row">
+                        <div class="match-bar-track"><div class="match-bar-fill" style="width: 58%"></div></div>
+                        <span class="match-bar-value">58%</span>
+                      </div>
+                    </td>
+                    <td><span class="app-status applied" style="background:#fde2e2; color:#b91c1c;">Rejected</span></td>
+                    <td class="right">
+                      <button class="table-icon-btn" title="View profile"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span></button>
+                      <button class="table-icon-btn" title="Edit"><span class="material-symbols-outlined" style="font-size:18px;">edit</span></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+  <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  <script>
+    (function () {
+      const searchInput = document.getElementById('candSearch');
+      const roleFilter = document.getElementById('roleFilter');
+      const statusFilter = document.getElementById('statusFilter');
+      const rows = Array.from(document.querySelectorAll('#candidatesBody tr'));
+      const countEl = document.getElementById('candCount');
+      const noJobsBanner = document.getElementById('noJobsBanner');
+      const tablePanel = document.querySelector('.table-panel');
+
+      // TODO: replace the static rows above with server-rendered / fetched
+      // applications, e.g. fetch('/api/candidates').then(...).then(render).
+      // As-is, this demo reads the recruiter's own postings from
+      // localStorage ('lumina_jobs', written by jobs.html) and only shows
+      // applicants whose role matches one of those postings — so each
+      // recruiter only reviews candidates for jobs they actually posted.
+      const JOBS_KEY = 'lumina_jobs';
+
+      function getMyPostedJobTitles() {
+        try {
+          const raw = localStorage.getItem(JOBS_KEY);
+          const jobs = raw ? JSON.parse(raw) : [];
+          return jobs.map(j => (j.jobTitle || '').trim().toLowerCase()).filter(Boolean);
+        } catch (e) {
+          return [];
+        }
+      }
+
+      const myTitles = getMyPostedJobTitles();
+      const myTitlesSet = new Set(myTitles);
+
+      // Only keep the rows that belong to a role this recruiter posted.
+      const myRows = rows.filter(row => myTitlesSet.has(row.dataset.role.trim().toLowerCase()));
+      rows.forEach(row => { if (!myTitlesSet.has(row.dataset.role.trim().toLowerCase())) row.remove(); });
+
+      if (myTitles.length === 0) {
+        noJobsBanner.style.display = 'flex';
+      }
+
+      // Build the role filter dropdown from only the roles actually posted.
+      const rolesPresent = Array.from(new Set(myRows.map(r => r.dataset.role)));
+      roleFilter.innerHTML = '<option value="all">All Roles</option>' +
+        rolesPresent.map(r => `<option value="${r}">${r}</option>`).join('');
+
+      function applyFilters() {
+        const q = searchInput.value.trim().toLowerCase();
+        const role = roleFilter.value;
+        const status = statusFilter.value;
+        let visible = 0;
+
+        myRows.forEach(row => {
+          const name = row.dataset.name.toLowerCase();
+          const email = row.dataset.email.toLowerCase();
+          const rRole = row.dataset.role;
+          const rStatus = row.dataset.status;
+
+          const matchesQuery = !q || name.includes(q) || email.includes(q) || rRole.toLowerCase().includes(q);
+          const matchesRole = role === 'all' || rRole === role;
+          const matchesStatus = status === 'all' || rStatus === status;
+
+          const show = matchesQuery && matchesRole && matchesStatus;
+          row.classList.toggle('is-hidden', !show);
+          if (show) visible++;
+        });
+
+        countEl.textContent = visible;
+
+        if (myRows.length === 0 && tablePanel) {
+          const tbody = document.getElementById('candidatesBody');
+          tbody.innerHTML = '<tr class="cand-empty-row"><td colspan="5">No applicants yet for the jobs you\'ve posted.</td></tr>';
+        }
+      }
+
+      searchInput.addEventListener('input', applyFilters);
+      roleFilter.addEventListener('change', applyFilters);
+      statusFilter.addEventListener('change', applyFilters);
+
+      applyFilters();
+    })();
+  </script>
+  <script>
+    // Force the correct sidebar item to be highlighted for THIS page,
+    // regardless of any active-state logic in script.js.
+    (function () {
+      document.querySelectorAll('.sidebar-nav a').forEach(function (link) {
+        link.classList.remove('active');
+      });
+      var current = document.querySelector('.sidebar-nav a[href$="candidates.html"]');
+      if (current) current.classList.add('active');
+    })();
+  </script>
+</body>
+</html>

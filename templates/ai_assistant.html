@@ -15,14 +15,13 @@
     <div class="logo">CareerMomentum</div>
 
     <div class="nav-links">
-      <a href="main_explore.html">Resources</a>
-      <a href="main_explore.html" class="active">Dashboard</a>
+      <a href="resource.html">Resources</a>
+      <a href="{{ url_for('index') }}" class="active">Dashboard</a>
     </div>
 
     <div class="nav-buttons">
-      <a href="Employer.html" class="btn btn-outline">Employers</a>
-      <a href="login.html" class="btn btn-outline">Login</a>
-      <a href="register.html" class="btn btn-primary">Register</a>
+      <a href="{{ url_for('employer_auth.employer_login_register_page') }}" class="btn btn-outline">Employers</a>
+      <a href="{{ url_for('seeker_auth.seeker_login_register_page') }}" class="btn btn-outline">Seekers</a>
     </div>
   </nav>
 

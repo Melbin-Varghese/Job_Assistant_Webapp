@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Jobs — CareerMomentum Recruiter Dashboard</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}" />
+
+  <style>
+    /* ---- Page-specific styles for the Jobs / Job Posting screen ----
+       Written to sit on top of user.css and reuse the same tokens
+       (dark navy surface, teal accent, Inter, Material Symbols).
+       If user.css already defines equivalents, these simply extend them. */
+
+    :root {
+      --jp-bg: #0b1220;
+      --jp-panel: #101a2c;
+      --jp-panel-2: #0d1626;
+      --jp-border: rgba(255, 255, 255, 0.08);
+      --jp-text: #e7ecf3;
+      --jp-text-dim: #93a0b4;
+      --jp-teal: #14b8a6;
+      --jp-teal-dark: #0d9488;
+      --jp-danger: #f87171;
+    }
+
+    .jobs-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    @media (max-width: 1100px) {
+      .jobs-layout { grid-template-columns: 1fr; }
+    }
+
+    .jobs-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 20px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .jobs-header h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--jp-text);
+      margin: 0 0 4px 0;
+    }
+
+    .jobs-header p {
+      color: var(--jp-text-dim);
+      font-size: 14px;
+      margin: 0;
+    }
+
+    /* ---- Job posting form ---- */
+    .jp-form-card {
+      background: var(--jp-panel);
+      border: 1px solid var(--jp-border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .jp-form-card h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--jp-text);
+      margin: 0 0 4px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .jp-form-card > p.jp-sub {
+      color: var(--jp-text-dim);
+      font-size: 13px;
+      margin: 0 0 20px 0;
+    }
+
+    .jp-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .jp-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .jp-field.full { grid-column: 1 / -1; }
+
+    .jp-field label {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--jp-text-dim);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .jp-field label .req { color: var(--jp-teal); }
+
+    .jp-field input,
+    .jp-field select,
+    .jp-field textarea {
+      background: var(--jp-panel-2);
+      border: 1px solid var(--jp-border);
+      border-radius: 10px;
+      padding: 11px 12px;
+      color: var(--jp-text);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .jp-field input::placeholder,
+    .jp-field textarea::placeholder {
+      color: #5b6b82;
+    }
+
+    .jp-field input:focus,
+    .jp-field select:focus,
+    .jp-field textarea:focus {
+      border-color: var(--jp-teal);
+      box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+    }
+
+    .jp-field textarea {
+      resize: vertical;
+      min-height: 110px;
+      line-height: 1.5;
+    }
+
+    .jp-hint {
+      font-size: 11.5px;
+      color: #5b6b82;
+    }
+
+    /* Key skills tag input */
+    .jp-skills-box {
+      background: var(--jp-panel-2);
+      border: 1px solid var(--jp-border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      min-height: 46px;
+    }
+
+    .jp-skills-box:focus-within {
+      border-color: var(--jp-teal);
+      box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+    }
+
+    .jp-skill-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(20, 184, 166, 0.12);
+      color: var(--jp-teal);
+      border: 1px solid rgba(20, 184, 166, 0.35);
+      padding: 4px 8px 4px 10px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 600;
+    }
+
+    .jp-skill-tag button {
+      background: none;
+      border: none;
+      color: var(--jp-teal);
+      cursor: pointer;
+      display: flex;
+      padding: 0;
+      opacity: 0.75;
+    }
+
+    .jp-skill-tag button:hover { opacity: 1; }
+
+    .jp-skills-box input {
+      flex: 1;
+      min-width: 120px;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--jp-text);
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      padding: 6px 4px;
+    }
+
+    .jp-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 8px;
+      padding-top: 16px;
+      border-top: 1px solid var(--jp-border);
+    }
+
+    .jp-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid transparent;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .jp-btn-primary {
+      background: linear-gradient(135deg, var(--jp-teal), var(--jp-teal-dark));
+      color: #06231f;
+    }
+
+    .jp-btn-primary:hover { filter: brightness(1.05); }
+
+    .jp-btn-ghost {
+      background: transparent;
+      border-color: var(--jp-border);
+      color: var(--jp-text-dim);
+    }
+
+    .jp-btn-ghost:hover { color: var(--jp-text); border-color: #3a4a63; }
+
+    .jp-error {
+      font-size: 11.5px;
+      color: var(--jp-danger);
+      display: none;
+    }
+
+    .jp-field.invalid input,
+    .jp-field.invalid textarea {
+      border-color: var(--jp-danger);
+    }
+
+    .jp-field.invalid .jp-error { display: block; }
+
+    /* ---- Posted jobs list (right column) ---- */
+    .jp-list-card {
+      background: var(--jp-panel);
+      border: 1px solid var(--jp-border);
+      border-radius: 16px;
+      padding: 20px;
+    }
+
+    .jp-list-card h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--jp-text);
+      margin: 0 0 4px 0;
+    }
+
+    .jp-list-card > p {
+      color: var(--jp-text-dim);
+      font-size: 12.5px;
+      margin: 0 0 16px 0;
+    }
+
+    .jp-job-item {
+      border: 1px solid var(--jp-border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+      background: var(--jp-panel-2);
+    }
+
+    .jp-job-item:last-child { margin-bottom: 0; }
+
+    .jp-job-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .jp-job-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--jp-text);
+      margin: 0 0 2px 0;
+    }
+
+    .jp-job-company {
+      font-size: 12.5px;
+      color: var(--jp-teal);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .jp-job-badge {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(20, 184, 166, 0.15);
+      color: var(--jp-teal);
+      white-space: nowrap;
+    }
+
+    .jp-job-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 14px;
+      font-size: 12px;
+      color: var(--jp-text-dim);
+      margin-bottom: 8px;
+    }
+
+    .jp-job-meta span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .jp-job-meta .material-symbols-outlined {
+      font-size: 15px;
+    }
+
+    .jp-job-desc {
+      font-size: 12.5px;
+      color: var(--jp-text-dim);
+      line-height: 1.5;
+      margin: 0 0 10px 0;
+    }
+
+    .jp-job-skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .jp-mini-tag {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--jp-text-dim);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--jp-border);
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+
+    .jp-empty {
+      text-align: center;
+      color: var(--jp-text-dim);
+      font-size: 13px;
+      padding: 24px 8px;
+    }
+
+    .jp-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--jp-teal-dark);
+      color: #ecfdf9;
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 40;
+    }
+
+    .jp-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ---- Navbar layout fix ----
+       Forces logo / centered search / right-side actions onto one row. */
+    .navbar {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .navbar-search-wrap {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .navbar-search-wrap .content-search {
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .navbar .topbar-actions {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">CareerMomentum</div>
+
+    <div class="navbar-search-wrap">
+      <div class="content-search">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" placeholder="Search candidates, jobs, or analytics..." />
+      </div>
+    </div>
+
+    <div class="topbar-actions">
+      
+      <div class="topbar-divider"></div>
+      <a href="{{ url_for('employer_pages.profile') }}" style="text-decoration:none;">
+        <div class="user-chip">
+          <div>
+            <p class="user-chip-name">{{ current_user.employer_name }}</p>
+            <p class="user-chip-role">{{ current_user.company_name }}</p>
+          </div>
+          <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ current_user.employer_name|urlencode }}" alt="{{ current_user.employer_name }}" />
+        </div>
+      </a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="dashboard-hero">
+      <div class="dashboard-wrap">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <div class="sidebar-profile">
+            <div class="sidebar-avatar">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+            </div>
+            <div>
+              <p class="sidebar-profile-name">CareerMomentum</p>
+              <p class="sidebar-profile-status">Recruiter Suite</p>
+            </div>
+          </div>
+
+          <nav class="sidebar-nav">
+            <a href="{{ url_for('employer_pages.dashboard') }}">
+              <span class="material-symbols-outlined">dashboard</span>
+              <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('employer_pages.jobs') }}">
+              <span class="material-symbols-outlined">work</span>
+              <span>Jobs</span>
+            </a>
+            <a href="{{ url_for('employer_pages.candidates') }}" class="active">
+              <span class="material-symbols-outlined">group</span>
+              <span>Candidates</span>
+            </a>
+            <a href="{{ url_for('employer_pages.settings') }}">
+              <span class="material-symbols-outlined">settings</span>
+              <span>Settings & Support</span>
+            </a>
+            
+            
+          </nav>
+
+          
+
+          
+        </aside>
+
+        <!-- Main content -->
+        <div class="dashboard-main">
+          <div class="jobs-header">
+            <div>
+              <h2>Post a New Job</h2>
+              <p>Fill in the role details below — it will appear in your active job listings instantly.</p>
+            </div>
+          </div>
+
+          <div class="jobs-layout">
+
+            <!-- Job posting form -->
+            <div class="jp-form-card">
+              <h3>
+                <span class="material-symbols-outlined" style="color:var(--jp-teal); font-size:20px;">work</span>
+                Job Details
+              </h3>
+              <p class="jp-sub">Fields marked <span class="req">*</span> are required.</p>
+
+              <form id="jobPostForm" novalidate>
+                <div class="jp-grid">
+                  <div class="jp-field full" data-field="jobTitle">
+                    <label for="jobTitle">Job Title <span class="req">*</span></label>
+                    <input type="text" id="jobTitle" name="jobTitle" placeholder="e.g. Senior Product Designer" />
+                    <span class="jp-error">Please enter a job title.</span>
+                  </div>
+
+                  <div class="jp-field" data-field="companyName">
+                    <label for="companyName">Company Name <span class="req">*</span></label>
+                    <input type="text" id="companyName" name="companyName" placeholder="e.g. Lumina Technologies" />
+                    <span class="jp-error">Please enter a company name.</span>
+                  </div>
+
+                  <div class="jp-field" data-field="companyWebsite">
+                    <label for="companyWebsite">Company Website <span class="req">*</span></label>
+                    <input type="url" id="companyWebsite" name="companyWebsite" placeholder="https://company.com" />
+                    <span class="jp-error">Please enter a valid URL.</span>
+                  </div>
+
+                  <div class="jp-field" data-field="companyEmail">
+                    <label for="companyEmail">Company Email <span class="req">*</span></label>
+                    <input type="email" id="companyEmail" name="companyEmail" placeholder="careers@company.com" />
+                    <span class="jp-error">Please enter a valid email address.</span>
+                  </div>
+
+                  <div class="jp-field" data-field="location">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" name="location" placeholder="e.g. Remote / Bengaluru, IN" />
+                  </div>
+
+                  <div class="jp-field" data-field="jobType">
+                    <label for="jobType">Job Type</label>
+                    <select id="jobType" name="jobType">
+                      <option value="Full-time">Full-time</option>
+                      <option value="Part-time">Part-time</option>
+                      <option value="Contract">Contract</option>
+                      <option value="Internship">Internship</option>
+                      <option value="Remote">Remote</option>
+                    </select>
+                  </div>
+
+                  <div class="jp-field" data-field="experience">
+                    <label for="experience">Experience Level</label>
+                    <select id="experience" name="experience">
+                      <option value="Entry">Entry-level</option>
+                      <option value="Mid">Mid-level</option>
+                      <option value="Senior" selected>Senior</option>
+                      <option value="Lead">Lead / Principal</option>
+                    </select>
+                  </div>
+
+                  <div class="jp-field full" data-field="jobDescription">
+                    <label for="jobDescription">Job Description <span class="req">*</span></label>
+                    <textarea id="jobDescription" name="jobDescription" placeholder="Describe the role, responsibilities, and what makes this opportunity stand out..."></textarea>
+                    <span class="jp-error">Please add a job description.</span>
+                  </div>
+
+                  <div class="jp-field full" data-field="keySkills">
+                    <label for="keySkillsInput">Key Skills <span class="req">*</span></label>
+                    <div class="jp-skills-box" id="skillsBox">
+                      <input type="text" id="keySkillsInput" placeholder="Type a skill and press Enter (e.g. Figma)" />
+                    </div>
+                    <span class="jp-hint">Press Enter or comma to add each skill.</span>
+                    <span class="jp-error">Please add at least one key skill.</span>
+                  </div>
+                </div>
+
+                <div class="jp-actions">
+                  <button type="reset" class="jp-btn jp-btn-ghost" id="resetBtn">
+                    <span class="material-symbols-outlined" style="font-size:18px;">restart_alt</span>
+                    Clear Form
+                  </button>
+                  <button type="submit" class="jp-btn jp-btn-primary">
+                    <span class="material-symbols-outlined" style="font-size:18px;">send</span>
+                    Post Job
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Posted jobs list -->
+            <div class="jp-list-card">
+              <h3>Active Postings</h3>
+              <p>Jobs added by recruiters this session.</p>
+              <div id="jobList">
+                <div class="jp-empty" id="jobListEmpty">
+                  No jobs posted yet. Fill in the form to add your first opening.
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <div class="jp-toast" id="jpToast">
+    <span class="material-symbols-outlined" style="font-size:18px;">check_circle</span>
+    <span id="jpToastText">Job posted successfully</span>
+  </div>
+  <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  <script>
+    (function () {
+      const form = document.getElementById('jobPostForm');
+      const skillsBox = document.getElementById('skillsBox');
+      const skillsInput = document.getElementById('keySkillsInput');
+      const jobList = document.getElementById('jobList');
+      const jobListEmpty = document.getElementById('jobListEmpty');
+      const toast = document.getElementById('jpToast');
+      const toastText = document.getElementById('jpToastText');
+
+      let skills = [];
+
+      // ---- Persisted job store (shared with candidates.html) ----
+      // In a real app this would be a database table; here we use
+      // localStorage so the "Jobs" and "Candidates" pages can share
+      // the same list of postings without a backend.
+      const JOBS_KEY = 'lumina_jobs';
+
+      const DEFAULT_JOBS = [
+        { id: 'job-1', jobTitle: 'Senior Product Designer', companyName: 'Lumina Technologies', companyWebsite: 'https://lumina.example.com', companyEmail: 'careers@lumina.example.com', location: 'Remote', jobType: 'Full-time', experience: 'Senior', jobDescription: 'Own end-to-end product design for our core recruiter dashboard, from research through polished, accessible UI.', keySkills: ['Figma', 'Design Systems', 'Accessibility'] },
+        { id: 'job-2', jobTitle: 'UX Strategist', companyName: 'Lumina Technologies', companyWebsite: 'https://lumina.example.com', companyEmail: 'careers@lumina.example.com', location: 'Bengaluru, IN', jobType: 'Full-time', experience: 'Senior', jobDescription: 'Shape UX strategy across our hiring products, working closely with research and product teams.', keySkills: ['UX Research', 'Strategy', 'Wireframing'] },
+        { id: 'job-3', jobTitle: 'Recruitment Analyst', companyName: 'Lumina Technologies', companyWebsite: 'https://lumina.example.com', companyEmail: 'careers@lumina.example.com', location: 'Remote', jobType: 'Full-time', experience: 'Mid', jobDescription: 'Analyze hiring funnel data and surface insights that improve recruiter decision-making.', keySkills: ['SQL', 'Excel', 'Data Analysis'] }
+      ];
+
+      function loadJobs() {
+        try {
+          const raw = localStorage.getItem(JOBS_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function saveJobs(jobs) {
+        try {
+          localStorage.setItem(JOBS_KEY, JSON.stringify(jobs));
+        } catch (e) {
+          console.error('Could not save jobs', e);
+        }
+      }
+
+      let postedJobs = loadJobs();
+      if (!postedJobs) {
+        postedJobs = DEFAULT_JOBS;
+        saveJobs(postedJobs);
+      }
+
+      function renderSkillTags() {
+        skillsBox.querySelectorAll('.jp-skill-tag').forEach(el => el.remove());
+        skills.forEach((skill, i) => {
+          const tag = document.createElement('span');
+          tag.className = 'jp-skill-tag';
+          tag.innerHTML = `${escapeHtml(skill)} <button type="button" aria-label="Remove ${escapeHtml(skill)}" data-i="${i}"><span class="material-symbols-outlined" style="font-size:14px;">close</span></button>`;
+          skillsBox.insertBefore(tag, skillsInput);
+        });
+      }
+
+      function addSkill(raw) {
+        const value = raw.trim().replace(/,$/, '');
+        if (value && !skills.includes(value)) {
+          skills.push(value);
+          renderSkillTags();
+        }
+        skillsInput.value = '';
+      }
+
+      skillsInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ',') {
+          e.preventDefault();
+          addSkill(skillsInput.value);
+        } else if (e.key === 'Backspace' && skillsInput.value === '' && skills.length) {
+          skills.pop();
+          renderSkillTags();
+        }
+      });
+
+      skillsBox.addEventListener('click', function (e) {
+        skillsInput.focus();
+      });
+
+      skillsBox.addEventListener('click', function (e) {
+        const btn = e.target.closest('button[data-i]');
+        if (btn) {
+          e.stopPropagation();
+          skills.splice(Number(btn.dataset.i), 1);
+          renderSkillTags();
+        }
+      });
+
+      function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      function setInvalid(fieldName, invalid) {
+        const field = form.querySelector(`[data-field="${fieldName}"]`);
+        if (field) field.classList.toggle('invalid', invalid);
+      }
+
+      function isValidEmail(v) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+      }
+
+      function isValidUrl(v) {
+        try {
+          new URL(v);
+          return true;
+        } catch (_) {
+          return false;
+        }
+      }
+
+      function showToast(message) {
+        toastText.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2600);
+      }
+
+      function addJobCard(job) {
+        if (jobListEmpty) jobListEmpty.remove();
+
+        const card = document.createElement('div');
+        card.className = 'jp-job-item';
+        card.innerHTML = `
+          <div class="jp-job-top">
+            <div>
+              <p class="jp-job-title">${escapeHtml(job.jobTitle)}</p>
+              <p class="jp-job-company">
+                <span class="material-symbols-outlined" style="font-size:14px;">apartment</span>
+                ${escapeHtml(job.companyName)}
+              </p>
+            </div>
+            <span class="jp-job-badge">${escapeHtml(job.jobType)}</span>
+          </div>
+          <div class="jp-job-meta">
+            ${job.location ? `<span><span class="material-symbols-outlined">location_on</span>${escapeHtml(job.location)}</span>` : ''}
+            <span><span class="material-symbols-outlined">bar_chart</span>${escapeHtml(job.experience)}-level</span>
+            <span><span class="material-symbols-outlined">mail</span>${escapeHtml(job.companyEmail)}</span>
+            <span><span class="material-symbols-outlined">link</span><a href="${escapeHtml(job.companyWebsite)}" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">Website</a></span>
+          </div>
+          <p class="jp-job-desc">${escapeHtml(job.jobDescription)}</p>
+          <div class="jp-job-skills">
+            ${job.keySkills.map(s => `<span class="jp-mini-tag">${escapeHtml(s)}</span>`).join('')}
+          </div>
+        `;
+        jobList.prepend(card);
+      }
+
+      // Render jobs already posted (persisted from a previous visit,
+      // or the default sample postings on first load).
+      postedJobs.forEach(addJobCard);
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const jobTitle = document.getElementById('jobTitle').value.trim();
+        const companyName = document.getElementById('companyName').value.trim();
+        const companyWebsite = document.getElementById('companyWebsite').value.trim();
+        const companyEmail = document.getElementById('companyEmail').value.trim();
+        const location = document.getElementById('location').value.trim();
+        const jobType = document.getElementById('jobType').value;
+        const experience = document.getElementById('experience').value;
+        const jobDescription = document.getElementById('jobDescription').value.trim();
+
+        if (skillsInput.value.trim()) addSkill(skillsInput.value);
+
+        let valid = true;
+
+        setInvalid('jobTitle', !jobTitle);
+        if (!jobTitle) valid = false;
+
+        setInvalid('companyName', !companyName);
+        if (!companyName) valid = false;
+
+        const websiteOk = companyWebsite && isValidUrl(companyWebsite);
+        setInvalid('companyWebsite', !websiteOk);
+        if (!websiteOk) valid = false;
+
+        const emailOk = companyEmail && isValidEmail(companyEmail);
+        setInvalid('companyEmail', !emailOk);
+        if (!emailOk) valid = false;
+
+        setInvalid('jobDescription', !jobDescription);
+        if (!jobDescription) valid = false;
+
+        setInvalid('keySkills', skills.length === 0);
+        if (skills.length === 0) valid = false;
+
+        if (!valid) return;
+
+        const job = {
+          id: 'job-' + Date.now(),
+          jobTitle, companyName, companyWebsite, companyEmail,
+          location, jobType, experience, jobDescription,
+          keySkills: [...skills]
+        };
+
+        // TODO: replace with a real API call, e.g.
+        // fetch('/api/jobs', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(job) })
+        // For now the job is saved to localStorage under 'lumina_jobs' so
+        // candidates.html can show applicants against it.
+        postedJobs.push(job);
+        saveJobs(postedJobs);
+
+        addJobCard(job);
+        showToast('Job posted successfully');
+
+        form.reset();
+        skills = [];
+        renderSkillTags();
+        ['jobTitle','companyName','companyWebsite','companyEmail','jobDescription','keySkills']
+          .forEach(f => setInvalid(f, false));
+      });
+
+      form.addEventListener('reset', function () {
+        skills = [];
+        renderSkillTags();
+        ['jobTitle','companyName','companyWebsite','companyEmail','jobDescription','keySkills']
+          .forEach(f => setInvalid(f, false));
+      });
+    })();
+  </script>
+  <script>
+    // Force the correct sidebar item to be highlighted for THIS page,
+    // regardless of any active-state logic in script.js.
+    (function () {
+      document.querySelectorAll('.sidebar-nav a').forEach(function (link) {
+        link.classList.remove('active');
+      });
+      var current = document.querySelector('.sidebar-nav a[href$="jobs.html"]');
+      if (current) current.classList.add('active');
+    })();
+  </script>
+</body>
+</html>

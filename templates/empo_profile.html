@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>My Profile — Lumina AI Recruiter Dashboard</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}" />
+
+  <style>
+    .navbar { display: flex; align-items: center; gap: 24px; }
+    .navbar-search-wrap { flex: 1; display: flex; justify-content: center; min-width: 0; }
+    .navbar-search-wrap .content-search { width: 100%; max-width: 480px; }
+    .navbar .topbar-actions { flex: 0 0 auto; display: flex; align-items: center; gap: 14px; }
+
+    .pf-hero {
+      background: linear-gradient(135deg, #0d9488, #101a2c 65%);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 28px;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .pf-avatar {
+      width: 84px; height: 84px; border-radius: 50%; object-fit: cover;
+      border: 3px solid rgba(255,255,255,0.4);
+    }
+    .pf-hero-info h2 { margin: 0 0 4px 0; font-size: 22px; font-weight: 800; color: #ffffff; }
+    .pf-hero-info p { margin: 0; color: rgba(255,255,255,0.85); font-size: 13.5px; }
+    .pf-hero-badges { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .pf-badge {
+      font-size: 11.5px; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+      background: rgba(255,255,255,0.15); color: #ffffff;
+    }
+    .pf-hero-actions { margin-left: auto; display: flex; gap: 10px; }
+
+    .pf-btn {
+      display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px;
+      font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid transparent; font-family: 'Inter', sans-serif;
+    }
+    .pf-btn-primary { background: #ffffff; color: #0d9488; }
+    .pf-btn-ghost { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.3); color: #ffffff; }
+
+    .pf-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .pf-stat-card {
+      background: #101a2c; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 18px;
+    }
+    .pf-stat-card p.v { margin: 0; font-size: 24px; font-weight: 800; color: #e7ecf3; }
+    .pf-stat-card p.l { margin: 4px 0 0; font-size: 12px; color: #93a0b4; }
+
+    .pf-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; }
+    @media (max-width: 1000px) { .pf-grid { grid-template-columns: 1fr; } }
+
+    .pf-card {
+      background: #101a2c; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; margin-bottom: 20px;
+    }
+    .pf-card h3 { font-size: 16px; font-weight: 700; color: #e7ecf3; margin: 0 0 16px 0; }
+
+    .pf-info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 13.5px; }
+    .pf-info-row:last-child { border-bottom: none; }
+    .pf-info-row span.k { color: #93a0b4; }
+    .pf-info-row span.v { color: #e7ecf3; font-weight: 600; }
+
+    .pf-activity-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .pf-activity-item:last-child { border-bottom: none; }
+    .pf-activity-icon {
+      width: 34px; height: 34px; border-radius: 10px; background: rgba(20,184,166,0.15); color: #14b8a6;
+      display: flex; align-items: center; justify-content: center; flex: 0 0 auto;
+    }
+    .pf-activity-item p.t { margin: 0; font-size: 13.5px; color: #e7ecf3; font-weight: 600; }
+    .pf-activity-item p.d { margin: 2px 0 0; font-size: 12px; color: #93a0b4; }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">Career</div>
+    <div class="navbar-search-wrap">
+      <div class="content-search">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" placeholder="Search candidates, jobs, or analytics..." />
+      </div>
+    </div>
+    <div class="topbar-actions">
+      
+      <div class="topbar-divider"></div>
+      <a href="{{ url_for('employer_pages.profile') }}" style="text-decoration:none;">
+        <div class="user-chip">
+          <div>
+            <p class="user-chip-name">{{ current_user.employer_name }}</p>
+            <p class="user-chip-role">{{ current_user.company_name }}</p>
+          </div>
+          <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ current_user.employer_name|urlencode }}" alt="{{ current_user.employer_name }}" />
+        </div>
+      </a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="dashboard-hero">
+      <div class="dashboard-wrap">
+
+        <aside class="sidebar">
+          <div class="sidebar-profile">
+            <div class="sidebar-avatar">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+            </div>
+            <div>
+              <p class="sidebar-profile-name">Lumina AI</p>
+              <p class="sidebar-profile-status">Recruiter Suite</p>
+            </div>
+          </div>
+
+          <nav class="sidebar-nav">
+            <a href="{{ url_for('employer_pages.dashboard') }}">
+              <span class="material-symbols-outlined">dashboard</span>
+              <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('employer_pages.jobs') }}">
+              <span class="material-symbols-outlined">work</span>
+              <span>Jobs</span>
+            </a>
+            <a href="{{ url_for('employer_pages.candidates') }}">
+              <span class="material-symbols-outlined">group</span>
+              <span>Candidates</span>
+            </a>
+            <a href="{{ url_for('employer_pages.settings') }}">
+              <span class="material-symbols-outlined">leaderboard</span>
+              <span>Settings & Support</span>
+            </a>
+            
+            
+          </nav>
+
+          
+
+          
+        </aside>
+
+        <div class="dashboard-main">
+
+          <div class="pf-hero">
+            <img class="pf-avatar" src="https://api.dicebear.com/7.x/initials/svg?seed={{ current_user.employer_name|urlencode }}" alt="{{ current_user.employer_name }}" />
+            <div class="pf-hero-info">
+              <h2>{{ current_user.employer_name }}</h2>
+              <p>{{ current_user.company_name }}</p>
+              <div class="pf-hero-badges">
+                <span class="pf-badge">{{ current_user.company_email }}</span>
+                <span class="pf-badge">Bengaluru, IN</span>
+              </div>
+            </div>
+            <div class="pf-hero-actions">
+              <button class="pf-btn pf-btn-ghost" type="button" onclick="window.location.href='/templates/empo_setting_support_profile.html'">
+                <span class="material-symbols-outlined" style="font-size:18px;">settings</span>
+                Account Settings
+              </button>
+              <button class="pf-btn pf-btn-primary" type="button">
+                <span class="material-symbols-outlined" style="font-size:18px;">edit</span>
+                Edit Profile
+              </button>
+            </div>
+          </div>
+
+          <div class="pf-stats">
+            <div class="pf-stat-card"><p class="v">12</p><p class="l">Jobs Posted</p></div>
+            <div class="pf-stat-card"><p class="v">86</p><p class="l">Candidates Reviewed</p></div>
+            <div class="pf-stat-card"><p class="v">14</p><p class="l">Interviews Scheduled</p></div>
+            <div class="pf-stat-card"><p class="v">5</p><p class="l">Offers Extended</p></div>
+          </div>
+
+          <div class="pf-grid">
+            <div>
+              <div class="pf-card">
+                <h3>About</h3>
+                <p style="margin:0; color:#93a0b4; font-size:13.5px; line-height:1.7;">
+                  Alex leads talent acquisition at Lumina Technologies, focused on design and product roles.
+                  Passionate about building fast, fair hiring pipelines with the help of AI-assisted candidate scoring.
+                </p>
+              </div>
+
+              <div class="pf-card">
+                <h3>Recent Activity</h3>
+                <div class="pf-activity-item">
+                  <div class="pf-activity-icon"><span class="material-symbols-outlined" style="font-size:18px;">work</span></div>
+                  <div><p class="t">Posted "Senior Product Designer"</p><p class="d">2 days ago</p></div>
+                </div>
+                <div class="pf-activity-item">
+                  <div class="pf-activity-icon"><span class="material-symbols-outlined" style="font-size:18px;">group</span></div>
+                  <div><p class="t">Reviewed Aisha Rahman's application</p><p class="d">3 days ago</p></div>
+                </div>
+                <div class="pf-activity-item">
+                  <div class="pf-activity-icon"><span class="material-symbols-outlined" style="font-size:18px;">event</span></div>
+                  <div><p class="t">Scheduled interview with Marcus Stone</p><p class="d">5 days ago</p></div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="pf-card">
+                <h3>Contact Information</h3>
+                <div class="pf-info-row"><span class="k">Email</span><span class="v">{{ current_user.company_email }}</span></div>
+                <div class="pf-info-row"><span class="k">Phone</span><span class="v">{{ current_user.mobile_number }}</span></div>
+                <div class="pf-info-row"><span class="k">Location</span><span class="v">Bengaluru, IN</span></div>
+                <div class="pf-info-row"><span class="k">Team</span><span class="v">Talent Acquisition</span></div>
+              </div>
+
+              <div class="pf-card">
+                <h3>Account</h3>
+                <div class="pf-info-row"><span class="k">Company</span><span class="v">{{ current_user.company_name }}</span></div>
+                <div class="pf-info-row"><span class="k">Member since</span><span class="v">Jan 2025</span></div>
+                <div class="pf-info-row"><span class="k">Plan</span><span class="v">Recruiter Suite</span></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  <script>
+    // Force correct sidebar highlighting for this page (none of the
+    // main nav items correspond to Profile, so just make sure nothing
+    // stale stays highlighted).
+    (function () {
+      document.querySelectorAll('.sidebar-nav a').forEach(function (link) {
+        link.classList.remove('active');
+      });
+    })();
+  </script>
+</body>
+</html>

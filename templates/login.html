@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Login - CareerMomentum</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='emp_bg.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='emp_register.css') }}" />
+</head>
+
+  <style>
+    /* Layout & components built on top of style.css's palette
+       (#041627 navy, #006a6a teal, rgba(121,246,245,*) accent) and its
+       .hero-gradient / .glass-card / .btn-primary / .card-hover-effect
+       utility classes, since style.css itself only ships those low-level
+       building blocks. */
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #f9f9ff;
+      color: #111c2c;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* ---------- Navbar ---------- */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding: 0 64px;
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: #ffffff;
+      box-shadow: 0px 4px 20px rgba(26, 43, 60, 0.05);
+    }
+
+    .navbar-logo {
+      font-size: 22px;
+      font-weight: 800;
+      color: #041627;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .nav-links a.nav-link {
+      font-weight: 600;
+      font-size: 14px;
+      color: #006a6a;
+      padding-bottom: 4px;
+      border-bottom: 2px solid transparent;
+      transition: 0.3s ease;
+    }
+
+    .nav-links a.nav-link:hover {
+      border-bottom-color: #006a6a;
+    }
+
+    .nav-buttons {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: 0.3s ease;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border-color: #e0e3e5;
+      color: #041627;
+    }
+
+    .btn-outline:hover {
+      background: #f5f7fb;
+    }
+
+    /* re-skin style.css's .btn-primary as a pill button (it only ships
+       color + hover by default) */
+    .btn.btn-primary {
+      border: none;
+      color: #fff;
+    }
+
+    /* ---------- Hero / login layout ---------- */
+    .login-hero {
+      min-height: 720px;
+      display: flex;
+      align-items: center;
+      padding: 64px;
+    }
+
+    .login-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .login-intro-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: rgba(0, 106, 106, 0.15);
+      border: 1px solid rgba(121, 246, 245, 0.3);
+      color: #79f6f5;
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    .login-intro-badge .material-symbols-outlined {
+      font-size: 18px;
+      margin-right: 8px;
+    }
+
+    .login-intro h1 {
+      font-size: 42px;
+      color:  #041627;
+      line-height: 1.2;
+      margin: 0 0 20px;
+    }
+
+    .login-intro .highlight {
+      background: linear-gradient(90deg, #173a3a, #041627);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .login-intro p {
+      color: #b7c8de;
+      font-size: 17px;
+      max-width: 520px;
+      margin: 0 0 32px;
+      opacity: 0.9;
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      max-width: 480px;
+    }
+
+    .stat-pill {
+      background: #fff;
+      padding: 16px;
+      border-radius: 16px;
+      box-shadow: 0px 4px 20px rgba(26, 43, 60, 0.05);
+      border: 1px solid rgba(224, 227, 229, 0.3);
+    }
+
+    .stat-pill-value {
+      color: #041627;
+      font-weight: 700;
+      font-size: 20px;
+    }
+
+    .stat-pill-label {
+      color: #44474c;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    /* ---------- Auth card (uses .glass-card + .card-hover-effect from style.css) ---------- */
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 32px;
+      border-radius: 20px;
+      box-shadow: 0px 4px 20px rgba(26, 43, 60, 0.05);
+      border: 1px solid rgba(224, 227, 229, 0.3);
+    }
+
+    .auth-card-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .auth-card-brand {
+      font-size: 22px;
+      font-weight: 800;
+      color: #041627;
+      margin-bottom: 8px;
+    }
+
+    .auth-card-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #041627;
+      margin: 0;
+    }
+
+    .auth-card-sub {
+      color: #44474c;
+      font-size: 14px;
+    }
+
+    .form-field {
+      margin-bottom: 20px;
+    }
+
+    .form-field-top {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .form-field label {
+      display: block;
+      font-weight: 600;
+      font-size: 14px;
+      color: #041627;
+    }
+
+    .form-field a {
+      font-size: 13px;
+      color: #006a6a;
+      font-weight: 500;
+    }
+
+    .form-field a:hover {
+      text-decoration: underline;
+    }
+
+    .form-field input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #e0e3e5;
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      background: #fff;
+      transition: border-color 0.2s ease;
+    }
+
+    .form-field input:focus {
+      border-color: #006a6a;
+      box-shadow: 0 0 0 2px rgba(0, 106, 106, 0.15);
+    }
+
+    .btn-block {
+      width: 100%;
+      padding: 13px 18px;
+      font-size: 15px;
+    }
+
+    .btn-block:active {
+      transform: scale(0.97);
+    }
+
+    .auth-alt {
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    .auth-alt p {
+      font-size: 14px;
+      color: #44474c;
+      margin: 0;
+    }
+
+    .auth-alt a {
+      color: #006a6a;
+      font-weight: 600;
+    }
+
+    .auth-alt a:hover {
+      text-decoration: underline;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 24px 0;
+    }
+
+    .divider .line {
+      flex: 1;
+      border-top: 1px solid #e0e3e5;
+    }
+
+    .divider span {
+      padding: 0 12px;
+      font-size: 13px;
+      color: #44474c;
+    }
+
+    .btn-google {
+      width: 100%;
+      background: #fff;
+      border: 1px solid #e0e3e5;
+      border-radius: 10px;
+      padding: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .btn-google:hover {
+      background: #f5f7fb;
+    }
+
+    .btn-google img {
+      width: 20px;
+      height: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .login-grid {
+        grid-template-columns: 1fr;
+      }
+      .login-intro {
+        display: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .navbar {
+        padding: 0 20px;
+      }
+      .nav-links .nav-link {
+        display: none;
+      }
+      .login-hero {
+        padding: 32px 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="navbar-logo">CareerMomentum</div>
+
+    <div class="nav-links">
+      <a href="/templates/resource.html" class="nav-link">Resources</a>
+      <a href="/templates/main_index.html" class="nav-link">Dashboard</a>
+      <a href="/templates/about.html" class="nav-link">About</a>
+      <a href="/templates/contact.html" class="nav-link">Contact</a>
+
+      <div class="nav-buttons">
+        <a href="Employer.html" class="btn btn-outline">Employers</a>
+        <a href="/templates/main_explore/auth/login.html" class="btn btn-outline">Login</a>
+        <a href="/templates/main_explore/auth/register.html" class="btn btn-primary">Register</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero-gradient login-hero">
+      <div class="login-grid">
+        <div class="login-intro">
+          <span class="login-intro-badge">
+            <span class="material-symbols-outlined">auto_awesome</span>
+            AI Powered Career Access
+          </span>
+
+          <h1>Welcome Back to <span class="highlight">CareerMomentum</span></h1>
+
+          <p>Sign in to access your dashboard, explore job recommendations, track applications, and use AI-powered tools built for your career growth.</p>
+
+          <div class="stat-row">
+            <div class="stat-pill">
+              <div class="stat-pill-value">50K+</div>
+              <div class="stat-pill-label">Professionals</div>
+            </div>
+            <div class="stat-pill">
+              <div class="stat-pill-value">1.5K+</div>
+              <div class="stat-pill-label">Listings</div>
+            </div>
+            <div class="stat-pill">
+              <div class="stat-pill-value">24/7</div>
+              <div class="stat-pill-label">Support</div>
+            </div>
+          </div>
+        </div>
+
+        <section class="auth-card glass-card card-hover-effect">
+          <div class="auth-card-header">
+            <div class="auth-card-brand">CareerMomentum</div>
+            <h2 class="auth-card-title">Welcome Back</h2>
+            <p class="auth-card-sub">Enter your details to access your dashboard</p>
+          </div>
+
+          <form action="{{ url_for('login') }}" method="POST">
+            <div class="form-field">
+              <label for="email">Email ID / Username</label>
+              <input id="email" name="email" type="text" placeholder="Enter your active Email ID" required />
+            </div>
+
+            <div class="form-field">
+              <div class="form-field-top">
+                <label for="password">Password</label>
+                <a href="#">Forgot Password?</a>
+              </div>
+              <input id="password" name="password" type="password" placeholder="Enter your password" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Login</button>
+          </form>
+
+          <div class="auth-alt">
+            <p>Don't have an account? <a href="register.html">Register for free</a></p>
+
+            <div class="divider">
+              <span class="line"></span>
+              <span>Or</span>
+              <span class="line"></span>
+            </div>
+
+            <button class="btn-google">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" />
+              Sign in with Google
+            </button>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/js/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CareerMomentum - AI Career Coach</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <style>
+    /* Full page container for the dedicated coaching workspace */
+    .coach-container {
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+    .coach-workspace {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+        border: 1px solid #eef2f5;
+        display: flex;
+        flex-direction: column;
+        height: 600px;
+        overflow: hidden;
+    }
+    .coach-header {
+        background-color: #0d2538;
+        color: white;
+        padding: 20px;
+    }
+    .coach-messages {
+        flex: 1;
+        padding: 24px;
+        overflow-y: auto;
+        background-color: #f8f9fa;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .coach-input-area {
+        display: flex;
+        padding: 20px;
+        background: white;
+        border-top: 1px solid #eef2f5;
+    }
+    .coach-input-area input {
+        flex: 1;
+        padding: 14px 20px;
+        border: 1px solid #ced4da;
+        border-radius: 30px;
+        outline: none;
+        font-size: 16px;
+    }
+    .coach-input-area button {
+        background-color: #0d2538;
+        color: white;
+        border: none;
+        border-radius: 30px;
+        padding: 0 28px;
+        margin-left: 12px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="logo">CareerMomentum</div>
+    <div class="nav-links">
+      <a href="resource.html">Resources</a>
+      <a href="{{ url_for('index') }}">Dashboard</a>
+    </div>
+  </nav>
+
+  <div class="coach-container">
+    <div class="section-header">
+      <h2>Deep AI Career Coaching</h2>
+      <p>Ask in-depth questions regarding job transitions, resume adjustments, and comprehensive interview roadmaps.</p>
+    </div>
+
+    <div class="coach-workspace">
+      <div class="coach-header">
+        <h3>Interactive Coach Dashboard</h3>
+      </div>
+      
+      <div class="coach-messages" id="coach-messages">
+        <div class="message bot-message">
+          Welcome to your personal career guidance workspace. Let's build your path forward. What industry adjustments or career goals are you targeting?
+        </div>
+      </div>
+      
+      <div class="coach-input-area">
+        <input type="text" id="coach-input" placeholder="Discuss salary negotiation, roadmaps, interview tactics..." autocomplete="off">
+        <button id="send-coach-btn">Ask Coach</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

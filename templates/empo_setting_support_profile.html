@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Settings & Support —  Recruiter Dashboard</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}" />
+
+  <style>
+    .navbar { display: flex; align-items: center; gap: 24px; }
+    .navbar-search-wrap { flex: 1; display: flex; justify-content: center; min-width: 0; }
+    .navbar-search-wrap .content-search { width: 100%; max-width: 480px; }
+    .navbar .topbar-actions { flex: 0 0 auto; display: flex; align-items: center; gap: 14px; }
+
+    .st-header { margin-bottom: 20px; }
+    .st-header h2 { font-size: 22px; font-weight: 800; color: #e7ecf3; margin: 0 0 4px 0; }
+    .st-header p { color: #93a0b4; font-size: 14px; margin: 0; }
+
+    .st-tabs {
+      display: flex;
+      gap: 6px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 24px;
+    }
+    .st-tab {
+      background: none;
+      border: none;
+      color: #93a0b4;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 16px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+    .st-tab.active { color: #14b8a6; border-bottom-color: #14b8a6; }
+
+    .st-panel { display: none; }
+    .st-panel.active { display: block; }
+
+    .st-card {
+      background: #101a2c;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .st-card h3 { font-size: 16px; font-weight: 700; color: #e7ecf3; margin: 0 0 4px 0; }
+    .st-card > p.st-sub { color: #93a0b4; font-size: 13px; margin: 0 0 20px 0; }
+
+    .st-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .st-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .st-field.full { grid-column: 1 / -1; }
+    .st-field label { font-size: 12.5px; font-weight: 600; color: #93a0b4; }
+    .st-field input, .st-field select {
+      background: #0d1626; border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;
+      padding: 11px 12px; color: #e7ecf3; font-family: 'Inter', sans-serif; font-size: 14px; outline: none;
+    }
+    .st-field input:focus, .st-field select:focus { border-color: #14b8a6; box-shadow: 0 0 0 3px rgba(20,184,166,0.15); }
+    
+    /* Profile image upload styling */
+    .st-profile-image-preview {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid rgba(20,184,166,0.3);
+      margin-bottom: 12px;
+    }
+    
+    .st-file-input-wrapper {
+      position: relative;
+      display: inline-block;
+      overflow: hidden;
+    }
+    
+    .st-file-input-wrapper input[type="file"] {
+      position: absolute;
+      left: -9999px;
+    }
+    
+    .st-file-input-label {
+      display: inline-block;
+      padding: 11px 12px;
+      background: #0d1626;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      color: #93a0b4;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    
+    .st-file-input-label:hover {
+      border-color: #14b8a6;
+      color: #14b8a6;
+    }
+
+    .st-toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .st-toggle-row:last-child { border-bottom: none; }
+    .st-toggle-row p.tt { margin: 0; font-size: 14px; font-weight: 600; color: #e7ecf3; }
+    .st-toggle-row p.td { margin: 2px 0 0; font-size: 12.5px; color: #93a0b4; }
+
+    .st-switch { position: relative; width: 42px; height: 24px; flex: 0 0 auto; }
+    .st-switch input { opacity: 0; width: 0; height: 0; }
+    .st-switch .track {
+      position: absolute; inset: 0; background: #253146; border-radius: 999px; cursor: pointer; transition: 0.15s;
+    }
+    .st-switch .track::before {
+      content: ""; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px;
+      background: #e7ecf3; border-radius: 50%; transition: 0.15s;
+    }
+    .st-switch input:checked + .track { background: #14b8a6; }
+    .st-switch input:checked + .track::before { transform: translateX(18px); }
+
+    .st-btn {
+      display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px;
+      font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid transparent; font-family: 'Inter', sans-serif;
+    }
+    .st-btn-primary { background: linear-gradient(135deg, #14b8a6, #0d9488); color: #06231f; }
+    .st-btn-ghost { background: transparent; border-color: rgba(255,255,255,0.08); color: #93a0b4; }
+
+    .st-faq-item { border-bottom: 1px solid rgba(255,255,255,0.06); padding: 14px 0; }
+    .st-faq-item:last-child { border-bottom: none; }
+    .st-faq-q {
+      display: flex; align-items: center; justify-content: space-between; cursor: pointer;
+      font-size: 14px; font-weight: 600; color: #e7ecf3;
+    }
+    .st-faq-a { font-size: 13px; color: #93a0b4; margin-top: 8px; line-height: 1.6; display: none; }
+    .st-faq-item.open .st-faq-a { display: block; }
+    .st-faq-item.open .st-faq-q .material-symbols-outlined { transform: rotate(180deg); }
+    .st-faq-q .material-symbols-outlined { font-size: 20px; color: #93a0b4; transition: transform 0.15s; }
+
+    .st-support-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .st-support-card {
+      background: #0d1626; border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 18px;
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .st-support-card .material-symbols-outlined { color: #14b8a6; font-size: 22px; }
+    .st-support-card p.tt { margin: 0; font-size: 13.5px; font-weight: 700; color: #e7ecf3; }
+    .st-support-card p.td { margin: 4px 0 0; font-size: 12.5px; color: #93a0b4; }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">CareerMomentum</div>
+    <div class="navbar-search-wrap">
+      <div class="content-search">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" placeholder="Search candidates, jobs, or analytics..." />
+      </div>
+    </div>
+    <div class="topbar-actions">
+      
+      <div class="topbar-divider"></div>
+      <a href="{{ url_for('employer_pages.profile') }}" style="text-decoration:none;">
+        <div class="user-chip">
+          <div>
+            <p class="user-chip-name">{{ current_user.employer_name }}</p>
+            <p class="user-chip-role">{{ current_user.company_name }}</p>
+          </div>
+          <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ current_user.employer_name|urlencode }}" alt="{{ current_user.employer_name }}" />
+        </div>
+      </a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="dashboard-hero">
+      <div class="dashboard-wrap">
+
+        <aside class="sidebar">
+          <div class="sidebar-profile">
+            <div class="sidebar-avatar">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+            </div>
+            <div>
+              <p class="sidebar-profile-name">CareerMomentum</p>
+              <p class="sidebar-profile-status">Recruiter Suite</p>
+            </div>
+          </div>
+
+          <nav class="sidebar-nav">
+            <a href="{{ url_for('employer_pages.dashboard') }}">
+              <span class="material-symbols-outlined">dashboard</span>
+              <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('employer_pages.jobs') }}">
+              <span class="material-symbols-outlined">work</span>
+              <span>Jobs</span>
+            </a>
+            <a href="{{ url_for('employer_pages.candidates') }}">
+              <span class="material-symbols-outlined">group</span>
+              <span>Candidates</span>
+            </a>
+            <a href="{{ url_for('employer_pages.settings') }}" class="active">
+              <span class="material-symbols-outlined">settings</span>
+              <span>Settings & Support</span>
+            </a>
+          </nav>
+        </aside>
+
+        <div class="dashboard-main">
+          <div class="st-header">
+            <h2>Settings & Support</h2>
+            <p>Manage your account preferences, and get help when you need it.</p>
+          </div>
+
+          <div class="st-tabs">
+            <button class="st-tab active" id="tab-settings" onclick="showTab('settings')">Account Settings</button>
+            <button class="st-tab" id="tab-support" onclick="showTab('support')">Support</button>
+          </div>
+
+          <!-- Settings panel -->
+          <div class="st-panel active" id="panel-settings">
+            <!-- PROFILE PICTURE SECTION -->
+            <div class="st-card">
+              <h3>Profile Picture</h3>
+              <p class="st-sub">Upload and update your profile photo.</p>
+              <img id="profile-preview" class="st-profile-image-preview" src="" alt="Profile preview" />
+              <div class="st-file-input-wrapper">
+                <input 
+                  id="profile-image-input"
+                  type="file" 
+                  accept="image/*"
+                  onchange="profileSync.handleImageUpload(this)"
+                />
+                <label for="profile-image-input" class="st-file-input-label">
+                  <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">image</span>
+                  Choose Image
+                </label>
+              </div>
+            </div>
+
+            <!-- PROFILE SECTION -->
+            <div class="st-card">
+              <h3>Profile</h3>
+              <p class="st-sub">This information is visible to your team.</p>
+              <div class="st-grid">
+                <div class="st-field"><label>Full Name</label><input type="text" id="name-input" value="{{ current_user.employer_name }}" /></div>
+                <div class="st-field"><label>Role</label><input type="text" id="role-input" value="{{ current_user.company_name }}" /></div>
+                <div class="st-field"><label>Email</label><input type="email" id="email-input" value="{{ current_user.company_email }}" /></div>
+                <div class="st-field"><label>Phone</label><input type="text" placeholder="+91 98765 43210" /></div>
+              </div>
+              <div style="display:flex; justify-content:flex-end; gap:12px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.08);">
+                <button class="st-btn st-btn-ghost" type="button" onclick="cancelEdit()">Cancel</button>
+                <button class="st-btn st-btn-primary" type="button" onclick="saveProfile()">Save Changes</button>
+              </div>
+            </div>
+
+            <!-- NOTIFICATIONS SECTION -->
+            <div class="st-card">
+              <h3>Notifications</h3>
+              <p class="st-sub">Choose what you want to be notified about.</p>
+              <div class="st-toggle-row">
+                <div><p class="tt">New applications</p><p class="td">Get notified when a candidate applies to your job.</p></div>
+                <label class="st-switch"><input type="checkbox" checked /><span class="track"></span></label>
+              </div>
+              <div class="st-toggle-row">
+                <div><p class="tt">Candidate status changes</p><p class="td">Alerts when a candidate moves stages.</p></div>
+                <label class="st-switch"><input type="checkbox" checked /><span class="track"></span></label>
+              </div>
+              <div class="st-toggle-row">
+                <div><p class="tt">Weekly summary email</p><p class="td">A digest of hiring activity every Monday.</p></div>
+                <label class="st-switch"><input type="checkbox" /><span class="track"></span></label>
+              </div>
+            </div>
+
+            <!-- SECURITY SECTION -->
+            <div class="st-card">
+              <h3>Security</h3>
+              <p class="st-sub">Update your password to keep your account secure.</p>
+              <div class="st-grid">
+                <div class="st-field full"><label>Current Password</label><input type="password" placeholder="••••••••" /></div>
+                <div class="st-field"><label>New Password</label><input type="password" placeholder="••••••••" /></div>
+                <div class="st-field"><label>Confirm New Password</label><input type="password" placeholder="••••••••" /></div>
+              </div>
+              <div style="display:flex; justify-content:flex-end; padding-top:8px; border-top:1px solid rgba(255,255,255,0.08);">
+                <button class="st-btn st-btn-primary" type="button">Update Password</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Support panel -->
+          <div class="st-panel" id="panel-support">
+            <div class="st-card">
+              <h3>Contact Support</h3>
+              <p class="st-sub">Reach the Lumina AI team directly.</p>
+              <div class="st-support-grid">
+                <div class="st-support-card">
+                  <span class="material-symbols-outlined">mail</span>
+                  <div><p class="tt">Email</p><p class="td">support@lumina.example.com</p></div>
+                </div>
+                <div class="st-support-card">
+                  <span class="material-symbols-outlined">chat_bubble</span>
+                  <div><p class="tt">Live Chat</p><p class="td">Available Mon–Fri, 9am–6pm</p></div>
+                </div>
+                <div class="st-support-card">
+                  <span class="material-symbols-outlined">call</span>
+                  <div><p class="tt">Phone</p><p class="td">+91 98765 43210</p></div>
+                </div>
+                <div class="st-support-card">
+                  <span class="material-symbols-outlined">description</span>
+                  <div><p class="tt">Documentation</p><p class="td">Browse setup and usage guides</p></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="st-card">
+              <h3>Frequently Asked Questions</h3>
+              <div class="st-faq-item">
+                <div class="st-faq-q" onclick="this.parentElement.classList.toggle('open')">
+                  How do I post a new job?
+                  <span class="material-symbols-outlined">expand_more</span>
+                </div>
+                <div class="st-faq-a">Go to the Jobs tab, fill in the job details form, and click Post Job. It appears instantly in your active postings.</div>
+              </div>
+              <div class="st-faq-item">
+                <div class="st-faq-q" onclick="this.parentElement.classList.toggle('open')">
+                  Why don't I see any candidates?
+                  <span class="material-symbols-outlined">expand_more</span>
+                </div>
+                <div class="st-faq-a">The Candidates page only shows applicants for jobs you've posted. Post a job first to start receiving applicants.</div>
+              </div>
+              <div class="st-faq-item">
+                <div class="st-faq-q" onclick="this.parentElement.classList.toggle('open')">
+                  How is the match score calculated?
+                  <span class="material-symbols-outlined">expand_more</span>
+                </div>
+                <div class="st-faq-a">Lumina AI compares a candidate's skills and experience against your job description and key skills to generate a match percentage.</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
+  <script>
+    function showTab(name) {
+      document.querySelectorAll('.st-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.st-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+      document.getElementById('panel-' + name).classList.add('active');
+    }
+
+    // Update profile image preview
+    function updatePreview() {
+      const preview = document.getElementById('profile-preview');
+      const current = profileSync.getProfile();
+      preview.src = current.imageUrl;
+    }
+
+    function saveProfile() {
+      const name = document.getElementById('name-input').value;
+      const role = document.getElementById('role-input').value;
+      const email = document.getElementById('email-input').value;
+      
+      profileSync.updateProfileData({ name, role, email });
+      alert('✓ Profile saved successfully!');
+    }
+
+    function cancelEdit() {
+      location.reload();
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', updatePreview);
+
+    // Force correct sidebar highlighting
+    (function () {
+      document.querySelectorAll('.sidebar-nav a').forEach(function (link) {
+        link.classList.remove('active');
+      });
+      var current = document.querySelector('.sidebar-nav a[href$="settings.html"]');
+      if (current) current.classList.add('active');
+    })();
+  </script>
+</body>
+</html>

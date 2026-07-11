@@ -18,12 +18,12 @@
  
     <div class="nav-links">
       <a href="resource.html">Resources</a>
-      <a href="main_explore.html" class="active">Dashboard</a>
+      <a href="{{ url_for('index') }}" class="active">Dashboard</a>
     </div>
  
     <div class="nav-buttons">
-      <a href="empolyer_login_register.html" class="btn btn-outline">Employers</a>
-      <a href="user_login_register.html" class="btn btn-outline">Seekers</a>
+      <a href="{{ url_for('employer_auth.employer_login_register_page') }}" class="btn btn-outline">Employers</a>
+      <a href="{{ url_for('seeker_auth.seeker_login_register_page') }}" class="btn btn-outline">Seekers</a>
       <!-- <a href="register.html" class="btn btn-primary">Register</a> -->
     </div>
   </nav>
@@ -41,7 +41,7 @@
           <button class="btn btn-primary">Search</button>
         </div>
  
-        <div class="search-filters" id="expanded-filters">
+        <div class="search-filters hidden" id="expanded-filters">
           <div class="filter-field">
             <label>Job Title</label>
             <input type="text" placeholder="Enter keywords" />
@@ -224,7 +224,28 @@
       </div>
     </div>
   </section>
- 
+  <button id="chat-toggle-btn" class="chat-toggle-btn">
+      💬 Chat with AI
+  </button>
+
+  <div id="chat-window" class="chat-window hidden">
+      <div class="chat-header">
+          <h4>AI Career Copilot</h4>
+          <button id="close-chat-btn" class="close-btn">&times;</button>
+      </div>
+      
+      <div class="chat-messages" id="chat-messages">
+          <div class="message bot-message">
+              Hi there! I'm your AI Career Copilot. How can I help you today?
+          </div>
+      </div>
+      
+      <div class="chat-input-area">
+          <input type="text" id="chat-input" placeholder="Type your message..." autocomplete="off">
+          <button id="send-chat-btn">Send</button>
+      </div>
+  </div>
+  
   <!-- ===== Call To Action ===== -->
   <section class="section">
     <div class="cta-box">
@@ -253,23 +274,8 @@
  
     <div class="footer-copy">© 2024 CareerMomentum. All rights reserved.</div>
   </footer>
- 
-  <!-- ===== Expandable search filters ===== -->
-  <script>
-    const triggerInput = document.getElementById('trigger-input');
-    const expandedFilters = document.getElementById('expanded-filters');
-    const searchContainer = document.getElementById('search-container');
 
-    triggerInput.addEventListener('focus', () => {
-      expandedFilters.classList.add('show');
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!searchContainer.contains(e.target)) {
-        expandedFilters.classList.remove('show');
-      }
-    });
-  </script>
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 
 </body>
 </html>
