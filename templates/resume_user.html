@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Resume Builder | CareerMomentum</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/user.css" />
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">CareerMomentum</div>
+
+    <div class="navbar-search">
+      <div class="job-search-field has-caret">
+        <select required>
+          <option value="" disabled selected hidden>Select job type</option>
+          <option value="internship">Internship</option>
+          <option value="job">Job</option>
+        </select>
+      </div>
+      <div class="job-search-divider"></div>
+      <div class="job-search-field">
+        <input type="text" placeholder="Enter keyword / designation / companies" />
+      </div>
+      <div class="job-search-divider"></div>
+      <div class="job-search-field">
+        <input type="text" placeholder="Enter location" />
+      </div>
+      <button class="job-search-btn" type="button">
+        <span class="material-symbols-outlined">search</span>
+        Search
+      </button>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="nav-icon-btn" type="button" aria-label="Notifications">
+        <span class="material-symbols-outlined">notifications</span>
+        <span class="nav-badge">13</span>
+      </button>
+      <div class="topbar-divider"></div>
+      <a href="{{ url_for('seeker_auth.profile') }}" style="text-decoration:none;">
+        <div class="user-chip">
+          <span class="user-role">Talent Lead</span>
+          <div class="user-avatar">
+            <span class="material-symbols-outlined">person</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="dashboard-hero">
+      <div class="dashboard-wrap">
+
+        <aside class="sidebar">
+          <nav class="sidebar-nav">
+            <a href="{{ url_for('seeker_auth.seeker_dashboard') }}" class="active">
+              <span class="material-symbols-outlined">dashboard</span>
+              <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('seeker_auth.resume_builder') }}">
+              <span class="material-symbols-outlined">description</span>
+              <span>Resume Builder</span>
+            </a>
+            <a href="{{ url_for('ats_checker.ats_checker_page') }}">
+              <span class="material-symbols-outlined">analytics</span>
+              <span>ATS Analysis</span>
+            </a>
+            <a href="{{ url_for('recommendation.recommendation_page') }}">
+              <span class="material-symbols-outlined">stars</span>
+              <span>Job Recommendations</span>
+            </a>
+            <a href="{{ url_for('cover_letter.cover_letter') }}">
+              <span class="material-symbols-outlined">mail</span>
+              <span>Cover Letter</span>
+            </a>
+            <a href="/templates/auto.html">
+              <span class="material-symbols-outlined">forward_to_inbox</span>
+              <span>Email Automation</span>
+            </a>
+            <a href="{{ url_for('seeker_auth.skill_gap') }}">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+              <span>Skill Gap</span>
+            </a>
+            <a href="{{ url_for('seeker_auth.settings') }}">
+              <span class="material-symbols-outlined">settings</span>
+              <span>Settings &amp; Support</span>
+            </a>
+          </nav>
+        </aside>
+
+        <div class="dashboard-main">
+          <div class="coming-soon-wrap">
+            <div class="coming-soon-card">
+              <div class="coming-soon-icon">
+                <span class="material-symbols-outlined" style="font-size:34px;">description</span>
+              </div>
+              <h2>Resume Builder is coming soon</h2>
+              <p>
+                We're building a guided resume builder that turns your profile into a polished,
+                ATS-friendly resume in minutes — with live previews and export to PDF.
+              </p>
+              <button class="btn btn-primary" type="button" onclick="window.location.href='/templates/profile_user.html'">
+                <span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle;">arrow_back</span>
+                Back to Profile
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>
+      <h1 class="footer-logo">CareerMomentum</h1>
+      <p class="footer-copy">© 2026 CareerMomentum. Powered by Next-Gen Intelligence.</p>
+    </div>
+    <div class="footer-links">
+      <a href="privacy_policy.html">Privacy Policy</a>
+      <a href="terms_of_services.html">Terms of Service</a>
+      <a href="#">Cookie Settings</a>
+      <a href="contact.html">Contact Us</a>
+    </div>
+  </footer>
+</body>
+</html>

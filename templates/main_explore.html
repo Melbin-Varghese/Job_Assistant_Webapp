@@ -17,8 +17,8 @@
     <div class="logo">CareerMomentum</div>
  
     <div class="nav-links">
-      <a href="resource.html">Resources</a>
-      <a href="{{ url_for('index') }}" class="active">Dashboard</a>
+      <a href="{{ url_for('resources') }}">Resources</a>
+      <a href="{{ url_for('support_user') }}" class="active">Dashboard</a>
     </div>
  
     <div class="nav-buttons">
@@ -149,7 +149,7 @@
         <div class="tool-icon">🔎</div>
         <h3>Job Recommendation</h3>
         <p>Get personalized job matches based on your unique skill set and preferences.</p>
-        <a href="recommendation.html" class="btn btn-ghost">Get Started</a>
+        <a href="recommendation.html" class="btn btn-ghost">Try Now</a>
       </div>
  
       <div class="tool-card">
@@ -163,21 +163,21 @@
         <div class="tool-icon">🧠</div>
         <h3>AI Career Coach</h3>
         <p>Receive 24/7 guidance on career transitions, salary negotiation, and growth.</p>
-        <a href="ai_assistant.html" class="btn btn-ghost">Get Started</a>
+        <a href="ai_assistant.html" class="btn btn-ghost">Try Now</a>
       </div>
  
       <div class="tool-card">
         <div class="tool-icon">📝</div>
         <h3>Resume Builder</h3>
         <p>Create a high-impact, ATS-friendly resume with our intelligent editor.</p>
-        <a href="ats_checker.html" class="btn btn-ghost">Try Now</a>
+        <a href="{{ url_for('coming_soon') }}" class="btn btn-ghost">Get Started</a>
       </div>
  
       <div class="tool-card">
         <div class="tool-icon">🎥</div>
         <h3>AI Mock Interview</h3>
         <p>Practice with our specialized AI coach and get real-time performance feedback.</p>
-        <a href="ats_checker.html" class="btn btn-ghost">Get Started</a>
+        <a href="{{ url_for('coming_soon') }}" class="btn btn-ghost">Get Started</a>
       </div>
     </div>
   </section>
@@ -266,7 +266,7 @@
     </div>
  
     <div class="footer-links">
-      <a href="about.html">About</a>
+      <a href="{{ url_for('about') }}">About</a>
       <a href="privacy_policy.html">Privacy Policy</a>
       <a href="contact.html">Contact</a>
       <a href="terms_of_services.html">Terms Of Services</a>

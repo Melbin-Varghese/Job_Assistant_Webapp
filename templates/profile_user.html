@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>My Profile | CareerMomentum</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/user.css" />
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">CareerMomentum</div>
+
+    <div class="navbar-search">
+      <div class="job-search-field has-caret">
+        <select required>
+          <option value="" disabled selected hidden>Select job type</option>
+          <option value="internship">Internship</option>
+          <option value="job">Job</option>
+        </select>
+      </div>
+      <div class="job-search-divider"></div>
+      <div class="job-search-field">
+        <input type="text" placeholder="Enter keyword / designation / companies" />
+      </div>
+      <div class="job-search-divider"></div>
+      <div class="job-search-field">
+        <input type="text" placeholder="Enter location" />
+      </div>
+      <button class="job-search-btn" type="button">
+        <span class="material-symbols-outlined">search</span>
+        Search
+      </button>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="nav-icon-btn" type="button" aria-label="Notifications">
+        <span class="material-symbols-outlined">notifications</span>
+        <span class="nav-badge">13</span>
+      </button>
+      <div class="topbar-divider"></div>
+      <a href="/templates/profile_user.html" style="text-decoration:none;">
+        <div class="user-chip">
+          <span class="user-role">Profile</span>
+          <div class="user-avatar">
+            <span class="material-symbols-outlined">person</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="dashboard-hero">
+      <div class="dashboard-wrap">
+
+        <aside class="sidebar">
+          <nav class="sidebar-nav">
+            <a href="/templates/user.html">
+              <span class="material-symbols-outlined">dashboard</span>
+              <span>Dashboard</span>
+            </a>
+            <a href="/templates/resume_user.html">
+              <span class="material-symbols-outlined">description</span>
+              <span>Resume Builder</span>
+            </a>
+            <a href="#">
+              <span class="material-symbols-outlined">analytics</span>
+              <span>ATS Analysis</span>
+            </a>
+            <a href="#">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">stars</span>
+              <span>Job Recommendations</span>
+            </a>
+            <a href="/templates/auto.html">
+              <span class="material-symbols-outlined">mail</span>
+              <span>Cover Letter</span>
+            </a>
+            <a href="/templates/auto.html">
+              <span class="material-symbols-outlined">forward_to_inbox</span>
+              <span>Email Automation</span>
+            </a>
+            <a href="/templates/skill_gap_user.html">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+              <span>Skill Gap</span>
+            </a>
+            <a href="/templates/settings_support_user.html">
+              <span class="material-symbols-outlined">settings</span>
+              <span>Settings &amp; Support</span>
+            </a>
+          </nav>
+        </aside>
+
+        <div class="dashboard-main">
+
+          <div class="profile-hero">
+            <div class="profile-avatar" id="pfAvatarInitials">
+              <span class="material-symbols-outlined" style="font-size:32px;">person</span>
+            </div>
+            <div class="profile-hero-info" style="flex:1; min-width:220px;">
+              <input class="pf-input pf-hero-input" id="pfName" placeholder="Your full name" style="font-size:22px; font-weight:800; color:#fff; margin-bottom:6px;" readonly />
+              <input class="pf-input pf-hero-input" id="pfHeadline" placeholder="Headline — e.g. AI / ML Engineer" style="font-size:14px; margin-bottom:12px;" readonly />
+              <div class="profile-hero-chips">
+                <span class="profile-chip"><span class="material-symbols-outlined">location_on</span><input class="pf-input pf-hero-input" id="pfLocation" placeholder="Location" style="width:140px; font-size:12px;" readonly /></span>
+                <span class="profile-chip"><span class="material-symbols-outlined">call</span><input class="pf-input pf-hero-input" id="pfPhone" placeholder="Phone" style="width:130px; font-size:12px;" readonly /></span>
+                <span class="profile-chip"><span class="material-symbols-outlined">mail</span><input class="pf-input pf-hero-input" id="pfEmail" placeholder="Email" style="width:180px; font-size:12px;" readonly /></span>
+              </div>
+            </div>
+            <div class="profile-hero-actions">
+              <button class="btn btn-light" type="button" onclick="window.location.href='/templates/settings_support_user.html'">
+                <span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle;">settings</span>
+                Account Settings
+              </button>
+              <button class="btn btn-primary" type="button" id="editProfileBtn">
+                <span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle;">edit</span>
+                Edit Profile
+              </button>
+            </div>
+          </div>
+
+          <!-- Resume upload / auto-fill -->
+          <div class="resume-upload-box">
+            <span class="material-symbols-outlined upload-icon">picture_as_pdf</span>
+            <div class="resume-upload-text">
+              <strong>Fetch details from your resume</strong>
+              <span>Upload a PDF to auto-fill the fields below — you can still edit anything afterwards.</span>
+            </div>
+            <div class="resume-upload-actions">
+              <span class="resume-upload-status" id="resumeParseStatus"></span>
+              <div class="file-input-wrapper">
+                <label class="btn btn-outline" for="resumeUploadInput" style="cursor:pointer;">
+                  <span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle;">upload</span>
+                  Upload Resume (PDF)
+                </label>
+                <input type="file" id="resumeUploadInput" accept="application/pdf" />
+              </div>
+            </div>
+          </div>
+
+          <div class="profile-grid">
+            <!-- LEFT COLUMN -->
+            <div>
+              <div class="panel">
+                <p class="profile-section-title"><span class="material-symbols-outlined">person</span>Professional Summary</p>
+                <textarea class="pf-textarea" id="pfSummary" rows="4" placeholder="Write a short summary of your background, skills, and the roles you're targeting..." readonly></textarea>
+              </div>
+
+              <div class="panel">
+                <p class="profile-section-title"><span class="material-symbols-outlined">psychology</span>Skills</p>
+                <div class="pf-tag-input-box" id="pfSkillsBox">
+                  <input type="text" id="pfSkillsInput" placeholder="Type a skill and press Enter (e.g. Python)" />
+                </div>
+                <p class="pf-empty-state" id="pfSkillsEmpty">
+                  <span class="material-symbols-outlined">psychology_alt</span>
+                  No skills added yet. Upload a resume or click Edit Profile to add some.
+                </p>
+              </div>
+
+              <div class="panel">
+                <p class="profile-section-title"><span class="material-symbols-outlined">work_history</span>Professional Experience</p>
+                <div id="pfExperienceList"></div>
+                <p class="pf-empty-state" id="pfExperienceEmpty">
+                  <span class="material-symbols-outlined">work_off</span>
+                  No experience added yet.
+                </p>
+                <button class="pf-add-btn" type="button" id="addExperienceBtn">
+                  <span class="material-symbols-outlined" style="font-size:16px;">add</span>
+                  Add Experience
+                </button>
+              </div>
+
+              <div class="panel">
+                <p class="profile-section-title"><span class="material-symbols-outlined">deployed_code</span>Key Projects</p>
+                <div id="pfProjectsList"></div>
+                <p class="pf-empty-state" id="pfProjectsEmpty">
+                  <span class="material-symbols-outlined">deployed_code</span>
+                  No projects added yet.
+                </p>
+                <button class="pf-add-btn" type="button" id="addProjectBtn">
+                  <span class="material-symbols-outlined" style="font-size:16px;">add</span>
+                  Add Project
+                </button>
+              </div>
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div>
+              <div class="panel">
+                <p class="profile-section-title"><span class="material-symbols-outlined">contact_mail</span>Contact Information</p>
+                <div class="contact-row"><span class="k">Phone</span><input class="pf-input" id="pfContactPhone" style="text-align:right;" placeholder="—" readonly /></div>
+                <div class="contact-row"><span class="k">Email</span><input class="pf-input" id="pfContactEmail" style="text-align:right;" placeholder="—" readonly /></div>
+                <div class="contact-row"><span class="k">LinkedIn</span><input class="pf-input" id="pfContactLinkedin" style="text-align:right;" placeholder="—" readonly /></div>
+                <div class="contact-row"><span class="k">GitHub</span><input class="pf-input" id="pfContactGithub" style="text-align:right;" placeholder="—" readonly /></div>
+              </div>
+
+              <div class="panel">
+                <p class="profile-section-title"><span class="material-symbols-outlined">school</span>Education</p>
+                <div id="pfEducationList"></div>
+                <p class="pf-empty-state" id="pfEducationEmpty">
+                  <span class="material-symbols-outlined">school</span>
+                  No education added yet.
+                </p>
+                <button class="pf-add-btn" type="button" id="addEducationBtn">
+                  <span class="material-symbols-outlined" style="font-size:16px;">add</span>
+                  Add Education
+                </button>
+              </div>
+
+              <div class="panel">
+                <p class="profile-section-title"><span class="material-symbols-outlined">stars</span>Additional Skills</p>
+                <div class="pf-tag-input-box" id="pfAddSkillsBox">
+                  <input type="text" id="pfAddSkillsInput" placeholder="e.g. Public Speaking" />
+                </div>
+                <p class="pf-empty-state" id="pfAddSkillsEmpty">
+                  <span class="material-symbols-outlined">stars</span>
+                  None added yet.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>
+      <h1 class="footer-logo">CareerMomentum</h1>
+      <p class="footer-copy">© 2026 CareerMomentum. Powered by Next-Gen Intelligence.</p>
+    </div>
+    <div class="footer-links">
+      <a href="privacy_policy.html">Privacy Policy</a>
+      <a href="terms_of_services.html">Terms of Service</a>
+      <a href="#">Cookie Settings</a>
+      <a href="contact.html">Contact Us</a>
+    </div>
+  </footer>
+
+  <!-- pdf.js — used only to pull raw text out of an uploaded resume PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    (function () {
+      const STORAGE_KEY = 'cm_jobseeker_profile';
+
+      // ---- Data model. Blank by default — nothing is pre-filled. ----
+      let profile = {
+        name: '', headline: '', location: '', phone: '', email: '',
+        linkedin: '', github: '', summary: '',
+        skills: [], additionalSkills: [],
+        experience: [], projects: [], education: []
+      };
+
+      // Declared up front (not just near the Edit button) because the render
+      // templates below need to read it every time they rebuild the DOM —
+      // otherwise re-rendering after an add/remove would reset those fields
+      // back to readonly even while the profile is being edited.
+      let editing = false;
+
+      function loadProfile() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) profile = Object.assign(profile, JSON.parse(raw));
+        } catch (e) { console.warn('Could not load saved profile', e); }
+      }
+
+      function saveProfile() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+      }
+
+      // ---- Scalar fields: bind once, update on input, no re-render needed ----
+      const scalarFieldMap = {
+        pfName: 'name', pfHeadline: 'headline', pfLocation: 'location',
+        pfPhone: 'phone', pfEmail: 'email', pfSummary: 'summary',
+        pfContactPhone: 'phone', pfContactEmail: 'email',
+        pfContactLinkedin: 'linkedin', pfContactGithub: 'github'
+      };
+
+      function fillScalarInputs() {
+        Object.keys(scalarFieldMap).forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.value = profile[scalarFieldMap[id]] || '';
+        });
+        const initials = (profile.name || '').trim().split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+        const avatarEl = document.getElementById('pfAvatarInitials');
+        avatarEl.textContent = initials || '';
+        if (!initials) avatarEl.innerHTML = '<span class="material-symbols-outlined" style="font-size:32px;">person</span>';
+      }
+
+      function bindScalarInputs() {
+        Object.keys(scalarFieldMap).forEach(id => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.addEventListener('input', () => {
+            const key = scalarFieldMap[id];
+            profile[key] = el.value;
+            // Keep the two email/phone displays (hero chip + contact panel) in sync live.
+            if (key === 'email') { document.getElementById('pfEmail').value = el.value; document.getElementById('pfContactEmail').value = el.value; }
+            if (key === 'phone') { document.getElementById('pfPhone').value = el.value; document.getElementById('pfContactPhone').value = el.value; }
+            if (key === 'name') {
+              const initials = el.value.trim().split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+              document.getElementById('pfAvatarInitials').textContent = initials;
+            }
+          });
+        });
+      }
+
+      // ---- Tag lists (skills / additionalSkills) ----
+      function renderTags(listKey, boxId, emptyId, inputId) {
+        const box = document.getElementById(boxId);
+        const input = document.getElementById(inputId);
+        box.querySelectorAll('.skill-tag').forEach(t => t.remove());
+        (profile[listKey] || []).forEach((tag, i) => {
+          const span = document.createElement('span');
+          span.className = 'skill-tag';
+          span.innerHTML = escapeHtml(tag) + ' <span class="pf-tag-remove" data-i="' + i + '">✕</span>';
+          box.insertBefore(span, input);
+        });
+        document.getElementById(emptyId).style.display = (profile[listKey] || []).length ? 'none' : '';
+      }
+
+      function addTag(listKey, boxId, emptyId, inputId, value) {
+        const v = value.trim().replace(/,$/, '');
+        if (!v) return;
+        if (!profile[listKey].some(s => s.toLowerCase() === v.toLowerCase())) {
+          profile[listKey].push(v);
+          renderTags(listKey, boxId, emptyId, inputId);
+        }
+      }
+
+      function wireTagInput(listKey, boxId, emptyId, inputId) {
+        const box = document.getElementById(boxId);
+        const input = document.getElementById(inputId);
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            addTag(listKey, boxId, emptyId, inputId, input.value);
+            input.value = '';
+          } else if (e.key === 'Backspace' && !input.value && profile[listKey].length) {
+            profile[listKey].pop();
+            renderTags(listKey, boxId, emptyId, inputId);
+          }
+        });
+        box.addEventListener('click', (e) => {
+          const rm = e.target.closest('.pf-tag-remove');
+          if (rm) {
+            profile[listKey].splice(Number(rm.dataset.i), 1);
+            renderTags(listKey, boxId, emptyId, inputId);
+          } else {
+            input.focus();
+          }
+        });
+      }
+
+      // ---- Repeatable sections: experience / projects / education ----
+      function renderExperience() {
+        const wrap = document.getElementById('pfExperienceList');
+        wrap.innerHTML = '';
+        profile.experience.forEach((item, i) => {
+          const el = document.createElement('div');
+          el.className = 'exp-item pf-list-item';
+          const ro = editing ? '' : 'readonly';
+          el.innerHTML = `
+            <button type="button" class="pf-remove-btn" data-i="${i}"><span class="material-symbols-outlined">close</span></button>
+            <div class="exp-item-top" style="gap:12px;">
+              <input class="pf-input" data-field="role" placeholder="Role — e.g. Data Science Intern" value="${escapeAttr(item.role)}" style="font-weight:700; flex:1;" ${ro} />
+              <input class="pf-input" data-field="period" placeholder="Period" value="${escapeAttr(item.period)}" style="width:150px; text-align:right;" ${ro} />
+            </div>
+            <input class="pf-input" data-field="company" placeholder="Company · Location" value="${escapeAttr(item.company)}" style="color:var(--secondary); font-weight:600; margin-bottom:8px;" ${ro} />
+            <textarea class="pf-textarea" data-field="desc" rows="3" placeholder="What did you do in this role?" ${ro}>${escapeHtml(item.desc || '')}</textarea>
+          `;
+          ['role', 'period', 'company', 'desc'].forEach(f => {
+            const input = el.querySelector('[data-field="' + f + '"]');
+            input.addEventListener('input', () => { item[f] = input.value; });
+          });
+          wrap.appendChild(el);
+        });
+        document.getElementById('pfExperienceEmpty').style.display = profile.experience.length ? 'none' : '';
+      }
+
+      function renderProjects() {
+        const wrap = document.getElementById('pfProjectsList');
+        wrap.innerHTML = '';
+        profile.projects.forEach((item, i) => {
+          const el = document.createElement('div');
+          el.className = 'project-card pf-list-item';
+          const ro = editing ? '' : 'readonly';
+          el.innerHTML = `
+            <button type="button" class="pf-remove-btn" data-i="${i}"><span class="material-symbols-outlined">close</span></button>
+            <input class="pf-input" data-field="title" placeholder="Project title" value="${escapeAttr(item.title)}" style="font-weight:700; margin-bottom:4px;" ${ro} />
+            <input class="pf-input" data-field="stack" placeholder="Tech stack — e.g. Python, React" value="${escapeAttr(item.stack)}" style="color:var(--secondary); font-weight:700; font-size:11.5px; margin-bottom:8px;" ${ro} />
+            <textarea class="pf-textarea" data-field="desc" rows="2" placeholder="Briefly describe the project..." ${ro}>${escapeHtml(item.desc || '')}</textarea>
+          `;
+          ['title', 'stack', 'desc'].forEach(f => {
+            const input = el.querySelector('[data-field="' + f + '"]');
+            input.addEventListener('input', () => { item[f] = input.value; });
+          });
+          wrap.appendChild(el);
+        });
+        document.getElementById('pfProjectsEmpty').style.display = profile.projects.length ? 'none' : '';
+      }
+
+      function renderEducation() {
+        const wrap = document.getElementById('pfEducationList');
+        wrap.innerHTML = '';
+        profile.education.forEach((item, i) => {
+          const el = document.createElement('div');
+          el.className = 'edu-item pf-list-item';
+          el.style.flexDirection = 'column';
+          el.style.alignItems = 'stretch';
+          const ro = editing ? '' : 'readonly';
+          el.innerHTML = `
+            <button type="button" class="pf-remove-btn" data-i="${i}"><span class="material-symbols-outlined">close</span></button>
+            <input class="pf-input" data-field="degree" placeholder="Degree / Course" value="${escapeAttr(item.degree)}" style="font-weight:700; margin-bottom:4px;" ${ro} />
+            <input class="pf-input" data-field="school" placeholder="School / College · Location" value="${escapeAttr(item.school)}" style="margin-bottom:4px;" ${ro} />
+            <input class="pf-input" data-field="period" placeholder="Period — e.g. 2022 – 2025" value="${escapeAttr(item.period)}" ${ro} />
+          `;
+          ['degree', 'school', 'period'].forEach(f => {
+            const input = el.querySelector('[data-field="' + f + '"]');
+            input.addEventListener('input', () => { item[f] = input.value; });
+          });
+          wrap.appendChild(el);
+        });
+        document.getElementById('pfEducationEmpty').style.display = profile.education.length ? 'none' : '';
+      }
+
+      const editBtn = document.getElementById('editProfileBtn');
+
+      function setAllInputsReadonly(readonly) {
+        document.querySelectorAll('.pf-input, .pf-textarea').forEach(el => {
+          if (readonly) el.setAttribute('readonly', 'readonly');
+          else el.removeAttribute('readonly');
+        });
+      }
+
+      // Switches the whole profile into edit mode (same as pressing "Edit
+      // Profile") without toggling it back off — used so that adding a new
+      // experience/project/education entry always lands editable right away.
+      function enterEditMode() {
+        if (editing) return;
+        editing = true;
+        document.body.classList.add('profile-edit-mode');
+        setAllInputsReadonly(false);
+        editBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle;">save</span> Save Profile';
+      }
+
+      document.getElementById('addExperienceBtn').addEventListener('click', () => {
+        enterEditMode();
+        profile.experience.push({ role: '', company: '', period: '', desc: '' });
+        renderExperience();
+      });
+      document.getElementById('addProjectBtn').addEventListener('click', () => {
+        enterEditMode();
+        profile.projects.push({ title: '', stack: '', desc: '' });
+        renderProjects();
+      });
+      document.getElementById('addEducationBtn').addEventListener('click', () => {
+        enterEditMode();
+        profile.education.push({ degree: '', school: '', period: '' });
+        renderEducation();
+      });
+
+      document.getElementById('pfExperienceList').addEventListener('click', (e) => {
+        const btn = e.target.closest('.pf-remove-btn');
+        if (btn) { profile.experience.splice(Number(btn.dataset.i), 1); renderExperience(); }
+      });
+      document.getElementById('pfProjectsList').addEventListener('click', (e) => {
+        const btn = e.target.closest('.pf-remove-btn');
+        if (btn) { profile.projects.splice(Number(btn.dataset.i), 1); renderProjects(); }
+      });
+      document.getElementById('pfEducationList').addEventListener('click', (e) => {
+        const btn = e.target.closest('.pf-remove-btn');
+        if (btn) { profile.education.splice(Number(btn.dataset.i), 1); renderEducation(); }
+      });
+
+      function escapeHtml(str) {
+        return String(str || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      }
+      function escapeAttr(str) { return escapeHtml(str); }
+
+      function renderAll() {
+        fillScalarInputs();
+        renderTags('skills', 'pfSkillsBox', 'pfSkillsEmpty', 'pfSkillsInput');
+        renderTags('additionalSkills', 'pfAddSkillsBox', 'pfAddSkillsEmpty', 'pfAddSkillsInput');
+        renderExperience();
+        renderProjects();
+        renderEducation();
+      }
+
+      // ---- Edit mode toggle ----
+      editBtn.addEventListener('click', () => {
+        editing = !editing;
+        document.body.classList.toggle('profile-edit-mode', editing);
+        setAllInputsReadonly(!editing);
+        editBtn.innerHTML = editing
+          ? '<span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle;">save</span> Save Profile'
+          : '<span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle;">edit</span> Edit Profile';
+        if (!editing) saveProfile();
+      });
+
+      wireTagInput('skills', 'pfSkillsBox', 'pfSkillsEmpty', 'pfSkillsInput');
+      wireTagInput('additionalSkills', 'pfAddSkillsBox', 'pfAddSkillsEmpty', 'pfAddSkillsInput');
+
+      loadProfile();
+      renderAll();
+      bindScalarInputs();
+      setAllInputsReadonly(true);
+
+      // ==================================================================
+      // Resume upload → auto-fill (pdf.js text extraction + regex parsing)
+      // ==================================================================
+      if (window['pdfjsLib']) {
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      }
+
+      const KNOWN_SKILLS = [
+        'Python', 'SQL', 'MySQL', 'Power BI', 'NLP', 'LLM', 'LLMs', 'Transformers',
+        'RAG', 'TensorFlow', 'PyTorch', 'Keras', 'Scikit-learn', 'OpenCV', 'MediaPipe',
+        'AWS', 'EC2', 'S3', 'Git', 'Streamlit', 'Jupyter', 'Hugging Face',
+        'Stable Diffusion', 'YOLO', 'OCR', 'CNN', 'ANN', 'LSTM', 'Vector Database',
+        'Prompt Engineering', 'Fine-tuning', 'Docker', 'Kubernetes', 'React',
+        'JavaScript', 'Java', 'C++', 'Excel', 'Tableau', 'Django', 'Flask'
+      ];
+
+      // Extract text from the PDF while preserving line breaks (grouped by Y
+      // position of each text run), so downstream section/line parsing works
+      // the way it would on the printed page instead of one giant run-on string.
+      async function extractTextFromPdf(file) {
+        const buffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+        let fullText = '';
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          let lastY = null;
+          let lineText = '';
+          content.items.forEach(item => {
+            const y = item.transform[5];
+            if (lastY !== null && Math.abs(y - lastY) > 2) {
+              fullText += lineText.trim().replace(/[ \t]+/g, ' ') + '\n';
+              lineText = '';
+            }
+            lineText += item.str + ' ';
+            lastY = y;
+          });
+          fullText += lineText.trim().replace(/[ \t]+/g, ' ') + '\n\n';
+        }
+        return fullText;
+      }
+
+      // Common resume section headers we know how to recognize on their own line.
+      const SECTION_PATTERNS = [
+        { key: 'summary', re: /^(professional\s+summary|career\s+summary|summary|objective|career\s+objective|profile)$/i },
+        { key: 'skills', re: /^(technical\s+skills|core\s+skills|skills(\s*&\s*tools)?|key\s+skills)$/i },
+        { key: 'experience', re: /^(professional\s+experience|work\s+experience|experience|employment\s+history|work\s+history)$/i },
+        { key: 'projects', re: /^(key\s+projects|projects|personal\s+projects|academic\s+projects)$/i },
+        { key: 'education', re: /^(education|academic\s+background|educational\s+qualifications)$/i },
+        { key: 'additionalSkills', re: /^(additional\s+skills|other\s+skills|soft\s+skills|extra-?curricular)$/i }
+      ];
+
+      // Collapses any run of whitespace (including PDF column gaps that can
+      // sneak through as multiple spaces) down to a single space.
+      function normalizeLine(l) {
+        return (l || '').replace(/\s+/g, ' ').trim();
+      }
+
+      function splitIntoSections(text) {
+        const lines = text.split('\n').map(normalizeLine);
+        const hits = [];
+        lines.forEach((line, idx) => {
+          if (!line || line.length > 50) return;
+          const found = SECTION_PATTERNS.find(p => p.re.test(line));
+          if (found) hits.push({ key: found.key, idx });
+        });
+        const sections = {};
+        hits.forEach((hit, i) => {
+          const endIdx = i + 1 < hits.length ? hits[i + 1].idx : lines.length;
+          sections[hit.key] = lines.slice(hit.idx + 1, endIdx).join('\n').trim();
+        });
+        return sections;
+      }
+
+      // Parses "Company/School ... date range" followed by a subheader line
+      // (role, or degree) and then bullet points — the layout used by both
+      // the Experience and Education sections.
+      function parseTimelineBlocks(sectionText) {
+        if (!sectionText) return [];
+        const lines = sectionText.split('\n').map(normalizeLine).filter(Boolean);
+        const dateRe = /((?:[A-Z][a-z]+\.?\s+\d{4})|\d{1,2}\/\d{4}|\d{4})\s*(?:[-–—]|to)\s*((?:[A-Z][a-z]+\.?\s+\d{4})|\d{1,2}\/\d{4}|Present|present|Current|current|\d{4})/;
+        const blocks = [];
+        let current = null;
+        lines.forEach(line => {
+          const m = line.match(dateRe);
+          if (m) {
+            if (current) blocks.push(current);
+            current = {
+              header: normalizeLine(line.replace(m[0], '')).replace(/[-–—,]\s*$/, ''),
+              period: m[0], subheader: '', bullets: [], expectSub: true
+            };
+          } else if (current) {
+            if (current.expectSub) {
+              current.subheader = normalizeLine(line);
+              current.expectSub = false;
+            } else {
+              current.bullets.push(line.replace(/^[•\-\*\u2022]\s*/, ''));
+            }
+          }
+        });
+        if (current) blocks.push(current);
+        return blocks;
+      }
+
+      // Parses "Project Title | Tech, Stack, Here" followed by bullet points.
+      function parseProjectBlocks(sectionText) {
+        if (!sectionText) return [];
+        const lines = sectionText.split('\n').map(normalizeLine).filter(Boolean);
+        const blocks = [];
+        let current = null;
+        lines.forEach(line => {
+          if (line.includes('|')) {
+            if (current) blocks.push(current);
+            const parts = line.split('|').map(s => s.trim());
+            current = { title: parts[0] || '', stack: parts.slice(1).join(', '), bullets: [] };
+          } else if (current) {
+            current.bullets.push(line.replace(/^[•\-\*\u2022]\s*/, ''));
+          } else {
+            current = { title: line, stack: '', bullets: [] };
+          }
+        });
+        if (current) blocks.push(current);
+        return blocks;
+      }
+
+      function extractHeadline(summaryText) {
+        if (!summaryText) return null;
+        const seekMatch = summaryText.match(/seeking\s+([^.\n]+?)(?:\s+roles?)?\s*(?:to|for|\.|$)/i);
+        if (seekMatch) {
+          const first = seekMatch[1].split('/')[0].trim();
+          if (first) return first;
+        }
+        return null;
+      }
+
+      function extractLocation(topLines) {
+        const cityRe = /^[A-Za-z][A-Za-z\s]+,\s*[A-Za-z][A-Za-z\s]+(?:,\s*[A-Za-z][A-Za-z\s]+)?$/;
+        for (const line of topLines) {
+          if (!line || line.includes('@') || /\d{4,}/.test(line) || /linkedin|github/i.test(line)) continue;
+          if (cityRe.test(line)) return line;
+        }
+        return null;
+      }
+
+      // Reads whatever skills/tags are actually written in a resume section —
+      // no fixed skill list needed. Handles category-labelled lines like
+      // "Programming and Tools: Python, SQL, Git" as well as plain
+      // comma/semicolon/bullet separated lists.
+      function extractTagsFromSection(sectionText) {
+        if (!sectionText) return [];
+        // A PDF line only starts a *new* category if it looks like "Label: ...".
+        // Otherwise it's the wrapped continuation of the line above (common when
+        // a category list is long), so join it back before splitting on commas —
+        // otherwise something like "Natural Language Processing" that wraps mid
+        // phrase would get cut into two separate tags.
+        const rawLines = sectionText.split('\n').map(normalizeLine).filter(Boolean);
+        const mergedLines = [];
+        rawLines.forEach(line => {
+          const looksLikeNewLabel = /^[A-Za-z][A-Za-z\s/&]{2,40}:/.test(line);
+          if (mergedLines.length && !looksLikeNewLabel) {
+            mergedLines[mergedLines.length - 1] += ' ' + line;
+          } else {
+            mergedLines.push(line);
+          }
+        });
+
+        const tags = [];
+        mergedLines.forEach(line => {
+          // Drop a leading "Category Name:" label if present, keep only the values after it.
+          const afterColon = line.includes(':') ? line.split(':').slice(1).join(':') : line;
+          afterColon.split(/,|;|\u2022/).forEach(part => {
+            const v = part.trim().replace(/^[•\-\*]\s*/, '').replace(/\.$/, '');
+            if (v && v.length > 1 && v.length < 40) tags.push(v);
+          });
+        });
+        // De-duplicate case-insensitively while preserving first-seen casing.
+        const seen = new Set();
+        return tags.filter(t => {
+          const key = t.toLowerCase();
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+      }
+
+      function parseResumeText(text) {
+        const emailMatch = text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+        const phoneMatch = text.match(/(\+?\d[\d\s-]{8,14}\d)/);
+        const linkedinMatch = text.match(/linkedin\.com\/in\/[a-zA-Z0-9-]+/i);
+        const githubMatch = text.match(/github\.com\/[a-zA-Z0-9-]+/i);
+
+        const allLines = text.split('\n').map(normalizeLine).filter(Boolean);
+        const name = allLines.find(l =>
+          l.length > 2 && l.length < 60 &&
+          !l.includes('@') && !l.includes(':') &&
+          !/\d{4,}/.test(l) &&
+          !SECTION_PATTERNS.some(p => p.re.test(l))
+        ) || null;
+
+        const sections = splitIntoSections(text);
+        const location = extractLocation(allLines.slice(0, 6));
+        const headline = extractHeadline(sections.summary);
+        // Collapse the wrapped PDF lines of the summary into one clean paragraph.
+        const summary = sections.summary ? normalizeLine(sections.summary.replace(/\n+/g, ' ')) : null;
+
+        // Primary: pull the skills straight out of the resume's own Skills section.
+        let detectedSkills = extractTagsFromSection(sections.skills);
+        // Fallback only: if no Skills section was found at all, fall back to
+        // scanning the whole document for common skill keywords.
+        if (!detectedSkills.length) {
+          detectedSkills = KNOWN_SKILLS.filter(skill => {
+            const re = new RegExp('\\b' + skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'i');
+            return re.test(text);
+          });
+        }
+
+        const additionalSkills = extractTagsFromSection(sections.additionalSkills);
+
+        const experience = parseTimelineBlocks(sections.experience).map(b => ({
+          company: b.header, role: b.subheader, period: b.period, desc: b.bullets.join(' ')
+        }));
+        const education = parseTimelineBlocks(sections.education).map(b => ({
+          school: b.header, degree: b.subheader, period: b.period
+        }));
+        const projects = parseProjectBlocks(sections.projects).map(p => ({
+          title: p.title, stack: p.stack, desc: p.bullets.join(' ')
+        }));
+
+        return {
+          name, email: emailMatch ? emailMatch[0] : null, phone: phoneMatch ? phoneMatch[0] : null,
+          linkedin: linkedinMatch ? linkedinMatch[0] : null, github: githubMatch ? githubMatch[0] : null,
+          location, headline, summary,
+          skills: detectedSkills, additionalSkills,
+          experience, projects, education
+        };
+      }
+
+      const fileInput = document.getElementById('resumeUploadInput');
+      const statusEl = document.getElementById('resumeParseStatus');
+
+      fileInput.addEventListener('change', async function () {
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) return;
+
+        if (file.type !== 'application/pdf') {
+          statusEl.style.color = '#c4392b';
+          statusEl.textContent = 'Please upload a PDF file.';
+          return;
+        }
+
+        // If there's already profile data on screen, confirm before wiping it —
+        // uploading a resume always starts fresh from a blank profile so a
+        // second/different resume can't get mixed together with the first one.
+        const hasExistingData = profile.name || profile.experience.length ||
+          profile.projects.length || profile.education.length || profile.skills.length;
+        if (hasExistingData) {
+          const proceed = window.confirm(
+            'Uploading a new resume will clear the current profile details and refill them from this resume. Continue?'
+          );
+          if (!proceed) { fileInput.value = ''; return; }
+        }
+
+        statusEl.style.color = '';
+        statusEl.textContent = 'Reading your resume…';
+
+        try {
+          const text = await extractTextFromPdf(file);
+          const data = parseResumeText(text);
+
+          // Full reset — the newly uploaded resume is the single source of
+          // truth, nothing from a previous resume carries over.
+          profile = {
+            name: data.name || '',
+            headline: data.headline || '',
+            location: data.location || '',
+            phone: data.phone || '',
+            email: data.email || '',
+            linkedin: data.linkedin || '',
+            github: data.github || '',
+            summary: data.summary || '',
+            skills: data.skills || [],
+            additionalSkills: data.additionalSkills || [],
+            experience: data.experience || [],
+            projects: data.projects || [],
+            education: data.education || []
+          };
+
+          renderAll();
+          saveProfile();
+          statusEl.textContent = 'Profile refreshed from resume ✓ — you can still edit anything.';
+        } catch (err) {
+          console.error(err);
+          statusEl.style.color = '#c4392b';
+          statusEl.textContent = 'Could not read that PDF. Please try another file.';
+        } finally {
+          fileInput.value = '';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

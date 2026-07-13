@@ -11,8 +11,10 @@ Every function does ONE thing and returns plain Python objects
 belongs in this file.
 """
 
+import json
+
 from extensions import db
-from models import Employer, Seeker, Job
+from models import Employer, Seeker, Job, SeekerProfile
 
 
 # ==========================================================================
@@ -284,3 +286,49 @@ def delete_job(job_id):
     db.session.delete(job)
     db.session.commit()
     return True
+
+
+# ==========================================================================
+# SEEKER PROFILE — Read
+# ==========================================================================
+def get_seeker_profile(seeker_id):
+    return SeekerProfile.query.filter_by(seeker_id=seeker_id).first()
+
+
+# ==========================================================================
+# SEEKER PROFILE — Create / Update (upsert)
+# ==========================================================================
+def upsert_seeker_profile(seeker_id, **fields):
+    """
+    Creates the seeker's profile row if it doesn't exist yet, or
+    updates it if it does. `experience`, `projects`, and `education`
+    should be passed as Python lists of dicts (they get JSON-encoded
+    here) -- `skills` and `additional_skills` as lists of strings
+    (comma-joined here). Everything else is passed straight through.
+    """
+    profile = get_seeker_profile(seeker_id)
+    if not profile:
+        profile = SeekerProfile(seeker_id=seeker_id)
+        db.session.add(profile)
+
+    list_as_csv = {"skills", "additional_skills"}
+    list_as_json = {"experience", "projects", "education"}
+
+    allowed_fields = {
+        "headline", "location", "linkedin", "github", "summary",
+        "skills", "additional_skills", "experience", "projects", "education",
+    }
+
+    for key, value in fields.items():
+        if key not in allowed_fields:
+            continue
+
+        if key in list_as_csv and isinstance(value, (list, tuple)):
+            value = ",".join(s.strip() for s in value if s.strip())
+        elif key in list_as_json and isinstance(value, (list, tuple)):
+            value = json.dumps(value)
+
+        setattr(profile, key, value)
+
+    db.session.commit()
+    return profile

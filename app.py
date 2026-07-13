@@ -62,7 +62,20 @@ def create_app():
     @app.route("/ai-coach")
     def ai_coach():
         return render_template("chatbot.html")
-
+    
+    @app.route("/resources")
+    def resources():
+        return render_template("resource.html")
+    @app.route("/coming_soon")
+    def coming_soon():
+        return render_template("coming_soon.html")
+    @app.route("/about")
+    def about():
+        return render_template("about.html")
+    @app.route("/support_user")
+    def support_user():
+        return render_template("settings_support_user.html")
+    
     with app.app_context():
         db.create_all()
 

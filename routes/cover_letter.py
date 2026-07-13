@@ -158,9 +158,9 @@ def cover_letter():
     try:
         resume_text = extract_resume_text(resume)
     except ValueError as e:
-        return render_template("ats.html", error=str(e))
+        return render_template("cover_letter.html", error="Please attach your resume")
     except Exception as e:
-        return render_template("ats.html", error=f"Resume Extraction Error: {str(e)}")
+        return render_template("cover_letter.html", error=str(e))
 
     extracted_skills = extract_skills(resume_text)
 

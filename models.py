@@ -13,6 +13,7 @@ right table.
 """
 
 from datetime import datetime
+import json
 
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -104,3 +105,61 @@ class Job(db.Model):
 
     def __repr__(self):
         return f"<Job {self.title} @ {self.company_name}>"
+
+
+class SeekerProfile(db.Model):
+    """
+    Extra profile info for a Seeker, kept in its own table (one row
+    per seeker) rather than bolted onto the Seeker login table --
+    keeps auth concerns (email/password) separate from profile
+    content (skills, experience, etc).
+
+    Repeating sections (experience, projects, education) are stored
+    as JSON text rather than separate tables, since they're always
+    read/written as a whole list from the profile page's JS -- no
+    need to query into individual entries.
+    """
+    __tablename__ = "seeker_profiles"
+
+    id = db.Column(db.Integer, primary_key=True)
+    seeker_id = db.Column(db.Integer, db.ForeignKey("seekers.id"), unique=True, nullable=False)
+
+    headline = db.Column(db.String(150), nullable=True)
+    location = db.Column(db.String(150), nullable=True)
+    linkedin = db.Column(db.String(255), nullable=True)
+    github = db.Column(db.String(255), nullable=True)
+    summary = db.Column(db.Text, nullable=True)
+
+    # Comma-separated, matching the Job.skills pattern.
+    skills = db.Column(db.Text, nullable=True)
+    additional_skills = db.Column(db.Text, nullable=True)
+
+    # JSON-encoded lists of objects, e.g.
+    #   experience: [{"role": "...", "company": "...", "period": "...", "desc": "..."}]
+    #   projects:   [{"title": "...", "stack": "...", "desc": "..."}]
+    #   education:  [{"degree": "...", "school": "...", "period": "..."}]
+    experience = db.Column(db.Text, nullable=True)
+    projects = db.Column(db.Text, nullable=True)
+    education = db.Column(db.Text, nullable=True)
+
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    seeker = db.relationship("Seeker", backref=db.backref("profile", uselist=False))
+
+    def skills_list(self):
+        return [s.strip() for s in (self.skills or "").split(",") if s.strip()]
+
+    def additional_skills_list(self):
+        return [s.strip() for s in (self.additional_skills or "").split(",") if s.strip()]
+
+    def experience_list(self):
+        return json.loads(self.experience) if self.experience else []
+
+    def projects_list(self):
+        return json.loads(self.projects) if self.projects else []
+
+    def education_list(self):
+        return json.loads(self.education) if self.education else []
+
+    def __repr__(self):
+        return f"<SeekerProfile seeker_id={self.seeker_id}>"

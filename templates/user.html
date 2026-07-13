@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>CareerMomentum | Job Seeker Dashboard</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/user.css" />
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">CareerMomentum</div>
+
+    <div class="navbar-search">
+      <div class="job-search-field has-caret">
+        <select required>
+          <option value="" disabled selected hidden>Select job type</option>
+          <option value="internship">Internship</option>
+          <option value="job">Job</option>
+        </select>
+      </div>
+
+      <div class="job-search-divider"></div>
+
+      <div class="job-search-field">
+        <input type="text" placeholder="Enter keyword / designation / companies" />
+      </div>
+
+      <div class="job-search-divider"></div>
+
+      <div class="job-search-field">
+        <input type="text" placeholder="Enter location" />
+      </div>
+
+      <button class="job-search-btn" type="button">
+        <span class="material-symbols-outlined">search</span>
+        Search
+      </button>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="nav-icon-btn" type="button" aria-label="Notifications">
+        <span class="material-symbols-outlined">notifications</span>
+        <span class="nav-badge">13</span>
+      </button>
+
+      <div class="topbar-divider"></div>
+
+      <a href="{{ url_for('seeker_auth.profile') }}" style="text-decoration:none;">
+        <div class="user-chip">
+          <span class="user-role">Profile</span>
+          <div class="user-avatar">
+            <span class="material-symbols-outlined">person</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="dashboard-hero">
+      <div class="dashboard-wrap">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          
+
+          <nav class="sidebar-nav">
+            <a href="{{ url_for('seeker_auth.seeker_dashboard') }}" class="active">
+              <span class="material-symbols-outlined">dashboard</span>
+              <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('seeker_auth.resume_builder') }}">
+              <span class="material-symbols-outlined">description</span>
+              <span>Resume Builder</span>
+            </a>
+            <a href="{{ url_for('ats_checker.ats_checker_page') }}">
+              <span class="material-symbols-outlined">analytics</span>
+              <span>ATS Analysis</span>
+            </a>
+            <a href="{{ url_for('recommendation.recommendation_page') }}">
+              <span class="material-symbols-outlined">stars</span>
+              <span>Job Recommendations</span>
+            </a>
+            <a href="{{ url_for('cover_letter.cover_letter') }}">
+              <span class="material-symbols-outlined">mail</span>
+              <span>Cover Letter</span>
+            </a>
+            <a href="/templates/auto.html">
+              <span class="material-symbols-outlined">forward_to_inbox</span>
+              <span>Email Automation</span>
+            </a>
+            <a href="{{ url_for('seeker_auth.skill_gap') }}">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+              <span>Skill Gap</span>
+            </a>
+            <a href="{{ url_for('seeker_auth.settings') }}">
+              <span class="material-symbols-outlined">settings</span>
+              <span>Settings &amp; Support</span>
+            </a>
+          </nav>
+
+          
+        </aside>
+
+        <!-- Main content -->
+        <div class="dashboard-main">
+          <div class="opportunities-bar">
+            <div class="opportunities-dropdown" id="opportunitiesDropdown">
+              <button type="button" class="opportunities-trigger" id="opportunitiesTrigger" aria-expanded="false" aria-haspopup="true">
+                Opportunities
+                <span class="material-symbols-outlined">expand_more</span>
+              </button>
+              <div class="opportunities-menu" id="opportunitiesMenu">
+                <a href="#">
+                  <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">stars</span>
+                  Recommended Jobs
+                </a>
+                <a href="#">
+                  <span class="material-symbols-outlined">mark_email_unread</span>
+                  Job Invites
+                </a>
+                <a href="#">
+                  <span class="material-symbols-outlined">notifications_active</span>
+                  Jobs From Alerts
+                </a>
+                <a href="#">
+                  <span class="material-symbols-outlined">send</span>
+                  Application Status
+                </a>
+                <a href="#">
+                  <span class="material-symbols-outlined">bookmark</span>
+                  Saved Jobs
+                </a>
+                <a href="#">
+                  <span class="material-symbols-outlined">history</span>
+                  Recent Apply
+                </a>
+              </div>
+            </div>
+
+            <div class="opportunities-search">
+              <span class="material-symbols-outlined">search</span>
+              <input type="text" placeholder="Search jobs here" />
+            </div>
+          </div>
+
+          <div class="dashboard-header">
+            <div>
+              
+             
+            </div>
+
+            <div class="dashboard-actions">
+              
+              <button class="btn btn-primary">
+                <span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle;">add_circle</span>
+                Track Manual Application
+              </button>
+            </div>
+          </div>
+
+         
+          <!-- Stat cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="material-symbols-outlined stat-card-icon">monitoring</span>
+              <p class="stat-label">ATS Score</p>
+              <div class="stat-value-row">
+                <h3 class="stat-value">87%</h3>
+                <span class="stat-delta">
+                  <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">trending_up</span> +4%
+                </span>
+              </div>
+              <div class="stat-bar">
+                <div class="stat-bar-fill" style="width: 87%"></div>
+              </div>
+              <p class="stat-note">Exceeds 82% of other applicants in Tech.</p>
+            </div>
+
+            <div class="stat-card">
+              <span class="material-symbols-outlined stat-card-icon">send</span>
+              <p class="stat-label">Active Applications</p>
+              <div class="stat-value-row">
+                <h3 class="stat-value">12</h3>
+                <span class="stat-delta" style="color: var(--text-muted);">this month</span>
+              </div>
+              <div class="stat-segments">
+                <div class="stat-segment"></div>
+                <div class="stat-segment"></div>
+                <div class="stat-segment dim"></div>
+                <div class="stat-segment dim"></div>
+              </div>
+              <p class="stat-note">3 interviews scheduled for next week.</p>
+            </div>
+
+            <div class="stat-card">
+              <span class="material-symbols-outlined stat-card-icon">bookmark</span>
+              <p class="stat-label">Saved Jobs</p>
+              <div class="stat-value-row">
+                <h3 class="stat-value">05</h3>
+                <span class="stat-delta warn">
+                  <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">priority_high</span> 2 Expiring
+                </span>
+              </div>
+              <p class="stat-note" style="margin-top: 28px;">Check your saved senior UX roles.</p>
+            </div>
+          </div>
+
+          <!-- Applications + Activity/Matches -->
+          <div class="content-grid">
+            <div>
+              <div class="panel">
+                <div class="panel-header">
+                  <h4>Active Applications Status</h4>
+                  <button class="panel-link">View All</button>
+                </div>
+                <div class="app-list">
+                  <div class="app-item">
+                    <div>
+                      <span class="app-role">Senior UX Designer</span><br />
+                      <span class="app-company">Google</span>
+                    </div>
+                    <span class="app-status interviewing">Interviewing</span>
+                  </div>
+                  <div class="app-item">
+                    <div>
+                      <span class="app-role">Product Lead</span><br />
+                      <span class="app-company">Airbnb</span>
+                    </div>
+                    <span class="app-status review">Under Review</span>
+                  </div>
+                  <div class="app-item">
+                    <div>
+                      <span class="app-role">Design Systems Head</span><br />
+                      <span class="app-company">Figma</span>
+                    </div>
+                    <span class="app-status offer">Offer Received</span>
+                  </div>
+                  <div class="app-item">
+                    <div>
+                      <span class="app-role">Creative Director</span><br />
+                      <span class="app-company">Netflix</span>
+                    </div>
+                    <span class="app-status applied">Applied</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="action-grid">
+               
+                 
+              </div>
+            </div>
+
+            <div>
+              <div class="panel">
+                <p class="panel-eyebrow" style="margin-bottom: 24px;">Recent Activity</p>
+                <div class="timeline">
+                  <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <p class="timeline-title">Application Viewed</p>
+                    <p class="timeline-desc">Senior Product Designer at Apple.</p>
+                    <p class="timeline-time">2 hours ago</p>
+                  </div>
+                  <div class="timeline-item">
+                    <div class="timeline-dot" style="border-color: var(--accent);"></div>
+                    <p class="timeline-title">ATS Score Updated</p>
+                    <p class="timeline-desc">Resume optimized for Google Cloud role.</p>
+                    <p class="timeline-time" style="color: var(--accent);">Yesterday</p>
+                  </div>
+                  <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <p class="timeline-title">Interview Invite</p>
+                    <p class="timeline-desc">Meta Recruitment Team reached out.</p>
+                    <p class="timeline-time">2 days ago</p>
+                  </div>
+                  <div class="timeline-item faded">
+                    <div class="timeline-dot" style="border-color: var(--border-color);"></div>
+                    <p class="timeline-title">Saved New Job</p>
+                    <p class="timeline-desc">Lead Creative at Stripe.</p>
+                    <p class="timeline-time" style="color: var(--text-muted);">4 days ago</p>
+                  </div>
+                </div>
+                <button class="timeline-more">View All Activity</button>
+              </div>
+
+              
+
+                <div class="match-card">
+                  <div class="match-top">
+                    <div class="match-role">
+                      <div class="match-icon">
+                        <span class="material-symbols-outlined">deployed_code</span>
+                      </div>
+                      <div>
+                        <h5 class="match-title">Senior Product Designer</h5>
+                        <p class="match-company">Google · Hybrid</p>
+                      </div>
+                    </div>
+                    <div class="match-score">
+                      <span class="match-percent">94%</span><br />
+                      <span class="match-percent-label">Match</span>
+                    </div>
+                  </div>
+                  <div class="match-tags">
+                    <span class="match-tag">Figma</span>
+                    <span class="match-tag">User Research</span>
+                    <span class="match-tag">Prototyping</span>
+                  </div>
+                  <div class="match-tip">
+                    <span class="material-symbols-outlined" style="font-size: 14px; color: var(--secondary);">lightbulb</span>
+                    Matches your experience with B2B SaaS.
+                  </div>
+                  <button class="btn btn-primary btn-block">Quick Apply</button>
+                </div>
+
+                <div class="match-card">
+                  <div class="match-top">
+                    <div class="match-role">
+                      <div class="match-icon">
+                        <span class="material-symbols-outlined">architecture</span>
+                      </div>
+                      <div>
+                        <h5 class="match-title">UX Strategist</h5>
+                        <p class="match-company">Airbnb · Remote</p>
+                      </div>
+                    </div>
+                    <div class="match-score">
+                      <span class="match-percent">88%</span><br />
+                      <span class="match-percent-label">Match</span>
+                    </div>
+                  </div>
+                  <div class="match-tags">
+                    <span class="match-tag">Strategy</span>
+                    <span class="match-tag">Workshops</span>
+                  </div>
+                  <div class="match-tip">
+                    <span class="material-symbols-outlined" style="font-size: 14px; color: var(--secondary);">lightbulb</span>
+                    Strong alignment with your leadership skills.
+                  </div>
+                  <button class="btn btn-primary btn-block">Quick Apply</button>
+                </div>
+
+                <button class="match-more">View More Matches</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>
+      <a href="{{ url_for('index') }}" class="btn btn-ghost">Logout</a>
+    </div>
+    <div class="footer-links">
+      <a href="privacy_policy.html">Privacy Policy</a>
+      <a href="terms_of_services.html">Terms of Service</a>
+      <a href="#">Cookie Settings</a>
+      <a href="contact.html">Contact Us</a>
+    </div>
+  </footer>
+  <script>
+    (function () {
+      const trigger = document.getElementById('opportunitiesTrigger');
+      const menu = document.getElementById('opportunitiesMenu');
+      const wrap = document.getElementById('opportunitiesDropdown');
+
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = menu.classList.toggle('open');
+        trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!wrap.contains(e.target)) {
+          menu.classList.remove('open');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>
