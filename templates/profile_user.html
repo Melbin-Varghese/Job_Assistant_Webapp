@@ -41,15 +41,7 @@
         <span class="material-symbols-outlined">notifications</span>
         <span class="nav-badge">13</span>
       </button>
-      <div class="topbar-divider"></div>
-      <a href="/templates/profile_user.html" style="text-decoration:none;">
-        <div class="user-chip">
-          <span class="user-role">Profile</span>
-          <div class="user-avatar">
-            <span class="material-symbols-outlined">person</span>
-          </div>
-        </div>
-      </a>
+      
     </div>
   </nav>
 
@@ -110,11 +102,13 @@
               </div>
             </div>
             <div class="profile-hero-actions">
-              <button class="btn btn-light" type="button" onclick="window.location.href='/templates/settings_support_user.html'">
-                <span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle;">settings</span>
+              <a href="{{ url_for('support_user') }}" class="btn btn-light">
+                <span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle;">
+                  settings
+                </span>
                 Account Settings
-              </button>
-              <button class="btn btn-primary" type="button" id="editProfileBtn">
+              </a>
+              <button class="btn btn-light" type="button" id="editProfileBtn">
                 <span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle;">edit</span>
                 Edit Profile
               </button>
