@@ -12,7 +12,7 @@ belongs in this file.
 """
 
 from extensions import db
-from models import Employer, Seeker
+from models import Employer, Seeker, Job
 
 
 # ==========================================================================
@@ -178,5 +178,109 @@ def delete_seeker(seeker_id):
         return False
 
     db.session.delete(seeker)
+    db.session.commit()
+    return True
+
+
+# ==========================================================================
+# JOB — Create
+# ==========================================================================
+def create_job(employer_id, title, company_name, company_email, description,
+                company_website=None, location=None, job_type="Full-time",
+                experience_level="Entry", skills=None):
+    """Creates and saves a new Job posting. `skills` can be a list of
+    strings or an already-comma-joined string. Returns the new Job."""
+
+    if isinstance(skills, (list, tuple)):
+        skills = ",".join(s.strip() for s in skills if s.strip())
+
+    job = Job(
+        employer_id=employer_id,
+        title=title,
+        company_name=company_name,
+        company_website=company_website,
+        company_email=company_email,
+        location=location,
+        job_type=job_type,
+        experience_level=experience_level,
+        description=description,
+        skills=skills,
+    )
+
+    db.session.add(job)
+    db.session.commit()
+    return job
+
+
+# ==========================================================================
+# JOB — Read
+# ==========================================================================
+def get_job_by_id(job_id):
+    return Job.query.get(job_id)
+
+
+def list_jobs_by_employer(employer_id):
+    return Job.query.filter_by(employer_id=employer_id).order_by(Job.created_at.desc()).all()
+
+
+def list_all_jobs():
+    """All jobs across every employer, newest first -- used by the
+    seeker-facing job search/explore page."""
+    return Job.query.order_by(Job.created_at.desc()).all()
+
+
+def search_jobs(keyword=None, location=None):
+    """Simple case-insensitive search over title/company/skills, plus
+    an optional location filter. Used by the seeker-facing search box."""
+    query = Job.query
+
+    if keyword:
+        like = f"%{keyword}%"
+        query = query.filter(
+            db.or_(
+                Job.title.ilike(like),
+                Job.company_name.ilike(like),
+                Job.skills.ilike(like),
+            )
+        )
+
+    if location:
+        query = query.filter(Job.location.ilike(f"%{location}%"))
+
+    return query.order_by(Job.created_at.desc()).all()
+
+
+# ==========================================================================
+# JOB — Update
+# ==========================================================================
+def update_job(job_id, **fields):
+    job = get_job_by_id(job_id)
+    if not job:
+        return None
+
+    allowed_fields = {
+        "title", "company_name", "company_website", "company_email",
+        "location", "job_type", "experience_level", "description", "skills",
+    }
+    for key, value in fields.items():
+        if key in allowed_fields:
+            if key == "skills" and isinstance(value, (list, tuple)):
+                value = ",".join(s.strip() for s in value if s.strip())
+            setattr(job, key, value)
+
+    db.session.commit()
+    return job
+
+
+# ==========================================================================
+# JOB — Delete
+# ==========================================================================
+def delete_job(job_id):
+    """Returns True if deleted, False if no job with that id existed."""
+    job = get_job_by_id(job_id)
+    if not job:
+        return False
+
+    db.session.delete(job)
     db.session.commit()
     return True

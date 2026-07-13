@@ -70,3 +70,37 @@ class Seeker(db.Model, UserMixin):
 
     def __repr__(self):
         return f"<Seeker {self.email}>"
+
+
+class Job(db.Model):
+    __tablename__ = "jobs"
+
+    id = db.Column(db.Integer, primary_key=True)
+    employer_id = db.Column(db.Integer, db.ForeignKey("employers.id"), nullable=False)
+
+    title = db.Column(db.String(150), nullable=False)
+    company_name = db.Column(db.String(150), nullable=False)
+    company_website = db.Column(db.String(255), nullable=True)
+    company_email = db.Column(db.String(150), nullable=False)
+    location = db.Column(db.String(150), nullable=True)
+    job_type = db.Column(db.String(30), nullable=False, default="Full-time")
+    experience_level = db.Column(db.String(30), nullable=False, default="Entry")
+    description = db.Column(db.Text, nullable=False)
+
+    # Stored as a comma-separated string (e.g. "Figma,SQL,Excel") --
+    # simplest option without a separate skills/tags table.
+    skills = db.Column(db.String(500), nullable=True)
+
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    employer = db.relationship("Employer", backref=db.backref("jobs", lazy=True))
+
+    def skills_list(self):
+        """Splits the stored comma-separated skills string into a list,
+        stripping whitespace and dropping empty entries."""
+        if not self.skills:
+            return []
+        return [s.strip() for s in self.skills.split(",") if s.strip()]
+
+    def __repr__(self):
+        return f"<Job {self.title} @ {self.company_name}>"

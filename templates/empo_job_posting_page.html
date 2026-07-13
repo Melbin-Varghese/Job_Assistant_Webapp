@@ -474,7 +474,7 @@
               <span class="material-symbols-outlined">work</span>
               <span>Jobs</span>
             </a>
-            <a href="{{ url_for('employer_pages.candidates') }}" class="active">
+            <a href="{{ url_for('employer_pages.candidates') }}">
               <span class="material-symbols-outlined">group</span>
               <span>Candidates</span>
             </a>
@@ -510,7 +510,11 @@
               </h3>
               <p class="jp-sub">Fields marked <span class="req">*</span> are required.</p>
 
-              <form id="jobPostForm" novalidate>
+              {% if error %}
+              <div class="form-error" style="color:#f87171; margin-bottom:14px; font-size:13px;">{{ error }}</div>
+              {% endif %}
+
+              <form id="jobPostForm" method="POST" action="{{ url_for('employer_pages.jobs') }}" novalidate>
                 <div class="jp-grid">
                   <div class="jp-field full" data-field="jobTitle">
                     <label for="jobTitle">Job Title <span class="req">*</span></label>
@@ -520,7 +524,7 @@
 
                   <div class="jp-field" data-field="companyName">
                     <label for="companyName">Company Name <span class="req">*</span></label>
-                    <input type="text" id="companyName" name="companyName" placeholder="e.g. Lumina Technologies" />
+                    <input type="text" id="companyName" name="companyName" placeholder="e.g. Lumina Technologies" value="{{ current_user.company_name }}" />
                     <span class="jp-error">Please enter a company name.</span>
                   </div>
 
@@ -532,7 +536,7 @@
 
                   <div class="jp-field" data-field="companyEmail">
                     <label for="companyEmail">Company Email <span class="req">*</span></label>
-                    <input type="email" id="companyEmail" name="companyEmail" placeholder="careers@company.com" />
+                    <input type="email" id="companyEmail" name="companyEmail" placeholder="careers@company.com" value="{{ current_user.company_email }}" />
                     <span class="jp-error">Please enter a valid email address.</span>
                   </div>
 
@@ -573,6 +577,7 @@
                     <div class="jp-skills-box" id="skillsBox">
                       <input type="text" id="keySkillsInput" placeholder="Type a skill and press Enter (e.g. Figma)" />
                     </div>
+                    <input type="hidden" id="keySkillsHidden" name="keySkills" value="" />
                     <span class="jp-hint">Press Enter or comma to add each skill.</span>
                     <span class="jp-error">Please add at least one key skill.</span>
                   </div>
@@ -594,11 +599,48 @@
             <!-- Posted jobs list -->
             <div class="jp-list-card">
               <h3>Active Postings</h3>
-              <p>Jobs added by recruiters this session.</p>
+              <p>Jobs you've posted, newest first.</p>
               <div id="jobList">
+                {% if jobs %}
+                  {% for job in jobs %}
+                  <div class="jp-job-item">
+                    <div class="jp-job-top">
+                      <div>
+                        <p class="jp-job-title">{{ job.title }}</p>
+                        <p class="jp-job-company">
+                          <span class="material-symbols-outlined" style="font-size:14px;">business</span>
+                          {{ job.company_name }}
+                        </p>
+                      </div>
+                      <span class="jp-job-badge">{{ job.job_type }}</span>
+                    </div>
+                    <div class="jp-job-meta">
+                      {% if job.location %}
+                      <span><span class="material-symbols-outlined">location_on</span>{{ job.location }}</span>
+                      {% endif %}
+                      <span><span class="material-symbols-outlined">bar_chart</span>{{ job.experience_level }}-level</span>
+                      <span><span class="material-symbols-outlined">mail</span>{{ job.company_email }}</span>
+                    </div>
+                    {% if job.company_website %}
+                    <p class="jp-job-desc" style="margin-bottom:4px;">
+                      <a href="{{ job.company_website }}" target="_blank" rel="noopener" style="color:var(--jp-teal);">{{ job.company_website }}</a>
+                    </p>
+                    {% endif %}
+                    <p class="jp-job-desc">{{ job.description }}</p>
+                    {% if job.skills_list() %}
+                    <div class="jp-job-skills">
+                      {% for skill in job.skills_list() %}
+                      <span class="jp-mini-tag">{{ skill }}</span>
+                      {% endfor %}
+                    </div>
+                    {% endif %}
+                  </div>
+                  {% endfor %}
+                {% else %}
                 <div class="jp-empty" id="jobListEmpty">
                   No jobs posted yet. Fill in the form to add your first opening.
                 </div>
+                {% endif %}
               </div>
             </div>
 
@@ -617,236 +659,96 @@
   <script src="{{ url_for('static', filename='js/script.js') }}"></script>
   <script>
     (function () {
-      const form = document.getElementById('jobPostForm');
+      document.querySelectorAll('.sidebar-nav a').forEach(function (link) {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === window.location.pathname) {
+          link.classList.add('active');
+        }
+      });
+    })();
+
+    // ---- Key skills tag input ----
+    // The CSS for .jp-skill-tag chips already existed; this is the
+    // behavior that was missing -- nothing built the chips, and the
+    // form had no way to actually submit the typed skills.
+    (function () {
       const skillsBox = document.getElementById('skillsBox');
       const skillsInput = document.getElementById('keySkillsInput');
-      const jobList = document.getElementById('jobList');
-      const jobListEmpty = document.getElementById('jobListEmpty');
-      const toast = document.getElementById('jpToast');
-      const toastText = document.getElementById('jpToastText');
+      const hiddenField = document.getElementById('keySkillsHidden');
+      if (!skillsBox || !skillsInput || !hiddenField) return;
 
       let skills = [];
 
-      // ---- Persisted job store (shared with candidates.html) ----
-      // In a real app this would be a database table; here we use
-      // localStorage so the "Jobs" and "Candidates" pages can share
-      // the same list of postings without a backend.
-      const JOBS_KEY = 'lumina_jobs';
-
-      const DEFAULT_JOBS = [
-        { id: 'job-1', jobTitle: 'Senior Product Designer', companyName: 'Lumina Technologies', companyWebsite: 'https://lumina.example.com', companyEmail: 'careers@lumina.example.com', location: 'Remote', jobType: 'Full-time', experience: 'Senior', jobDescription: 'Own end-to-end product design for our core recruiter dashboard, from research through polished, accessible UI.', keySkills: ['Figma', 'Design Systems', 'Accessibility'] },
-        { id: 'job-2', jobTitle: 'UX Strategist', companyName: 'Lumina Technologies', companyWebsite: 'https://lumina.example.com', companyEmail: 'careers@lumina.example.com', location: 'Bengaluru, IN', jobType: 'Full-time', experience: 'Senior', jobDescription: 'Shape UX strategy across our hiring products, working closely with research and product teams.', keySkills: ['UX Research', 'Strategy', 'Wireframing'] },
-        { id: 'job-3', jobTitle: 'Recruitment Analyst', companyName: 'Lumina Technologies', companyWebsite: 'https://lumina.example.com', companyEmail: 'careers@lumina.example.com', location: 'Remote', jobType: 'Full-time', experience: 'Mid', jobDescription: 'Analyze hiring funnel data and surface insights that improve recruiter decision-making.', keySkills: ['SQL', 'Excel', 'Data Analysis'] }
-      ];
-
-      function loadJobs() {
-        try {
-          const raw = localStorage.getItem(JOBS_KEY);
-          return raw ? JSON.parse(raw) : null;
-        } catch (e) {
-          return null;
-        }
+      function syncHiddenField() {
+        hiddenField.value = skills.join(',');
       }
 
-      function saveJobs(jobs) {
-        try {
-          localStorage.setItem(JOBS_KEY, JSON.stringify(jobs));
-        } catch (e) {
-          console.error('Could not save jobs', e);
-        }
-      }
+      function addChip(text) {
+        text = text.trim();
+        if (!text || skills.includes(text)) return;
 
-      let postedJobs = loadJobs();
-      if (!postedJobs) {
-        postedJobs = DEFAULT_JOBS;
-        saveJobs(postedJobs);
-      }
+        skills.push(text);
+        syncHiddenField();
 
-      function renderSkillTags() {
-        skillsBox.querySelectorAll('.jp-skill-tag').forEach(el => el.remove());
-        skills.forEach((skill, i) => {
-          const tag = document.createElement('span');
-          tag.className = 'jp-skill-tag';
-          tag.innerHTML = `${escapeHtml(skill)} <button type="button" aria-label="Remove ${escapeHtml(skill)}" data-i="${i}"><span class="material-symbols-outlined" style="font-size:14px;">close</span></button>`;
-          skillsBox.insertBefore(tag, skillsInput);
+        const chip = document.createElement('span');
+        chip.className = 'jp-skill-tag';
+        chip.textContent = text;
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.innerHTML = '&times;';
+        removeBtn.addEventListener('click', () => {
+          skills = skills.filter((s) => s !== text);
+          syncHiddenField();
+          chip.remove();
         });
+
+        chip.appendChild(removeBtn);
+        skillsBox.insertBefore(chip, skillsInput);
       }
 
-      function addSkill(raw) {
-        const value = raw.trim().replace(/,$/, '');
-        if (value && !skills.includes(value)) {
-          skills.push(value);
-          renderSkillTags();
-        }
-        skillsInput.value = '';
-      }
-
-      skillsInput.addEventListener('keydown', function (e) {
+      skillsInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ',') {
           e.preventDefault();
-          addSkill(skillsInput.value);
-        } else if (e.key === 'Backspace' && skillsInput.value === '' && skills.length) {
-          skills.pop();
-          renderSkillTags();
+          addChip(skillsInput.value);
+          skillsInput.value = '';
+        } else if (e.key === 'Backspace' && !skillsInput.value && skills.length) {
+          // Backspace on an empty input removes the last chip
+          const last = skills[skills.length - 1];
+          skills = skills.slice(0, -1);
+          syncHiddenField();
+          const chips = skillsBox.querySelectorAll('.jp-skill-tag');
+          if (chips.length) chips[chips.length - 1].remove();
         }
       });
 
-      skillsBox.addEventListener('click', function (e) {
-        skillsInput.focus();
-      });
-
-      skillsBox.addEventListener('click', function (e) {
-        const btn = e.target.closest('button[data-i]');
-        if (btn) {
-          e.stopPropagation();
-          skills.splice(Number(btn.dataset.i), 1);
-          renderSkillTags();
-        }
-      });
-
-      function escapeHtml(str) {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
+      const form = document.getElementById('jobPostForm');
+      if (form) {
+        form.addEventListener('submit', () => {
+          // Catch a skill left typed but not yet committed with Enter/comma
+          if (skillsInput.value.trim()) {
+            addChip(skillsInput.value);
+            skillsInput.value = '';
+          }
+        });
       }
-
-      function setInvalid(fieldName, invalid) {
-        const field = form.querySelector(`[data-field="${fieldName}"]`);
-        if (field) field.classList.toggle('invalid', invalid);
-      }
-
-      function isValidEmail(v) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
-      }
-
-      function isValidUrl(v) {
-        try {
-          new URL(v);
-          return true;
-        } catch (_) {
-          return false;
-        }
-      }
-
-      function showToast(message) {
-        toastText.textContent = message;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 2600);
-      }
-
-      function addJobCard(job) {
-        if (jobListEmpty) jobListEmpty.remove();
-
-        const card = document.createElement('div');
-        card.className = 'jp-job-item';
-        card.innerHTML = `
-          <div class="jp-job-top">
-            <div>
-              <p class="jp-job-title">${escapeHtml(job.jobTitle)}</p>
-              <p class="jp-job-company">
-                <span class="material-symbols-outlined" style="font-size:14px;">apartment</span>
-                ${escapeHtml(job.companyName)}
-              </p>
-            </div>
-            <span class="jp-job-badge">${escapeHtml(job.jobType)}</span>
-          </div>
-          <div class="jp-job-meta">
-            ${job.location ? `<span><span class="material-symbols-outlined">location_on</span>${escapeHtml(job.location)}</span>` : ''}
-            <span><span class="material-symbols-outlined">bar_chart</span>${escapeHtml(job.experience)}-level</span>
-            <span><span class="material-symbols-outlined">mail</span>${escapeHtml(job.companyEmail)}</span>
-            <span><span class="material-symbols-outlined">link</span><a href="${escapeHtml(job.companyWebsite)}" target="_blank" rel="noopener" style="color:inherit; text-decoration:underline;">Website</a></span>
-          </div>
-          <p class="jp-job-desc">${escapeHtml(job.jobDescription)}</p>
-          <div class="jp-job-skills">
-            ${job.keySkills.map(s => `<span class="jp-mini-tag">${escapeHtml(s)}</span>`).join('')}
-          </div>
-        `;
-        jobList.prepend(card);
-      }
-
-      // Render jobs already posted (persisted from a previous visit,
-      // or the default sample postings on first load).
-      postedJobs.forEach(addJobCard);
-
-      form.addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        const jobTitle = document.getElementById('jobTitle').value.trim();
-        const companyName = document.getElementById('companyName').value.trim();
-        const companyWebsite = document.getElementById('companyWebsite').value.trim();
-        const companyEmail = document.getElementById('companyEmail').value.trim();
-        const location = document.getElementById('location').value.trim();
-        const jobType = document.getElementById('jobType').value;
-        const experience = document.getElementById('experience').value;
-        const jobDescription = document.getElementById('jobDescription').value.trim();
-
-        if (skillsInput.value.trim()) addSkill(skillsInput.value);
-
-        let valid = true;
-
-        setInvalid('jobTitle', !jobTitle);
-        if (!jobTitle) valid = false;
-
-        setInvalid('companyName', !companyName);
-        if (!companyName) valid = false;
-
-        const websiteOk = companyWebsite && isValidUrl(companyWebsite);
-        setInvalid('companyWebsite', !websiteOk);
-        if (!websiteOk) valid = false;
-
-        const emailOk = companyEmail && isValidEmail(companyEmail);
-        setInvalid('companyEmail', !emailOk);
-        if (!emailOk) valid = false;
-
-        setInvalid('jobDescription', !jobDescription);
-        if (!jobDescription) valid = false;
-
-        setInvalid('keySkills', skills.length === 0);
-        if (skills.length === 0) valid = false;
-
-        if (!valid) return;
-
-        const job = {
-          id: 'job-' + Date.now(),
-          jobTitle, companyName, companyWebsite, companyEmail,
-          location, jobType, experience, jobDescription,
-          keySkills: [...skills]
-        };
-
-        // TODO: replace with a real API call, e.g.
-        // fetch('/api/jobs', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(job) })
-        // For now the job is saved to localStorage under 'lumina_jobs' so
-        // candidates.html can show applicants against it.
-        postedJobs.push(job);
-        saveJobs(postedJobs);
-
-        addJobCard(job);
-        showToast('Job posted successfully');
-
-        form.reset();
-        skills = [];
-        renderSkillTags();
-        ['jobTitle','companyName','companyWebsite','companyEmail','jobDescription','keySkills']
-          .forEach(f => setInvalid(f, false));
-      });
-
-      form.addEventListener('reset', function () {
-        skills = [];
-        renderSkillTags();
-        ['jobTitle','companyName','companyWebsite','companyEmail','jobDescription','keySkills']
-          .forEach(f => setInvalid(f, false));
-      });
     })();
-  </script>
-  <script>
-    // Force the correct sidebar item to be highlighted for THIS page,
-    // regardless of any active-state logic in script.js.
+
+    // ---- Success toast after a job is posted ----
+    // The route redirects to ?posted=1 after a successful save.
     (function () {
-      document.querySelectorAll('.sidebar-nav a').forEach(function (link) {
-        link.classList.remove('active');
-      });
-      var current = document.querySelector('.sidebar-nav a[href$="jobs.html"]');
-      if (current) current.classList.add('active');
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('posted') === '1') {
+        const toast = document.getElementById('jpToast');
+        if (toast) {
+          toast.classList.add('show');
+          setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        // Clean the query param out of the URL without reloading
+        params.delete('posted');
+        const cleanUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+        window.history.replaceState({}, '', cleanUrl);
+      }
     })();
   </script>
 </body>
