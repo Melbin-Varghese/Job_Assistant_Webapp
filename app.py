@@ -20,6 +20,7 @@ from extensions import db, login_manager
 import models  # noqa: F401
 
 from routes.seeker_auth import seeker_auth_bp
+from routes.seeker_dashboard import seeker_dashboard_bp
 from routes.employer_auth import employer_auth_bp
 from routes.employer_pages import employer_pages_bp
 from routes.chatbot import chatbot_bp
@@ -46,6 +47,7 @@ def create_app():
     login_manager.login_view = "seeker_auth.seeker_login_register_page"
 
     app.register_blueprint(seeker_auth_bp)
+    app.register_blueprint(seeker_dashboard_bp)
     app.register_blueprint(employer_auth_bp)
     app.register_blueprint(employer_pages_bp)
     # app.register_blueprint(pages_bp)
@@ -75,6 +77,9 @@ def create_app():
     @app.route("/support_user")
     def support_user():
         return render_template("settings_support_user.html")
+    @app.route("/empo_job_posting_page")
+    def empo_job_posting_page():
+        return render_template("empo_job_posting_page.html")
     
     with app.app_context():
         db.create_all()

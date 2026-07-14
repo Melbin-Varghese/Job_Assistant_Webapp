@@ -44,7 +44,7 @@
           
 
           <nav class="sidebar-nav">
-            <a href="{{ url_for('seeker_auth.seeker_dashboard') }}" class="active">
+            <a href="{{ url_for('seeker_dashboard.dashboard') }}" class="active">
               <span class="material-symbols-outlined">dashboard</span>
               <span>Dashboard</span>
             </a>
@@ -90,7 +90,7 @@
                 <span class="material-symbols-outlined">expand_more</span>
               </button>
               <div class="opportunities-menu" id="opportunitiesMenu">
-                <a href="#">
+                <!-- <a href="#">
                   <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">stars</span>
                   Recommended Jobs
                 </a>
@@ -113,36 +113,38 @@
                 <a href="#">
                   <span class="material-symbols-outlined">history</span>
                   Recent Apply
-                </a>
+                </a> -->
               </div>
             </div>
 
-            <div class="navbar-search">
+            <form class="navbar-search" method="get" action="{{ url_for('seeker_dashboard.dashboard') }}">
       <div class="job-search-field has-caret">
-        <select required>
-          <option value="" disabled selected hidden>Select job type</option>
-          <option value="internship">Internship</option>
-          <option value="job">Job</option>
+        <select name="job_type">
+          <option value="" {{ 'selected' if not search_job_type else '' }}>Any job type</option>
+          <option value="Full-time" {{ 'selected' if search_job_type == 'Full-time' else '' }}>Full-time</option>
+          <option value="Part-time" {{ 'selected' if search_job_type == 'Part-time' else '' }}>Part-time</option>
+          <option value="Contract" {{ 'selected' if search_job_type == 'Contract' else '' }}>Contract</option>
+          <option value="Internship" {{ 'selected' if search_job_type == 'Internship' else '' }}>Internship</option>
         </select>
       </div>
 
         <div class="job-search-divider"></div>
 
       <div class="job-search-field">
-        <input type="text" placeholder="Enter keyword / designation / companies" />
+        <input type="text" name="keyword" value="{{ search_keyword or '' }}" placeholder="Enter keyword / designation / companies" />
       </div>
 
       <div class="job-search-divider"></div>
 
       <div class="job-search-field">
-        <input type="text" placeholder="Enter location" />
+        <input type="text" name="location" value="{{ search_location or '' }}" placeholder="Enter location" />
       </div>
 
-      <button class="job-search-btn" type="button">
+      <button class="job-search-btn" type="submit">
         <span class="material-symbols-outlined">search</span>
         Search
       </button>
-    </div>
+    </form>
           </div>
 
           <div class="dashboard-header">
@@ -160,193 +162,64 @@
             </div>
           </div>
 
+          {% if search_active %}
+          <div class="panel" style="margin-bottom: 24px;">
+            <div class="panel-header">
+              <h4>
+                Search Results
+                <span class="stat-note" style="display:inline; margin-left:6px;">({{ jobs|length }} found)</span>
+              </h4>
+              <a class="panel-link" href="{{ url_for('seeker_dashboard.dashboard') }}">Clear</a>
+            </div>
+
+            {% if jobs %}
+            <div class="content-grid" style="grid-template-columns: repeat(2, 1fr); gap: 16px;">
+              {% for job in jobs %}
+              <div class="match-card">
+                <div class="match-top">
+                  <div class="match-role">
+                    <div class="match-icon">
+                      <span class="material-symbols-outlined">work</span>
+                    </div>
+                    <div>
+                      <h5 class="match-title">{{ job.title }}</h5>
+                      <p class="match-company">{{ job.company_name }}{% if job.location %} · {{ job.location }}{% endif %}</p>
+                    </div>
+                  </div>
+                  <div class="match-score">
+                    <span class="match-percent-label">{{ job.job_type }}</span><br />
+                    <span class="match-percent-label">{{ job.experience_level }}</span>
+                  </div>
+                </div>
+
+                {% if job.skills %}
+                <div class="match-tags">
+                  {% for skill in job.skills.split(',') %}
+                  <span class="match-tag">{{ skill.strip() }}</span>
+                  {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="match-tip">
+                  <span class="material-symbols-outlined" style="font-size: 14px; color: var(--secondary);">schedule</span>
+                  Posted {{ job.created_at.strftime('%b %d, %Y') if job.created_at else '' }}
+                </div>
+
+                <a class="btn btn-primary btn-block" style="text-decoration:none; text-align:center;"
+                   href="mailto:{{ job.company_email }}?subject=Application for {{ job.title }}">
+                  Apply Now
+                </a>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <p class="stat-note">No jobs match that search yet. Try a broader keyword or clearing the location filter.</p>
+            {% endif %}
+          </div>
+          {% endif %}
+
          
-          <!-- Stat cards -->
-          <div class="stats-grid">
-            <div class="stat-card">
-              <span class="material-symbols-outlined stat-card-icon">monitoring</span>
-              <p class="stat-label">ATS Score</p>
-              <div class="stat-value-row">
-                <h3 class="stat-value">87%</h3>
-                <span class="stat-delta">
-                  <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">trending_up</span> +4%
-                </span>
-              </div>
-              <div class="stat-bar">
-                <div class="stat-bar-fill" style="width: 87%"></div>
-              </div>
-              <p class="stat-note">Exceeds 82% of other applicants in Tech.</p>
-            </div>
-
-            <div class="stat-card">
-              <span class="material-symbols-outlined stat-card-icon">send</span>
-              <p class="stat-label">Active Applications</p>
-              <div class="stat-value-row">
-                <h3 class="stat-value">12</h3>
-                <span class="stat-delta" style="color: var(--text-muted);">this month</span>
-              </div>
-              <div class="stat-segments">
-                <div class="stat-segment"></div>
-                <div class="stat-segment"></div>
-                <div class="stat-segment dim"></div>
-                <div class="stat-segment dim"></div>
-              </div>
-              <p class="stat-note">3 interviews scheduled for next week.</p>
-            </div>
-
-            <div class="stat-card">
-              <span class="material-symbols-outlined stat-card-icon">bookmark</span>
-              <p class="stat-label">Saved Jobs</p>
-              <div class="stat-value-row">
-                <h3 class="stat-value">05</h3>
-                <span class="stat-delta warn">
-                  <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">priority_high</span> 2 Expiring
-                </span>
-              </div>
-              <p class="stat-note" style="margin-top: 28px;">Check your saved senior UX roles.</p>
-            </div>
-          </div>
-
-          <!-- Applications + Activity/Matches -->
-          <div class="content-grid">
-            <div>
-              <div class="panel">
-                <div class="panel-header">
-                  <h4>Active Applications Status</h4>
-                  <button class="panel-link">View All</button>
-                </div>
-                <div class="app-list">
-                  <div class="app-item">
-                    <div>
-                      <span class="app-role">Senior UX Designer</span><br />
-                      <span class="app-company">Google</span>
-                    </div>
-                    <span class="app-status interviewing">Interviewing</span>
-                  </div>
-                  <div class="app-item">
-                    <div>
-                      <span class="app-role">Product Lead</span><br />
-                      <span class="app-company">Airbnb</span>
-                    </div>
-                    <span class="app-status review">Under Review</span>
-                  </div>
-                  <div class="app-item">
-                    <div>
-                      <span class="app-role">Design Systems Head</span><br />
-                      <span class="app-company">Figma</span>
-                    </div>
-                    <span class="app-status offer">Offer Received</span>
-                  </div>
-                  <div class="app-item">
-                    <div>
-                      <span class="app-role">Creative Director</span><br />
-                      <span class="app-company">Netflix</span>
-                    </div>
-                    <span class="app-status applied">Applied</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="action-grid">
-               
-                 
-              </div>
-            </div>
-
-            <div>
-              <div class="panel">
-                <p class="panel-eyebrow" style="margin-bottom: 24px;">Recent Activity</p>
-                <div class="timeline">
-                  <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <p class="timeline-title">Application Viewed</p>
-                    <p class="timeline-desc">Senior Product Designer at Apple.</p>
-                    <p class="timeline-time">2 hours ago</p>
-                  </div>
-                  <div class="timeline-item">
-                    <div class="timeline-dot" style="border-color: var(--accent);"></div>
-                    <p class="timeline-title">ATS Score Updated</p>
-                    <p class="timeline-desc">Resume optimized for Google Cloud role.</p>
-                    <p class="timeline-time" style="color: var(--accent);">Yesterday</p>
-                  </div>
-                  <div class="timeline-item">
-                    <div class="timeline-dot"></div>
-                    <p class="timeline-title">Interview Invite</p>
-                    <p class="timeline-desc">Meta Recruitment Team reached out.</p>
-                    <p class="timeline-time">2 days ago</p>
-                  </div>
-                  <div class="timeline-item faded">
-                    <div class="timeline-dot" style="border-color: var(--border-color);"></div>
-                    <p class="timeline-title">Saved New Job</p>
-                    <p class="timeline-desc">Lead Creative at Stripe.</p>
-                    <p class="timeline-time" style="color: var(--text-muted);">4 days ago</p>
-                  </div>
-                </div>
-                <button class="timeline-more">View All Activity</button>
-              </div>
-
-              
-
-                <div class="match-card">
-                  <div class="match-top">
-                    <div class="match-role">
-                      <div class="match-icon">
-                        <span class="material-symbols-outlined">deployed_code</span>
-                      </div>
-                      <div>
-                        <h5 class="match-title">Senior Product Designer</h5>
-                        <p class="match-company">Google · Hybrid</p>
-                      </div>
-                    </div>
-                    <div class="match-score">
-                      <span class="match-percent">94%</span><br />
-                      <span class="match-percent-label">Match</span>
-                    </div>
-                  </div>
-                  <div class="match-tags">
-                    <span class="match-tag">Figma</span>
-                    <span class="match-tag">User Research</span>
-                    <span class="match-tag">Prototyping</span>
-                  </div>
-                  <div class="match-tip">
-                    <span class="material-symbols-outlined" style="font-size: 14px; color: var(--secondary);">lightbulb</span>
-                    Matches your experience with B2B SaaS.
-                  </div>
-                  <button class="btn btn-primary btn-block">Quick Apply</button>
-                </div>
-
-                <div class="match-card">
-                  <div class="match-top">
-                    <div class="match-role">
-                      <div class="match-icon">
-                        <span class="material-symbols-outlined">architecture</span>
-                      </div>
-                      <div>
-                        <h5 class="match-title">UX Strategist</h5>
-                        <p class="match-company">Airbnb · Remote</p>
-                      </div>
-                    </div>
-                    <div class="match-score">
-                      <span class="match-percent">88%</span><br />
-                      <span class="match-percent-label">Match</span>
-                    </div>
-                  </div>
-                  <div class="match-tags">
-                    <span class="match-tag">Strategy</span>
-                    <span class="match-tag">Workshops</span>
-                  </div>
-                  <div class="match-tip">
-                    <span class="material-symbols-outlined" style="font-size: 14px; color: var(--secondary);">lightbulb</span>
-                    Strong alignment with your leadership skills.
-                  </div>
-                  <button class="btn btn-primary btn-block">Quick Apply</button>
-                </div>
-
-                <button class="match-more">View More Matches</button>
-              </div>
-            </div>
-          </div>
-        </div>
+          <!-- / -->
 
       </div>
     </section>

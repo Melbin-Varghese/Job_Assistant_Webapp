@@ -231,9 +231,10 @@ def list_all_jobs():
     return Job.query.order_by(Job.created_at.desc()).all()
 
 
-def search_jobs(keyword=None, location=None):
+def search_jobs(keyword=None, location=None, job_type=None):
     """Simple case-insensitive search over title/company/skills, plus
-    an optional location filter. Used by the seeker-facing search box."""
+    optional location and job_type filters. Used by the seeker-facing
+    dashboard search bar (job type dropdown + keyword + location)."""
     query = Job.query
 
     if keyword:
@@ -248,6 +249,9 @@ def search_jobs(keyword=None, location=None):
 
     if location:
         query = query.filter(Job.location.ilike(f"%{location}%"))
+
+    if job_type:
+        query = query.filter(Job.job_type.ilike(f"%{job_type}%"))
 
     return query.order_by(Job.created_at.desc()).all()
 

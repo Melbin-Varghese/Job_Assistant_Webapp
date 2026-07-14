@@ -95,7 +95,7 @@ def seeker_login():
         return render_template(TEMPLATE, active_tab="login", error="Invalid email or password.")
 
     login_user(seeker)
-    return redirect(url_for("seeker_auth.seeker_dashboard"))
+    return redirect(url_for("seeker_dashboard.dashboard"))
 
 
 @seeker_auth_bp.route("/seeker/logout")
@@ -108,12 +108,6 @@ def seeker_logout():
 # ==========================================================================
 # Pages
 # ==========================================================================
-@seeker_auth_bp.route("/seeker/dashboard")
-@login_required
-def seeker_dashboard():
-    return render_template("user.html")
-
-
 @seeker_auth_bp.route("/seeker/resume-builder")
 @login_required
 def resume_builder():

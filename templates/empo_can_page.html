@@ -246,10 +246,7 @@
                 <p style="margin:2px 0 0; color:#93a0b4; font-size:12.5px;">Post a job to start receiving and reviewing applicants here.</p>
               </div>
             </div>
-            <button class="cand-btn-primary" onclick="window.location.href='/templates/empo_job_posting_page.html'">
-              <span class="material-symbols-outlined" style="font-size:16px;">add_circle</span>
-              Post a Job
-            </button>
+            
           </div>
 
           <div class="cand-toolbar">
@@ -258,23 +255,23 @@
               <input type="text" id="candSearch" placeholder="Search by name, email, or role..." />
             </div>
 
-            <select class="cand-filter" id="roleFilter">
+            <!-- <select class="cand-filter" id="roleFilter">
               <option value="all">All Roles</option>
               <option value="Senior Product Designer">Senior Product Designer</option>
               <option value="UX Strategist">UX Strategist</option>
               <option value="Recruitment Analyst">Recruitment Analyst</option>
               <option value="Frontend Engineer">Frontend Engineer</option>
               <option value="Data Analyst">Data Analyst</option>
-            </select>
+            </select> -->
 
-            <select class="cand-filter" id="statusFilter">
+            <!-- <select class="cand-filter" id="statusFilter">
               <option value="all">All Statuses</option>
               <option value="New">New</option>
               <option value="Shortlisted">Shortlisted</option>
               <option value="Interview">Interview</option>
               <option value="Offer">Offer</option>
               <option value="Rejected">Rejected</option>
-            </select>
+            </select> -->
 
             <span class="cand-count-chip"><strong id="candCount">0</strong> candidates shown</span>
           </div>
@@ -286,10 +283,10 @@
                 <h3>All Candidates</h3>
                 <p>Applicants matched by Lumina AI scoring across every open role.</p>
               </div>
-              <button class="panel-link" style="background:none; border:none; cursor:pointer;" onclick="window.location.href='/templates/empo_can_page'">
+              <!-- <button class="panel-link" style="background:none; border:none; cursor:pointer;" onclick="window.location.href='/templates/empo_can_page'">
               <span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle;">add</span>
               Post a Job
-              </button>
+              </button> -->
             </div>
 
             <div style="overflow-x:auto;">
@@ -307,121 +304,7 @@
                   <tr data-name="Aisha Rahman" data-email="aisha.r@example.com" data-role="Senior Product Designer" data-status="Interview">
                     <td>
                       <div class="candidate-cell">
-                        <div class="candidate-avatar">AR</div>
-                        <div>
-                          <p class="candidate-name">Aisha Rahman</p>
-                          <p class="candidate-email">aisha.r@example.com</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>Senior Product Designer</td>
-                    <td>
-                      <div class="match-bar-row">
-                        <div class="match-bar-track"><div class="match-bar-fill" style="width: 94%"></div></div>
-                        <span class="match-bar-value">94%</span>
-                      </div>
-                    </td>
-                    <td><span class="app-status interviewing">Interview</span></td>
-                    <td class="right">
-                      <button class="table-icon-btn" title="View profile"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span></button>
-                      <button class="table-icon-btn" title="Edit"><span class="material-symbols-outlined" style="font-size:18px;">edit</span></button>
-                    </td>
-                  </tr>
-
-                  <tr data-name="Marcus Stone" data-email="marcus.s@example.com" data-role="UX Strategist" data-status="Shortlisted">
-                    <td>
-                      <div class="candidate-cell">
-                        <div class="candidate-avatar">MS</div>
-                        <div>
-                          <p class="candidate-name">Marcus Stone</p>
-                          <p class="candidate-email">marcus.s@example.com</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>UX Strategist</td>
-                    <td>
-                      <div class="match-bar-row">
-                        <div class="match-bar-track"><div class="match-bar-fill" style="width: 88%"></div></div>
-                        <span class="match-bar-value">88%</span>
-                      </div>
-                    </td>
-                    <td><span class="app-status review">Shortlisted</span></td>
-                    <td class="right">
-                      <button class="table-icon-btn" title="View profile"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span></button>
-                      <button class="table-icon-btn" title="Edit"><span class="material-symbols-outlined" style="font-size:18px;">edit</span></button>
-                    </td>
-                  </tr>
-
-                  <tr data-name="Daniel Cho" data-email="daniel.c@example.com" data-role="Recruitment Analyst" data-status="New">
-                    <td>
-                      <div class="candidate-cell">
-                        <div class="candidate-avatar">DC</div>
-                        <div>
-                          <p class="candidate-name">Daniel Cho</p>
-                          <p class="candidate-email">daniel.c@example.com</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>Recruitment Analyst</td>
-                    <td>
-                      <div class="match-bar-row">
-                        <div class="match-bar-track"><div class="match-bar-fill" style="width: 76%"></div></div>
-                        <span class="match-bar-value">76%</span>
-                      </div>
-                    </td>
-                    <td><span class="app-status applied">New</span></td>
-                    <td class="right">
-                      <button class="table-icon-btn" title="View profile"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span></button>
-                      <button class="table-icon-btn" title="Edit"><span class="material-symbols-outlined" style="font-size:18px;">edit</span></button>
-                    </td>
-                  </tr>
-
-                  <tr data-name="Priya Nair" data-email="priya.n@example.com" data-role="Frontend Engineer" data-status="Offer">
-                    <td>
-                      <div class="candidate-cell">
-                        <div class="candidate-avatar">PN</div>
-                        <div>
-                          <p class="candidate-name">Priya Nair</p>
-                          <p class="candidate-email">priya.n@example.com</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>Frontend Engineer</td>
-                    <td>
-                      <div class="match-bar-row">
-                        <div class="match-bar-track"><div class="match-bar-fill" style="width: 91%"></div></div>
-                        <span class="match-bar-value">91%</span>
-                      </div>
-                    </td>
-                    <td><span class="app-status interviewing">Offer</span></td>
-                    <td class="right">
-                      <button class="table-icon-btn" title="View profile"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span></button>
-                      <button class="table-icon-btn" title="Edit"><span class="material-symbols-outlined" style="font-size:18px;">edit</span></button>
-                    </td>
-                  </tr>
-
-                  <tr data-name="Rahul Verma" data-email="rahul.v@example.com" data-role="Data Analyst" data-status="Rejected">
-                    <td>
-                      <div class="candidate-cell">
-                        <div class="candidate-avatar">RV</div>
-                        <div>
-                          <p class="candidate-name">Rahul Verma</p>
-                          <p class="candidate-email">rahul.v@example.com</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>Data Analyst</td>
-                    <td>
-                      <div class="match-bar-row">
-                        <div class="match-bar-track"><div class="match-bar-fill" style="width: 58%"></div></div>
-                        <span class="match-bar-value">58%</span>
-                      </div>
-                    </td>
-                    <td><span class="app-status applied" style="background:#fde2e2; color:#b91c1c;">Rejected</span></td>
-                    <td class="right">
-                      <button class="table-icon-btn" title="View profile"><span class="material-symbols-outlined" style="font-size:18px;">visibility</span></button>
-                      <button class="table-icon-btn" title="Edit"><span class="material-symbols-outlined" style="font-size:18px;">edit</span></button>
-                    </td>
+                        
                   </tr>
                 </tbody>
               </table>
