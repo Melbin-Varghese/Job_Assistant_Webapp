@@ -23,10 +23,10 @@ templates/routes pointing at seeker_auth.seeker_dashboard, update
 those too.
 """
 
-from flask import Blueprint, render_template, request
-from flask_login import login_required
+from flask import Blueprint, render_template, request, jsonify
+from flask_login import login_required, current_user
 
-from crud import search_jobs
+from crud import search_jobs, create_application, list_applied_job_ids
 
 seeker_dashboard_bp = Blueprint("seeker_dashboard", __name__)
 
@@ -52,4 +52,23 @@ def dashboard():
         search_job_type=job_type,
         search_keyword=keyword,
         search_location=location,
+        applied_job_ids=list_applied_job_ids(current_user.id),
     )
+
+
+@seeker_dashboard_bp.route("/seeker/jobs/apply", methods=["POST"])
+@login_required
+def apply_to_job():
+    """Called via fetch() from the job details modal's Apply button."""
+    job_id = request.form.get("job_id", type=int)
+    if not job_id:
+        return jsonify({"ok": False, "error": "Missing job id."}), 400
+
+    try:
+        create_application(job_id=job_id, seeker_id=current_user.id)
+    except ValueError as e:
+        # Already applied, or the job was removed -- not a server error,
+        # just tell the frontend why it didn't go through.
+        return jsonify({"ok": False, "error": str(e)}), 400
+
+    return jsonify({"ok": True, "message": "Application submitted."})

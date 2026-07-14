@@ -163,3 +163,31 @@ class SeekerProfile(db.Model):
 
     def __repr__(self):
         return f"<SeekerProfile seeker_id={self.seeker_id}>"
+
+
+class Application(db.Model):
+    """
+    A seeker applying to a job. One row per (job, seeker) pair -- the
+    unique constraint below stops the same seeker from applying to
+    the same job twice via a double-click or resubmitted form.
+    """
+    __tablename__ = "applications"
+    __table_args__ = (
+        db.UniqueConstraint("job_id", "seeker_id", name="uq_application_job_seeker"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    job_id = db.Column(db.Integer, db.ForeignKey("jobs.id"), nullable=False)
+    seeker_id = db.Column(db.Integer, db.ForeignKey("seekers.id"), nullable=False)
+
+    # "Applied" -> "Shortlisted" / "Interview" / "Offer" / "Rejected",
+    # set by the employer from the Candidates page.
+    status = db.Column(db.String(30), nullable=False, default="Applied")
+
+    applied_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    job = db.relationship("Job", backref=db.backref("applications", lazy=True))
+    seeker = db.relationship("Seeker", backref=db.backref("applications", lazy=True))
+
+    def __repr__(self):
+        return f"<Application job_id={self.job_id} seeker_id={self.seeker_id} status={self.status}>"

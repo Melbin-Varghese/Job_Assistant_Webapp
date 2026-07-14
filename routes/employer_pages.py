@@ -10,10 +10,16 @@ still use demo data; wire those up the same way once you have real
 models for them.
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify
 from flask_login import login_required, current_user
 
-from crud import create_job, list_jobs_by_employer
+from crud import (
+    create_job,
+    list_jobs_by_employer,
+    list_applications_by_employer,
+    get_application_by_id,
+    update_application_status,
+)
 
 employer_pages_bp = Blueprint("employer_pages", __name__)
 
@@ -74,7 +80,30 @@ def jobs():
 @employer_pages_bp.route("/employer/candidates")
 @login_required
 def candidates():
-    return render_template("empo_can_page.html")
+    applications = list_applications_by_employer(current_user.id)
+    has_jobs = len(list_jobs_by_employer(current_user.id)) > 0
+    return render_template("empo_can_page.html", applications=applications, has_jobs=has_jobs)
+
+
+@employer_pages_bp.route("/employer/candidates/<int:application_id>/status", methods=["POST"])
+@login_required
+def update_candidate_status(application_id):
+    """Called via fetch() from the Candidates page's Shortlist/Reject
+    buttons. Returns JSON so the row can update without a full reload."""
+    application = get_application_by_id(application_id)
+
+    # Make sure this application actually belongs to one of THIS
+    # employer's jobs -- otherwise any logged-in employer could edit
+    # any other employer's applications by guessing an id.
+    if not application or application.job.employer_id != current_user.id:
+        return jsonify({"ok": False, "error": "Application not found."}), 404
+
+    status = request.form.get("status", "").strip()
+    updated = update_application_status(application_id, status)
+    if not updated:
+        return jsonify({"ok": False, "error": "Could not update status."}), 400
+
+    return jsonify({"ok": True, "status": updated.status})
 
 
 @employer_pages_bp.route("/employer/settings")

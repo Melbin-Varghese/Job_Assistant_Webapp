@@ -58,7 +58,7 @@ def terms_of_services():
     return render_template("terms_of_services.html")
 
 
-# ---------- Job Recommendation page ----------
-@pages_bp.route("/recom.html")
-def recom():
-    return render_template("recom.html")
+# ----------settings_support_user page ----------
+
+
+

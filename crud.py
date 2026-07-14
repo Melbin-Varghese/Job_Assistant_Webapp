@@ -14,7 +14,7 @@ belongs in this file.
 import json
 
 from extensions import db
-from models import Employer, Seeker, Job, SeekerProfile
+from models import Employer, Seeker, Job, SeekerProfile, Application
 
 
 # ==========================================================================
@@ -336,3 +336,85 @@ def upsert_seeker_profile(seeker_id, **fields):
 
     db.session.commit()
     return profile
+
+
+# ==========================================================================
+# APPLICATION — Create
+# ==========================================================================
+def create_application(job_id, seeker_id):
+    """Creates an Application (a seeker applying to a job). Returns the
+    new Application. Raises ValueError if this seeker already applied
+    to this job, or if the job doesn't exist."""
+
+    if not get_job_by_id(job_id):
+        raise ValueError("That job no longer exists.")
+
+    if has_applied(job_id, seeker_id):
+        raise ValueError("You've already applied to this job.")
+
+    application = Application(job_id=job_id, seeker_id=seeker_id)
+    db.session.add(application)
+    db.session.commit()
+    return application
+
+
+# ==========================================================================
+# APPLICATION — Read
+# ==========================================================================
+def get_application_by_id(application_id):
+    return Application.query.get(application_id)
+
+
+def has_applied(job_id, seeker_id):
+    return (
+        Application.query.filter_by(job_id=job_id, seeker_id=seeker_id).first()
+        is not None
+    )
+
+
+def list_applied_job_ids(seeker_id):
+    """Set of job ids this seeker has already applied to -- used to
+    show 'Applied' instead of an active Apply button."""
+    rows = (
+        Application.query.with_entities(Application.job_id)
+        .filter_by(seeker_id=seeker_id)
+        .all()
+    )
+    return {row[0] for row in rows}
+
+
+def list_applications_by_seeker(seeker_id):
+    return (
+        Application.query.filter_by(seeker_id=seeker_id)
+        .order_by(Application.applied_at.desc())
+        .all()
+    )
+
+
+def list_applications_by_employer(employer_id):
+    """Every application to any job posted by this employer, newest
+    first -- powers the employer-facing Candidates page."""
+    return (
+        Application.query.join(Job, Application.job_id == Job.id)
+        .filter(Job.employer_id == employer_id)
+        .order_by(Application.applied_at.desc())
+        .all()
+    )
+
+
+# ==========================================================================
+# APPLICATION — Update
+# ==========================================================================
+def update_application_status(application_id, status):
+    """Returns the updated Application, or None if no application with
+    that id exists."""
+    application = get_application_by_id(application_id)
+    if not application:
+        return None
+
+    allowed_statuses = {"Applied", "Shortlisted", "Interview", "Offer", "Rejected"}
+    if status in allowed_statuses:
+        application.status = status
+        db.session.commit()
+
+    return application

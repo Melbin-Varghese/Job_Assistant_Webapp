@@ -234,11 +234,11 @@
           <div class="cand-header">
             <div>
               <h2>Candidates to Review</h2>
-              <p>Everyone who applied to a job <strong style="color:#e7ecf3;">you posted</strong>, scored and ranked by Lumina AI.</p>
+              <p>Everyone who applied to a job <strong style="color:#e7ecf3;">you posted</strong>.</p>
             </div>
           </div>
 
-          <div class="jp-no-jobs-banner" id="noJobsBanner" style="display:none; background:#101a2c; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:18px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+          <div class="jp-no-jobs-banner" id="noJobsBanner" style="{% if has_jobs %}display:none;{% else %}display:flex;{% endif %} background:#101a2c; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:18px 20px; margin-bottom:18px; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
             <div style="display:flex; align-items:center; gap:12px;">
               <span class="material-symbols-outlined" style="color:#14b8a6; font-size:22px;">info</span>
               <div>
@@ -281,7 +281,7 @@
             <div class="table-panel-header">
               <div>
                 <h3>All Candidates</h3>
-                <p>Applicants matched by Lumina AI scoring across every open role.</p>
+                <p>Applicants across every role you've posted, newest first.</p>
               </div>
               <!-- <button class="panel-link" style="background:none; border:none; cursor:pointer;" onclick="window.location.href='/templates/empo_can_page'">
               <span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle;">add</span>
@@ -295,17 +295,57 @@
                   <tr>
                     <th>Candidate</th>
                     <th>Role</th>
-                    <th>Match</th>
+                    <th>Applied</th>
                     <th>Status</th>
                     <th class="right">Actions</th>
                   </tr>
                 </thead>
                 <tbody id="candidatesBody">
-                  <tr data-name="Aisha Rahman" data-email="aisha.r@example.com" data-role="Senior Product Designer" data-status="Interview">
+                  {% for app in applications %}
+                  <tr data-name="{{ app.seeker.full_name }}" data-email="{{ app.seeker.email }}" data-role="{{ app.job.title }}" data-status="{{ app.status }}">
                     <td>
                       <div class="candidate-cell">
-                        
+                        <div class="candidate-avatar">
+                          {{ app.seeker.full_name.split(' ')[0][0] }}{{ (app.seeker.full_name.split(' ')[1][0] if app.seeker.full_name.split(' ')|length > 1 else '') }}
+                        </div>
+                        <div>
+                          <p class="candidate-name">{{ app.seeker.full_name }}</p>
+                          <p class="candidate-email">{{ app.seeker.email }}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td>{{ app.job.title }}</td>
+                    <td>{{ app.applied_at.strftime('%b %d, %Y') if app.applied_at else '' }}</td>
+                    <td>
+                      <span class="pill {{ 'completed' if app.status in ('Offer',) else ('pending' if app.status == 'Applied' else ('role' if app.status in ('Shortlisted', 'Interview') else '')) }}"
+                            id="statusPill-{{ app.id }}"
+                            style="{% if app.status == 'Rejected' %}background: rgba(220,38,38,0.12); color:#dc2626;{% endif %}">
+                        {{ app.status }}
+                      </span>
+                    </td>
+                    <td class="right">
+                      <div class="action-pill-group" style="display: inline-flex; gap: 8px;">
+    <button
+        type="button"
+        class="cand-btn-primary"
+        onclick="setCandidateStatus({{ app.id }}, 'Shortlisted')">
+        Shortlist
+    </button>
+
+    <button
+        type="button"
+        class="cand-btn-primary"
+        style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: #fff;"
+        onclick="setCandidateStatus({{ app.id }}, 'Rejected')">
+        Reject
+    </button>
+</div>
+                    </td>
                   </tr>
+                  {% endfor %}
+                  {% if not applications and has_jobs %}
+                  <tr class="cand-empty-row"><td colspan="5">No applicants yet for the jobs you've posted.</td></tr>
+                  {% endif %}
                 </tbody>
               </table>
             </div>
@@ -320,93 +360,62 @@
   <script>
     (function () {
       const searchInput = document.getElementById('candSearch');
-      const roleFilter = document.getElementById('roleFilter');
-      const statusFilter = document.getElementById('statusFilter');
-      const rows = Array.from(document.querySelectorAll('#candidatesBody tr'));
+      const rows = Array.from(document.querySelectorAll('#candidatesBody tr:not(.cand-empty-row)'));
       const countEl = document.getElementById('candCount');
-      const noJobsBanner = document.getElementById('noJobsBanner');
-      const tablePanel = document.querySelector('.table-panel');
-
-      // TODO: replace the static rows above with server-rendered / fetched
-      // applications, e.g. fetch('/api/candidates').then(...).then(render).
-      // As-is, this demo reads the recruiter's own postings from
-      // localStorage ('lumina_jobs', written by jobs.html) and only shows
-      // applicants whose role matches one of those postings — so each
-      // recruiter only reviews candidates for jobs they actually posted.
-      const JOBS_KEY = 'lumina_jobs';
-
-      function getMyPostedJobTitles() {
-        try {
-          const raw = localStorage.getItem(JOBS_KEY);
-          const jobs = raw ? JSON.parse(raw) : [];
-          return jobs.map(j => (j.jobTitle || '').trim().toLowerCase()).filter(Boolean);
-        } catch (e) {
-          return [];
-        }
-      }
-
-      const myTitles = getMyPostedJobTitles();
-      const myTitlesSet = new Set(myTitles);
-
-      // Only keep the rows that belong to a role this recruiter posted.
-      const myRows = rows.filter(row => myTitlesSet.has(row.dataset.role.trim().toLowerCase()));
-      rows.forEach(row => { if (!myTitlesSet.has(row.dataset.role.trim().toLowerCase())) row.remove(); });
-
-      if (myTitles.length === 0) {
-        noJobsBanner.style.display = 'flex';
-      }
-
-      // Build the role filter dropdown from only the roles actually posted.
-      const rolesPresent = Array.from(new Set(myRows.map(r => r.dataset.role)));
-      roleFilter.innerHTML = '<option value="all">All Roles</option>' +
-        rolesPresent.map(r => `<option value="${r}">${r}</option>`).join('');
 
       function applyFilters() {
         const q = searchInput.value.trim().toLowerCase();
-        const role = roleFilter.value;
-        const status = statusFilter.value;
         let visible = 0;
 
-        myRows.forEach(row => {
-          const name = row.dataset.name.toLowerCase();
-          const email = row.dataset.email.toLowerCase();
-          const rRole = row.dataset.role;
-          const rStatus = row.dataset.status;
+        rows.forEach((row) => {
+          const name = (row.dataset.name || '').toLowerCase();
+          const email = (row.dataset.email || '').toLowerCase();
+          const role = (row.dataset.role || '').toLowerCase();
 
-          const matchesQuery = !q || name.includes(q) || email.includes(q) || rRole.toLowerCase().includes(q);
-          const matchesRole = role === 'all' || rRole === role;
-          const matchesStatus = status === 'all' || rStatus === status;
-
-          const show = matchesQuery && matchesRole && matchesStatus;
+          const show = !q || name.includes(q) || email.includes(q) || role.includes(q);
           row.classList.toggle('is-hidden', !show);
           if (show) visible++;
         });
 
         countEl.textContent = visible;
-
-        if (myRows.length === 0 && tablePanel) {
-          const tbody = document.getElementById('candidatesBody');
-          tbody.innerHTML = '<tr class="cand-empty-row"><td colspan="5">No applicants yet for the jobs you\'ve posted.</td></tr>';
-        }
       }
 
-      searchInput.addEventListener('input', applyFilters);
-      roleFilter.addEventListener('change', applyFilters);
-      statusFilter.addEventListener('change', applyFilters);
+      if (searchInput) {
+        searchInput.addEventListener('input', applyFilters);
+      }
 
       applyFilters();
     })();
-  </script>
-  <script>
-    // Force the correct sidebar item to be highlighted for THIS page,
-    // regardless of any active-state logic in script.js.
-    (function () {
-      document.querySelectorAll('.sidebar-nav a').forEach(function (link) {
-        link.classList.remove('active');
-      });
-      var current = document.querySelector('.sidebar-nav a[href$="candidates.html"]');
-      if (current) current.classList.add('active');
-    })();
+
+    function setCandidateStatus(applicationId, status) {
+      fetch(`/employer/candidates/${applicationId}/status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'status=' + encodeURIComponent(status),
+      })
+        .then((r) => r.json())
+        .then((data) => {
+          if (!data.ok) {
+            alert(data.error || 'Could not update status.');
+            return;
+          }
+          const pill = document.getElementById('statusPill-' + applicationId);
+          if (!pill) return;
+
+          pill.textContent = data.status;
+          pill.className = 'pill' +
+            (data.status === 'Offer' ? ' completed' :
+             data.status === 'Applied' ? ' pending' :
+             (data.status === 'Shortlisted' || data.status === 'Interview') ? ' role' : '');
+          pill.style.cssText = data.status === 'Rejected'
+            ? 'background: rgba(220,38,38,0.12); color:#dc2626;'
+            : '';
+
+          const row = pill.closest('tr');
+          if (row) row.dataset.status = data.status;
+        })
+        .catch(() => alert('Network error -- please try again.'));
+    }
   </script>
 </body>
 </html>

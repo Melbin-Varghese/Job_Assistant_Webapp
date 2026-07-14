@@ -48,7 +48,7 @@
               <span class="material-symbols-outlined">dashboard</span>
               <span>Dashboard</span>
             </a>
-            <a href="{{ url_for('seeker_auth.resume_builder') }}">
+            <a href="{{ url_for('coming_soon') }}">
               <span class="material-symbols-outlined">description</span>
               <span>Resume Builder</span>
             </a>
@@ -68,13 +68,13 @@
               <span class="material-symbols-outlined">forward_to_inbox</span>
               <span>Email Automation</span>
             </a>
-            <a href="{{ url_for('seeker_auth.skill_gap') }}">
+            <a href="{{ url_for('ai_assistant.ai_assistant') }}">
               <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
-              <span>Skill Gap</span>
+              <span>AI Career Coach</span>
             </a>
             <a href="{{ url_for('seeker_auth.settings') }}">
               <span class="material-symbols-outlined">settings</span>
-              <span>Settings &amp; Support</span>
+              <span>Settings & Support</span>
             </a>
           </nav>
 
@@ -86,35 +86,9 @@
           <div class="opportunities-bar">
             <div class="opportunities-dropdown" id="opportunitiesDropdown">
               <button type="button" class="opportunities-trigger" id="opportunitiesTrigger" aria-expanded="false" aria-haspopup="true">
-                Opportunities
-                <span class="material-symbols-outlined">expand_more</span>
-              </button>
-              <div class="opportunities-menu" id="opportunitiesMenu">
-                <!-- <a href="#">
-                  <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">stars</span>
-                  Recommended Jobs
-                </a>
-                <a href="#">
-                  <span class="material-symbols-outlined">mark_email_unread</span>
-                  Job Invites
-                </a>
-                <a href="#">
-                  <span class="material-symbols-outlined">notifications_active</span>
-                  Jobs From Alerts
-                </a>
-                <a href="#">
-                  <span class="material-symbols-outlined">send</span>
-                  Application Status
-                </a>
-                <a href="#">
-                  <span class="material-symbols-outlined">bookmark</span>
-                  Saved Jobs
-                </a>
-                <a href="#">
-                  <span class="material-symbols-outlined">history</span>
-                  Recent Apply
-                </a> -->
-              </div>
+                Hi, {{ current_user.full_name.split(' ')[0] }}
+                
+              
             </div>
 
             <form class="navbar-search" method="get" action="{{ url_for('seeker_dashboard.dashboard') }}">
@@ -175,7 +149,19 @@
             {% if jobs %}
             <div class="content-grid" style="grid-template-columns: repeat(2, 1fr); gap: 16px;">
               {% for job in jobs %}
-              <div class="match-card">
+              <div class="match-card job-card" style="cursor:pointer;"
+                   data-job-id="{{ job.id }}"
+                   data-title="{{ job.title }}"
+                   data-company="{{ job.company_name }}"
+                   data-location="{{ job.location or '' }}"
+                   data-job-type="{{ job.job_type }}"
+                   data-experience="{{ job.experience_level }}"
+                   data-skills="{{ job.skills or '' }}"
+                   data-description="{{ job.description }}"
+                   data-email="{{ job.company_email }}"
+                   data-posted="{{ job.created_at.strftime('%b %d, %Y') if job.created_at else '' }}"
+                   data-applied="{{ '1' if job.id in applied_job_ids else '0' }}"
+                   onclick="openJobModal(this)">
                 <div class="match-top">
                   <div class="match-role">
                     <div class="match-icon">
@@ -205,10 +191,16 @@
                   Posted {{ job.created_at.strftime('%b %d, %Y') if job.created_at else '' }}
                 </div>
 
-                <a class="btn btn-primary btn-block" style="text-decoration:none; text-align:center;"
-                   href="mailto:{{ job.company_email }}?subject=Application for {{ job.title }}">
-                  Apply Now
-                </a>
+                {% if job.id in applied_job_ids %}
+                <div class="btn btn-block" style="text-align:center; background: rgba(22,163,74,0.12); color:#16a34a; pointer-events:none;">
+                  <span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle;">check_circle</span>
+                  Applied
+                </div>
+                {% else %}
+                <button type="button" class="btn btn-primary btn-block">
+                  View &amp; Apply
+                </button>
+                {% endif %}
               </div>
               {% endfor %}
             </div>
@@ -218,12 +210,95 @@
           </div>
           {% endif %}
 
+
          
-          <!-- / -->
+          
+              <div class="action-grid">
+               
+                 
+              </div>
+            </div>
+            </div>
+          </div>
+        </div>
 
       </div>
     </section>
   </main>
+
+  <!-- Job details modal (search results "View & Apply") -->
+  <div class="job-modal-backdrop" id="jobModal" onclick="if (event.target === this) closeJobModal();">
+    <div class="job-modal">
+      <button type="button" class="job-modal-close" onclick="closeJobModal()" aria-label="Close">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+
+      <div class="match-role" style="margin-bottom: 14px;">
+        <div class="match-icon">
+          <span class="material-symbols-outlined">work</span>
+        </div>
+        <div>
+          <h5 class="match-title" id="jobModalTitle" style="font-size: 18px;"></h5>
+          <p class="match-company" id="jobModalCompany"></p>
+        </div>
+      </div>
+
+      <div class="job-modal-meta">
+        <span class="match-tag" id="jobModalType"></span>
+        <span class="match-tag" id="jobModalExperience"></span>
+        <span class="stat-note" id="jobModalPosted"></span>
+      </div>
+
+      <div class="match-tags" id="jobModalSkills" style="margin: 14px 0;"></div>
+
+      <p class="job-modal-desc-label">Job Description</p>
+      <p class="job-modal-desc" id="jobModalDescription"></p>
+
+      <p class="job-modal-note" id="jobModalNote"></p>
+
+      <button type="button" class="btn btn-primary btn-block" id="jobModalApplyBtn">Apply Now</button>
+    </div>
+  </div>
+
+  <style>
+    .job-modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(8, 12, 20, 0.6);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .job-modal-backdrop.open { display: flex; }
+    .job-modal {
+      position: relative;
+      background: var(--panel-bg, #fff);
+      color: var(--text-color, #111);
+      width: 100%;
+      max-width: 560px;
+      max-height: 85vh;
+      overflow-y: auto;
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+    .job-modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-muted, #6b7280);
+    }
+    .job-modal-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .job-modal-desc-label { font-weight: 700; font-size: 13px; margin: 18px 0 6px; }
+    .job-modal-desc { font-size: 13.5px; line-height: 1.6; white-space: pre-line; color: var(--text-muted, #4b5563); }
+    .job-modal-note { font-size: 12.5px; font-weight: 600; margin: 10px 0 0; min-height: 16px; }
+    .btn-applied { background: rgba(22,163,74,0.12) !important; color: #16a34a !important; }
+  </style>
 
   <footer class="footer">
     <div>
@@ -255,6 +330,98 @@
         }
       });
     })();
+  </script>
+
+  <script>
+    const JOB_APPLY_URL = "{{ url_for('seeker_dashboard.apply_to_job') }}";
+
+    function openJobModal(cardEl) {
+      document.getElementById('jobModalTitle').textContent = cardEl.dataset.title;
+      document.getElementById('jobModalCompany').textContent =
+        cardEl.dataset.company + (cardEl.dataset.location ? ' · ' + cardEl.dataset.location : '');
+      document.getElementById('jobModalType').textContent = cardEl.dataset.jobType;
+      document.getElementById('jobModalExperience').textContent = cardEl.dataset.experience;
+      document.getElementById('jobModalPosted').textContent =
+        cardEl.dataset.posted ? ('Posted ' + cardEl.dataset.posted) : '';
+      document.getElementById('jobModalDescription').textContent = cardEl.dataset.description;
+      document.getElementById('jobModalNote').textContent = '';
+
+      const skillsWrap = document.getElementById('jobModalSkills');
+      skillsWrap.innerHTML = '';
+      (cardEl.dataset.skills || '').split(',').map(s => s.trim()).filter(Boolean).forEach((skill) => {
+        const tag = document.createElement('span');
+        tag.className = 'match-tag';
+        tag.textContent = skill;
+        skillsWrap.appendChild(tag);
+      });
+
+      const applyBtn = document.getElementById('jobModalApplyBtn');
+      applyBtn.dataset.jobId = cardEl.dataset.jobId;
+      setApplyButtonState(applyBtn, cardEl.dataset.applied === '1', false);
+
+      document.getElementById('jobModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeJobModal() {
+      document.getElementById('jobModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function setApplyButtonState(btn, applied, pending) {
+      btn.classList.toggle('btn-applied', applied);
+      if (pending) {
+        btn.disabled = true;
+        btn.textContent = 'Submitting...';
+      } else if (applied) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle;">check_circle</span> Applied';
+      } else {
+        btn.disabled = false;
+        btn.textContent = 'Apply Now';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const applyBtn = document.getElementById('jobModalApplyBtn');
+
+      applyBtn.addEventListener('click', () => {
+        const jobId = applyBtn.dataset.jobId;
+        if (!jobId) return;
+
+        setApplyButtonState(applyBtn, false, true);
+
+        fetch(JOB_APPLY_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: 'job_id=' + encodeURIComponent(jobId),
+        })
+          .then((r) => r.json())
+          .then((data) => {
+            if (data.ok) {
+              setApplyButtonState(applyBtn, true, false);
+              document.getElementById('jobModalNote').style.color = '#16a34a';
+              document.getElementById('jobModalNote').textContent = data.message || 'Application submitted!';
+
+              const card = document.querySelector('.job-card[data-job-id="' + jobId + '"]');
+              if (card) card.dataset.applied = '1';
+            } else {
+              setApplyButtonState(applyBtn, false, false);
+              document.getElementById('jobModalNote').style.color = '#dc2626';
+              document.getElementById('jobModalNote').textContent = data.error || 'Something went wrong.';
+            }
+          })
+          .catch(() => {
+            setApplyButtonState(applyBtn, false, false);
+            document.getElementById('jobModalNote').style.color = '#dc2626';
+            document.getElementById('jobModalNote').textContent = 'Network error -- please try again.';
+          });
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeJobModal();
+      });
+    });
   </script>
 
 </body>
