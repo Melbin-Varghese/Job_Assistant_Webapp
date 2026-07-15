@@ -14,7 +14,7 @@ belongs in this file.
 import json
 
 from extensions import db
-from models import Employer, Seeker, Job, SeekerProfile, Application
+from models import Employer, Seeker, Job, SeekerProfile, Application, Notification
 
 
 # ==========================================================================
@@ -418,3 +418,54 @@ def update_application_status(application_id, status):
         db.session.commit()
 
     return application
+
+
+# ==========================================================================
+# NOTIFICATION — Create
+# ==========================================================================
+def create_notification(seeker_id, message, job_id=None):
+    notification = Notification(seeker_id=seeker_id, message=message, job_id=job_id)
+    db.session.add(notification)
+    db.session.commit()
+    return notification
+
+
+# ==========================================================================
+# NOTIFICATION — Read
+# ==========================================================================
+def list_notifications_by_seeker(seeker_id, limit=20):
+    return (
+        Notification.query.filter_by(seeker_id=seeker_id)
+        .order_by(Notification.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+
+
+def count_unread_notifications(seeker_id):
+    return Notification.query.filter_by(seeker_id=seeker_id, is_read=False).count()
+
+
+# ==========================================================================
+# NOTIFICATION — Update
+# ==========================================================================
+def mark_notification_read(notification_id, seeker_id):
+    """Only marks it read if it actually belongs to this seeker --
+    otherwise one seeker could mark another seeker's notification as
+    read just by guessing an id. Returns True if it updated a row."""
+    notification = Notification.query.filter_by(
+        id=notification_id, seeker_id=seeker_id
+    ).first()
+    if not notification:
+        return False
+
+    notification.is_read = True
+    db.session.commit()
+    return True
+
+
+def mark_all_notifications_read(seeker_id):
+    Notification.query.filter_by(seeker_id=seeker_id, is_read=False).update(
+        {"is_read": True}
+    )
+    db.session.commit()

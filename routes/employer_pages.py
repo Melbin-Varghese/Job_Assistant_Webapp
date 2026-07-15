@@ -19,6 +19,7 @@ from crud import (
     list_applications_by_employer,
     get_application_by_id,
     update_application_status,
+    create_notification,
 )
 
 employer_pages_bp = Blueprint("employer_pages", __name__)
@@ -102,6 +103,22 @@ def update_candidate_status(application_id):
     updated = update_application_status(application_id, status)
     if not updated:
         return jsonify({"ok": False, "error": "Could not update status."}), 400
+
+    # Let the seeker know -- only for the two decisions that actually
+    # mean something to them; "Interview"/"Offer" can be added the
+    # same way later if those get their own UI actions.
+    if updated.status == "Shortlisted":
+        create_notification(
+            seeker_id=updated.seeker_id,
+            message=f"You've been shortlisted for {updated.job.title} at {updated.job.company_name}!",
+            job_id=updated.job_id,
+        )
+    elif updated.status == "Rejected":
+        create_notification(
+            seeker_id=updated.seeker_id,
+            message=f"Your application for {updated.job.title} at {updated.job.company_name} was not selected this time.",
+            job_id=updated.job_id,
+        )
 
     return jsonify({"ok": True, "status": updated.status})
 

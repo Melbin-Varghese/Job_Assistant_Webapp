@@ -191,3 +191,30 @@ class Application(db.Model):
 
     def __repr__(self):
         return f"<Application job_id={self.job_id} seeker_id={self.seeker_id} status={self.status}>"
+
+
+class Notification(db.Model):
+    """
+    A single notification for a seeker -- currently only created when
+    an employer changes an application's status (Shortlisted/Rejected/
+    etc), but kept general (not tied to Application specifically) so
+    other event types can create these later without a new table.
+    """
+    __tablename__ = "notifications"
+
+    id = db.Column(db.Integer, primary_key=True)
+    seeker_id = db.Column(db.Integer, db.ForeignKey("seekers.id"), nullable=False)
+
+    message = db.Column(db.String(255), nullable=False)
+
+    # Optional -- lets the notification link back to the job it's about.
+    job_id = db.Column(db.Integer, db.ForeignKey("jobs.id"), nullable=True)
+
+    is_read = db.Column(db.Boolean, nullable=False, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    seeker = db.relationship("Seeker", backref=db.backref("notifications", lazy=True))
+    job = db.relationship("Job")
+
+    def __repr__(self):
+        return f"<Notification seeker_id={self.seeker_id} read={self.is_read}>"

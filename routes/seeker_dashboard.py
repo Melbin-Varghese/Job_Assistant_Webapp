@@ -26,7 +26,14 @@ those too.
 from flask import Blueprint, render_template, request, jsonify
 from flask_login import login_required, current_user
 
-from crud import search_jobs, create_application, list_applied_job_ids
+from crud import (
+    search_jobs,
+    create_application,
+    list_applied_job_ids,
+    list_notifications_by_seeker,
+    count_unread_notifications,
+    mark_all_notifications_read,
+)
 
 seeker_dashboard_bp = Blueprint("seeker_dashboard", __name__)
 
@@ -53,7 +60,17 @@ def dashboard():
         search_keyword=keyword,
         search_location=location,
         applied_job_ids=list_applied_job_ids(current_user.id),
+        notifications=list_notifications_by_seeker(current_user.id),
+        unread_notification_count=count_unread_notifications(current_user.id),
     )
+
+
+@seeker_dashboard_bp.route("/seeker/notifications/read-all", methods=["POST"])
+@login_required
+def mark_notifications_read():
+    """Called via fetch() when the seeker opens the notification bell."""
+    mark_all_notifications_read(current_user.id)
+    return jsonify({"ok": True})
 
 
 @seeker_dashboard_bp.route("/seeker/jobs/apply", methods=["POST"])

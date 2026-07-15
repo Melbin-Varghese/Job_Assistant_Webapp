@@ -8,6 +8,24 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/css/user.css" />
+
+  <style>
+    .settings-alert {
+      font-size: 13px;
+      font-weight: 600;
+      padding: 10px 14px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+    }
+    .settings-alert-error {
+      background: rgba(196, 57, 43, 0.1);
+      color: #c4392b;
+    }
+    .settings-alert-success {
+      background: rgba(22, 163, 74, 0.1);
+      color: #16a34a;
+    }
+  </style>
 </head>
 
 <body>
@@ -88,36 +106,56 @@
           <div class="settings-panel active" id="panel-account">
             <div class="panel">
               <p class="profile-section-title"><span class="material-symbols-outlined">person</span>Account Details</p>
-              <div class="settings-field">
-                <label for="stName">Full Name</label>
-                <input type="text" id="stName" placeholder="Enter your full name" />
-              </div>
-              <div class="settings-field">
-                <label for="stEmail">Email</label>
-                <input type="email" id="stEmail" placeholder="Enter your email" />
-              </div>
-              <div class="settings-field">
-                <label for="stPhone">Phone</label>
-                <input type="tel" id="stPhone" placeholder="Enter your phone number" />
-              </div>
-              <div class="settings-field">
-                <label for="stLocation">Location</label>
-                <input type="text" id="stLocation" placeholder="Enter your location" />
-              </div>
-              <button class="btn btn-primary" type="button">Save Changes</button>
+
+              {% if account_error %}
+              <div class="settings-alert settings-alert-error">{{ account_error }}</div>
+              {% endif %}
+              {% if account_success %}
+              <div class="settings-alert settings-alert-success">{{ account_success }}</div>
+              {% endif %}
+
+              <form method="post" action="{{ url_for('seeker_auth.settings_account') }}">
+                <div class="settings-field">
+                  <label for="stName">Full Name</label>
+                  <input type="text" id="stName" name="full_name" value="{{ current_user.full_name }}" placeholder="Enter your full name" required />
+                </div>
+                <div class="settings-field">
+                  <label for="stEmail">Email</label>
+                  <input type="email" id="stEmail" name="email" value="{{ current_user.email }}" placeholder="Enter your email" required />
+                </div>
+                <div class="settings-field">
+                  <label for="stPhone">Phone</label>
+                  <input type="tel" id="stPhone" name="mobile_number" value="{{ current_user.mobile_number }}" placeholder="Enter your phone number" required />
+                </div>
+                <div class="settings-field">
+                  <label for="stLocation">Location</label>
+                  <input type="text" id="stLocation" name="location" value="{{ profile_location }}" placeholder="Enter your location" />
+                </div>
+                <button class="btn btn-primary" type="submit">Save Changes</button>
+              </form>
             </div>
 
             <div class="panel">
               <p class="profile-section-title"><span class="material-symbols-outlined">lock</span>Password &amp; Security</p>
-              <div class="settings-field">
-                <label for="stCurrentPw">Current Password</label>
-                <input type="password" id="stCurrentPw" placeholder="••••••••" />
-              </div>
-              <div class="settings-field">
-                <label for="stNewPw">New Password</label>
-                <input type="password" id="stNewPw" placeholder="Minimum 6 characters" />
-              </div>
-              <button class="btn btn-outline" type="button">Update Password</button>
+
+              {% if password_error %}
+              <div class="settings-alert settings-alert-error">{{ password_error }}</div>
+              {% endif %}
+              {% if password_success %}
+              <div class="settings-alert settings-alert-success">{{ password_success }}</div>
+              {% endif %}
+
+              <form method="post" action="{{ url_for('seeker_auth.settings_password') }}">
+                <div class="settings-field">
+                  <label for="stCurrentPw">Current Password</label>
+                  <input type="password" id="stCurrentPw" name="current_password" placeholder="••••••••" required />
+                </div>
+                <div class="settings-field">
+                  <label for="stNewPw">New Password</label>
+                  <input type="password" id="stNewPw" name="new_password" placeholder="Minimum 6 characters" required minlength="6" />
+                </div>
+                <button class="btn btn-outline" type="submit">Update Password</button>
+              </form>
             </div>
 
             <div class="panel">
