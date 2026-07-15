@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CareerMomentum - AI Job Application Automation</title>
+<style>
+:root {
+  --bg: #0F172A;
+  --card: #1A1F3A;
+  --text: #F8FAFC;
+  --text-muted: #94A3B8;
+  --border: #334155;
+  --primary: #14B8A6;
+  --primary-hover: #0D9488;
+  --danger: #EF4444;
+  --success: #10B981;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 32px 20px;
+}
+
+.container { max-width: 1400px; margin: 0 auto; }
+.app-shell { background: var(--card); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
+.app-header { padding: 28px 36px; border-bottom: 1px solid var(--border); }
+.logo { font-size: 28px; font-weight: 700; color: var(--primary); }
+.app-content { padding: 36px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+.section { display: flex; flex-direction: column; gap: 20px; }
+.section-title { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+.form-label { font-size: 13px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; }
+
+input, textarea { padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: rgba(255,255,255,0.05); color: var(--text); font-family: inherit; font-size: 14px; }
+input:focus, textarea:focus { outline: none; border-color: var(--primary); background: rgba(20, 184, 166, 0.1); }
+textarea { resize: vertical; min-height: 100px; }
+
+.cv-upload-area { border: 2px dashed var(--primary); border-radius: 12px; padding: 24px; text-align: center; cursor: pointer; background: rgba(20, 184, 166, 0.05); }
+.cv-upload-area.active { background: rgba(20, 184, 166, 0.2); border-color: var(--success); }
+.upload-icon { font-size: 32px; margin-bottom: 12px; }
+.upload-text { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
+.upload-file-input { display: none; }
+
+.extracted-details { background: rgba(20, 184, 166, 0.1); border: 1px solid var(--primary); border-radius: 10px; padding: 16px; margin-top: 12px; display: none; }
+.extracted-details.show { display: block; }
+.detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
+.detail-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+.detail-value { font-size: 13px; color: var(--text); }
+
+.email-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.email-tag { background: var(--primary); color: var(--bg); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.email-tag button { background: none; border: none; color: inherit; cursor: pointer; font-size: 16px; padding: 0; }
+
+.preview-section { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-top: 16px; max-height: 200px; overflow-y: auto; font-size: 12px; color: var(--text-muted); }
+.preview-section.empty { text-align: center; padding: 32px 16px; }
+
+.button-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+.generate-button, .send-button { padding: 12px 20px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
+.generate-button { background: var(--primary); color: var(--bg); }
+.generate-button:hover:not(:disabled) { background: var(--primary-hover); transform: translateY(-2px); }
+.send-button { background: var(--success); color: white; width: 100%; }
+.generate-button:disabled, .send-button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000; }
+.modal.show { display: flex; }
+.modal-content { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; max-width: 500px; width: 90%; }
+.modal-title { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
+.modal-message { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6; }
+.modal-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal-btn { padding: 10px 16px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.modal-btn-primary { background: var(--primary); color: var(--bg); }
+.modal-btn-secondary { background: var(--border); color: var(--text); }
+
+.status-message { padding: 12px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 12px; display: none; }
+.status-message.show { display: block; }
+.status-message.success { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); color: var(--success); }
+.status-message.error { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); }
+.status-message.info { background: rgba(20, 184, 166, 0.1); border: 1px solid var(--primary); color: var(--primary); }
+
+@media (max-width: 1024px) {
+  .app-content { grid-template-columns: 1fr; gap: 32px; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="app-shell">
+    
+    <div class="app-header">
+      <div class="logo">🚀 CareerMomentum</div>
+      <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">AI-Powered Job Application Automation</div>
+    </div>
+
+    <div class="app-content">
+
+      <div class="section">
+        <h2 class="section-title">📄 Your Profile & Application</h2>
+
+        <div>
+          <label class="form-label">Upload Your CV (PDF)</label>
+          <div class="cv-upload-area" id="cvUploadArea">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">Click to upload or drag & drop</div>
+            <div style="font-size: 11px; color: var(--text-muted);">PDF • Max 5MB</div>
+            <input type="file" id="cvFileInput" class="upload-file-input" accept=".pdf">
+          </div>
+          
+          <div class="extracted-details" id="extractedDetails">
+            <div style="font-size: 12px; font-weight: 600; color: var(--primary); margin-bottom: 12px;">✅ Details Extracted</div>
+            <div class="detail-row">
+              <span class="detail-label">Name</span>
+              <span class="detail-value" id="detailName">-</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Phone</span>
+              <span class="detail-value" id="detailPhone">-</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Email</span>
+              <span class="detail-value" id="detailEmail">-</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">LinkedIn</span>
+              <span class="detail-value" id="detailLinkedIn">-</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">GitHub</span>
+              <span class="detail-value" id="detailGithub">-</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="form-label">Company Name</label>
+          <input type="text" id="company" placeholder="e.g., Google, Microsoft">
+        </div>
+
+        <div>
+          <label class="form-label">Job Role</label>
+          <input type="text" id="jobRole" placeholder="e.g., Software Engineer">
+        </div>
+
+        <div>
+          <label class="form-label">Job Description</label>
+          <textarea id="jobDescription" placeholder="Paste job description here..."></textarea>
+        </div>
+
+        <button class="generate-button" id="generateBtn" onclick="generateCoverLetter()" disabled>
+          📝 Generate Cover Letter
+        </button>
+
+        <div class="preview-section empty" id="coverLetterPreview">
+          Fill job details and click "Generate"...
+        </div>
+      </div>
+
+      <div class="section">
+        <h2 class="section-title">✉️ Send Applications</h2>
+
+        <div>
+          <label class="form-label">HR Email Addresses</label>
+          <input type="email" id="hrEmailInput" placeholder="hr@company.com" onkeypress="handleEmailKeyPress(event)">
+          <button class="generate-button" onclick="addHREmail()" style="width: 100%; margin-top: 8px;">Add Email</button>
+        </div>
+
+        <div class="email-tags" id="emailTagsContainer"></div>
+        <div class="status-message" id="statusMessage"></div>
+
+        <button class="send-button" id="sendBtn" onclick="confirmSendEmails()" disabled>
+          ✉️ Send Applications
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="confirmModal">
+  <div class="modal-content">
+    <div class="modal-title">🎯 Ready to Send?</div>
+    <div class="modal-message">
+      Send to <span id="emailCount">0</span> HR contacts with your CV and personalized cover letter?
+    </div>
+    <div class="modal-buttons">
+      <button class="modal-btn modal-btn-secondary" onclick="closeConfirmModal()">Cancel</button>
+      <button class="modal-btn modal-btn-primary" onclick="sendApplications()">Send Now</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="successModal">
+  <div class="modal-content">
+    <div class="modal-title">✅ Success!</div>
+    <div class="modal-message" id="successMessage">
+      Applications sent successfully!
+    </div>
+    <div class="modal-buttons">
+      <button class="modal-btn modal-btn-primary" onclick="resetForm()" style="grid-column: 1 / -1;">New Application</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let uploadedCVPath = '';
+let coverLetterBody = '';
+let hrEmails = [];
+let extractedData = {
+  name: '',
+  phone: '',
+  email: '',
+  linkedin: '',
+  github: ''
+};
+
+document.getElementById('cvUploadArea').addEventListener('click', function() {
+  document.getElementById('cvFileInput').click();
+});
+
+document.getElementById('cvFileInput').addEventListener('change', handleCVUpload);
+
+async function handleCVUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    showStatus('Uploading CV...', 'info');
+
+    const uploadResponse = await fetch('/api/upload-cv', {
+      method: 'POST',
+      body: formData
+    });
+
+    let uploadData = await uploadResponse.json();
+    if (!uploadData.success) {
+      showStatus('Upload failed: ' + uploadData.error, 'error');
+      return;
+    }
+
+    uploadedCVPath = uploadData.path;
+    document.getElementById('cvUploadArea').classList.add('active');
+    showStatus('CV uploaded! Extracting details...', 'info');
+
+    const parseFormData = new FormData();
+    parseFormData.append('file', file);
+
+    const parseResponse = await fetch('/api/parse-cv', {
+      method: 'POST',
+      body: parseFormData
+    });
+
+    let parseData = await parseResponse.json();
+    if (parseData.success && parseData.extracted_data) {
+      extractedData = parseData.extracted_data;
+      displayExtractedDetails();
+      showStatus('✅ Details extracted from CV!', 'success');
+      updateSendButton();
+      updateGenerateButton();
+    } else {
+      showStatus('Could not extract details', 'error');
+    }
+
+  } catch (error) {
+    showStatus('Error: ' + error.message, 'error');
+  }
+}
+
+function displayExtractedDetails() {
+  document.getElementById('extractedDetails').classList.add('show');
+  document.getElementById('detailName').textContent = extractedData.name || '(Not found)';
+  document.getElementById('detailPhone').textContent = extractedData.phone || '(Not found)';
+  document.getElementById('detailEmail').textContent = extractedData.email || '(Not found)';
+  document.getElementById('detailLinkedIn').textContent = extractedData.linkedin || '(Not found)';
+  document.getElementById('detailGithub').textContent = extractedData.github || '(Not found)';
+}
+
+async function generateCoverLetter() {
+  const company = document.getElementById('company').value.trim();
+  const jobRole = document.getElementById('jobRole').value.trim();
+  const jobDescription = document.getElementById('jobDescription').value.trim();
+
+  if (!company || !jobRole || !jobDescription) {
+    showStatus('Please fill all job details', 'error');
+    return;
+  }
+
+  try {
+    showStatus('Generating cover letter...', 'info');
+
+    const response = await fetch('/api/generate-cover-letter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        company: company,
+        job_role: jobRole,
+        job_description: jobDescription
+      })
+    });
+
+    let data = await response.json();
+
+    if (data.success) {
+      coverLetterBody = data.cover_letter;
+      document.getElementById('coverLetterPreview').classList.remove('empty');
+      document.getElementById('coverLetterPreview').textContent = coverLetterBody;
+      showStatus('✅ Cover letter generated!', 'success');
+      updateSendButton();
+    } else {
+      showStatus('Error: ' + data.error, 'error');
+    }
+  } catch (error) {
+    showStatus('Error: ' + error.message, 'error');
+  }
+}
+
+function handleEmailKeyPress(event) {
+  if (event.key === 'Enter') {
+    addHREmail();
+    event.preventDefault();
+  }
+}
+
+function addHREmail() {
+  const input = document.getElementById('hrEmailInput');
+  const email = input.value.trim();
+
+  if (!email) {
+    showStatus('Enter an email', 'error');
+    return;
+  }
+
+  if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+    showStatus('Invalid email format', 'error');
+    return;
+  }
+
+  if (hrEmails.includes(email)) {
+    showStatus('Email already added', 'error');
+    return;
+  }
+
+  hrEmails.push(email);
+  input.value = '';
+  displayEmailTags();
+  updateSendButton();
+  showStatus('Email added!', 'success');
+}
+
+function removeEmail(email) {
+  hrEmails = hrEmails.filter(e => e !== email);
+  displayEmailTags();
+  updateSendButton();
+}
+
+function displayEmailTags() {
+  const container = document.getElementById('emailTagsContainer');
+  container.innerHTML = hrEmails.map(email => `
+    <div class="email-tag">
+      ${email}
+      <button type="button" onclick="removeEmail('${email}')">✕</button>
+    </div>
+  `).join('');
+}
+
+function updateSendButton() {
+  const btn = document.getElementById('sendBtn');
+  const ready = uploadedCVPath && coverLetterBody && hrEmails.length > 0 && extractedData.name;
+  btn.disabled = !ready;
+}
+
+function updateGenerateButton() {
+  const btn = document.getElementById('generateBtn');
+  const ready = uploadedCVPath && extractedData.name;
+  btn.disabled = !ready;
+}
+
+function confirmSendEmails() {
+  document.getElementById('emailCount').textContent = hrEmails.length;
+  document.getElementById('confirmModal').classList.add('show');
+}
+
+function closeConfirmModal() {
+  document.getElementById('confirmModal').classList.remove('show');
+}
+
+async function sendApplications() {
+  closeConfirmModal();
+  showStatus('Sending applications...', 'info');
+
+  try {
+    const response = await fetch('/api/send-applications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_name: extractedData.name,
+        user_phone: extractedData.phone,
+        user_email: extractedData.email,
+        user_linkedin: extractedData.linkedin,
+        user_github: extractedData.github,
+        company: document.getElementById('company').value,
+        job_role: document.getElementById('jobRole').value,
+        cover_letter_body: coverLetterBody,
+        hr_emails: hrEmails,
+        cv_path: uploadedCVPath,
+        subject: 'Application for ' + document.getElementById('jobRole').value
+      })
+    });
+
+    let data = await response.json();
+
+    if (data.success) {
+      showStatus('✅ Applications sent!', 'success');
+      document.getElementById('successMessage').textContent = 'Sent to ' + data.sent_count + ' recipients!';
+      document.getElementById('successModal').classList.add('show');
+    } else {
+      showStatus('Error: ' + data.error, 'error');
+    }
+  } catch (error) {
+    showStatus('Error: ' + error.message, 'error');
+  }
+}
+
+function resetForm() {
+  document.getElementById('successModal').classList.remove('show');
+  document.getElementById('company').value = '';
+  document.getElementById('jobRole').value = '';
+  document.getElementById('jobDescription').value = '';
+  hrEmails = [];
+  displayEmailTags();
+  coverLetterBody = '';
+  document.getElementById('coverLetterPreview').classList.add('empty');
+  document.getElementById('coverLetterPreview').textContent = 'Fill job details and click "Generate"...';
+  updateSendButton();
+}
+
+function showStatus(message, type) {
+  const statusEl = document.getElementById('statusMessage');
+  statusEl.textContent = message;
+  statusEl.className = 'status-message show ' + type;
+  setTimeout(() => statusEl.classList.remove('show'), 4000);
+}
+</script>
+
+</body>
+</html>

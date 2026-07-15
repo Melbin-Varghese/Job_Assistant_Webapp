@@ -31,6 +31,11 @@ def seekers():
     return render_template("user_login_register.html")
 
 
+@pages_bp.route("/automation.html")
+def automation():
+    return render_template("automation.html")
+
+
 # ---------- Employer page ----------
 @pages_bp.route("/empolyer_login_register.html")
 def employer():

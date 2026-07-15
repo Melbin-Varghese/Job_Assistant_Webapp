@@ -27,6 +27,7 @@ from routes.chatbot import chatbot_bp
 from routes.ai_assistant import ai_assistant_bp
 from routes.ats_checker import ats_checker_bp
 from routes.cover_letter import cover_letter_bp
+from routes.automation import automation_bp
 from routes.recommendation import recommendation_bp
 
 # If you already have other blueprints in routes/ (e.g. a "pages"
@@ -55,6 +56,7 @@ def create_app():
     app.register_blueprint(ai_assistant_bp)
     app.register_blueprint(ats_checker_bp)
     app.register_blueprint(cover_letter_bp)
+    app.register_blueprint(automation_bp)
     app.register_blueprint(recommendation_bp)
 
     @app.route("/")
