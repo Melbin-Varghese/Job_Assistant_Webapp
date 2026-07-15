@@ -58,21 +58,7 @@
     
 
     <div class="nav-buttons">
-      <button class="nav-icon-btn" type="button" aria-label="Notifications">
-        <span class="material-symbols-outlined">notifications</span>
-        <span class="nav-badge">13</span>
-      </button>
-
-      <div class="topbar-divider"></div>
-
-      <a href="{{ url_for('seeker_auth.profile') }}" style="text-decoration:none;">
-        <div class="user-chip">
-          <span class="user-role">Profile</span>
-          <div class="user-avatar">
-            <span class="material-symbols-outlined">person</span>
-          </div>
-        </div>
-      </a>
+      <button type="button" class="btn btn-outline" onclick="history.back()">Back</button>
     </div>
   </nav>
 
@@ -81,46 +67,7 @@
       <div class="dashboard-wrap">
 
         <!-- Sidebar -->
-        <aside class="sidebar">
-          
-
-          <nav class="sidebar-nav">
-            <a href="{{ url_for('seeker_auth.seeker_dashboard') }}" class="active">
-              <span class="material-symbols-outlined">dashboard</span>
-              <span>Dashboard</span>
-            </a>
-            <a href="{{ url_for('seeker_auth.resume_builder') }}">
-              <span class="material-symbols-outlined">description</span>
-              <span>Resume Builder</span>
-            </a>
-            <a href="{{ url_for('ats_checker.ats_checker_page') }}">
-              <span class="material-symbols-outlined">analytics</span>
-              <span>ATS Analysis</span>
-            </a>
-            <a href="{{ url_for('recommendation.recommendation_page') }}">
-              <span class="material-symbols-outlined">stars</span>
-              <span>Job Recommendations</span>
-            </a>
-            <a href="{{ url_for('cover_letter.cover_letter') }}">
-              <span class="material-symbols-outlined">mail</span>
-              <span>Cover Letter</span>
-            </a>
-            <a href="/templates/auto.html">
-              <span class="material-symbols-outlined">forward_to_inbox</span>
-              <span>Email Automation</span>
-            </a>
-            <a href="{{ url_for('seeker_auth.skill_gap') }}">
-              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
-              <span>Skill Gap</span>
-            </a>
-            <a href="{{ url_for('seeker_auth.settings') }}">
-              <span class="material-symbols-outlined">settings</span>
-              <span>Settings &amp; Support</span>
-            </a>
-          </nav>
-
-          
-        </aside>
+        
 
         <div class="dashboard-main">
           <div class="dashboard-header">
@@ -143,19 +90,19 @@
               <p class="profile-section-title"><span class="material-symbols-outlined">person</span>Account Details</p>
               <div class="settings-field">
                 <label for="stName">Full Name</label>
-                <input type="text" id="stName" value="Akshay Kunjumon" />
+                <input type="text" id="stName" placeholder="Enter your full name" />
               </div>
               <div class="settings-field">
                 <label for="stEmail">Email</label>
-                <input type="email" id="stEmail" value="akshaykunjumon8606@gmail.com" />
+                <input type="email" id="stEmail" placeholder="Enter your email" />
               </div>
               <div class="settings-field">
                 <label for="stPhone">Phone</label>
-                <input type="tel" id="stPhone" value="+91-8590169342" />
+                <input type="tel" id="stPhone" placeholder="Enter your phone number" />
               </div>
               <div class="settings-field">
                 <label for="stLocation">Location</label>
-                <input type="text" id="stLocation" value="Kottayam, Kerala, India" />
+                <input type="text" id="stLocation" placeholder="Enter your location" />
               </div>
               <button class="btn btn-primary" type="button">Save Changes</button>
             </div>

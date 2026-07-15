@@ -61,4 +61,6 @@ def terms_of_services():
 # ----------settings_support_user page ----------
 
 
-
+@pages_bp.route("/settings_support_user.html")
+def settings_support_user():
+    return render_template("settings_support_user.html")
