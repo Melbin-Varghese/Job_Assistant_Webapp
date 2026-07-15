@@ -73,9 +73,42 @@ def create_app():
     @app.route("/coming_soon")
     def coming_soon():
         return render_template("coming_soon.html")
+    
+
     @app.route("/about")
     def about():
         return render_template("about.html")
+    
+    @app.route("/super_admin_login")
+    def super_admin_login():
+        return render_template("super_admin_login.html")
+    
+
+    @app.route("/super_admin_dashboard")
+    def super_admin_dashboard():
+        return render_template("super_admin_dashboard.html")
+    
+    @app.route("/super_admin_user")
+    def super_admin_user():
+        return render_template("super_admin_user.html")
+    
+    @app.route("/super_admin_job")
+    def super_admin_job():
+        return render_template("super_admin_job.html")
+    
+    @app.route("/super_admin_profile")
+    def super_admin_profile():
+        return render_template("super_admin_profile.html")
+
+    @app.route("/super_admin_recruiters")
+    def super_admin_recruiters():
+        return render_template("super_admin_recruiters.html")
+    
+
+    @app.route("/super_admin_setting")
+    def super_admin_setting():
+        return render_template("super_admin_setting.html")
+
     @app.route("/support_user")
     def support_user():
         return render_template("settings_support_user.html")

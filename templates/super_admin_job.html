@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Total Job Posts | CareerMomentum Super Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/super_admin.css" />
+  <script>
+    if (!sessionStorage.getItem("cm_admin_session")) { window.location.href = "{{ url_for('super_admin_login') }}"; }
+  </script>
+</head>
+<body>
+
+  <nav class="topbar">
+    <div class="topbar-brand">
+      <span class="brand-mark">CM</span>
+      CareerMomentum
+    </div>
+    <div class="topbar-actions">
+      <button class="topbar-icon-btn"><span class="material-symbols-outlined">notifications</span></button>
+      <div class="topbar-divider"></div>
+      <a href="{{ url_for('super_admin_profile') }}" style="text-decoration:none;">
+        <div class="user-chip">
+          <div>
+            <p class="user-chip-name" data-identity-name>Super Admin</p>
+            <p class="user-chip-role" data-identity-role>Super Admin</p>
+          </div>
+          <div class="avatar-fallback" data-identity-initials>SA</div>
+        </div>
+      </a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="dashboard-hero">
+      <div class="dashboard-wrap">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <div class="sidebar-profile">
+            <div class="sidebar-avatar"><span class="material-symbols-outlined">shield_person</span></div>
+            <div>
+              <p class="sidebar-profile-name">CareerMomentum Admin</p>
+              <p class="sidebar-profile-status">Super Admin Access</p>
+            </div>
+          </div>
+
+          <nav class="sidebar-nav">
+            <a href="{{ url_for('super_admin_dashboard') }}" >
+              <span class="material-symbols-outlined">dashboard</span>
+              <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('super_admin_job') }}" class="active">
+              <span class="material-symbols-outlined">work</span>
+              <span>Total Job Posts</span>
+            </a>
+            <a href="{{ url_for('super_admin_recruiters') }}" >
+              <span class="material-symbols-outlined">business_center</span>
+              <span>Total Recruiters</span>
+            </a>
+            <a href="{{ url_for('super_admin_user') }}" >
+              <span class="material-symbols-outlined">manage_accounts</span>
+              <span>Total Users</span>
+            </a>
+            <a href="{{ url_for('super_admin_setting') }}" >
+              <span class="material-symbols-outlined">settings</span>
+              <span>Settings</span>
+            </a>
+          </nav>
+
+          <div class="sidebar-footer">
+            <button class="sidebar-logout" data-action="logout">
+              <span class="material-symbols-outlined">logout</span>
+              <span>Log Out</span>
+            </button>
+          </div>
+        </aside>
+
+        <!-- Main content -->
+        <div class="dashboard-main">
+          <div class="dashboard-header">
+            <div>
+              <h1>Total Job Posts</h1>
+              <p>Review new listings from recruiters before they go live.</p>
+            </div>
+            <div class="dashboard-actions">
+              <button class="btn btn-outline">
+                <span class="material-symbols-outlined" style="font-size:18px;">filter_list</span>
+                Filter
+              </button>
+              <button class="btn btn-primary">
+                <span class="material-symbols-outlined" style="font-size:18px;">download</span>
+                Export
+              </button>
+            </div>
+          </div>
+
+          <div class="stats-grid" style="margin-bottom: 20px;">
+            <div class="stat-card">
+              <span class="material-symbols-outlined stat-card-icon">work</span>
+              <p class="stat-label">Total Job Posts</p>
+              <div class="stat-value-row">
+                <h3 class="stat-value">642</h3>
+                <span class="stat-delta warn">
+                  <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">priority_high</span> 14 pending
+                </span>
+              </div>
+              <div class="stat-bar"><div class="stat-bar-fill" style="width: 55%"></div></div>
+              <p class="stat-note">14 job posts await your approval.</p>
+            </div>
+            <div class="stat-card">
+              <span class="material-symbols-outlined stat-card-icon">check_circle</span>
+              <p class="stat-label">Approved & Live</p>
+              <div class="stat-value-row">
+                <h3 class="stat-value">598</h3>
+                <span class="stat-delta"><span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">trending_up</span> +5%</span>
+              </div>
+              <div class="stat-bar"><div class="stat-bar-fill" style="width: 93%"></div></div>
+              <p class="stat-note">Visible to job seekers right now.</p>
+            </div>
+            <div class="stat-card">
+              <span class="material-symbols-outlined stat-card-icon">block</span>
+              <p class="stat-label">Rejected</p>
+              <div class="stat-value-row">
+                <h3 class="stat-value">30</h3>
+              </div>
+              <div class="stat-bar"><div class="stat-bar-fill" style="width: 5%"></div></div>
+              <p class="stat-note">Did not meet posting guidelines.</p>
+            </div>
+          </div>
+
+          <section class="table-panel">
+            <div class="table-panel-header">
+              <div>
+                <h3>Job Postings — Pending Approval</h3>
+                <p>Review new listings from recruiters before they go live.</p>
+              </div>
+              <span class="table-panel-count">14 awaiting review</span>
+            </div>
+
+            <div style="overflow-x:auto;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Job Title</th>
+                    <th>Recruiter</th>
+                    <th>Company</th>
+                    <th>Submitted</th>
+                    <th>Status</th>
+                    <th class="right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><p class="candidate-name">Senior Product Designer</p></td>
+                    <td>Marcus Sterling</td>
+                    <td>Lumina AI</td>
+                    <td>2 hours ago</td>
+                    <td><span class="pill pending">Pending Review</span></td>
+                    <td class="right">
+                      <div class="action-pill-group">
+                        <button class="action-pill accept"><span class="material-symbols-outlined">check</span> Accept</button>
+                        <button class="action-pill reject"><span class="material-symbols-outlined">close</span> Reject</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><p class="candidate-name">Backend Engineer, Payments</p></td>
+                    <td>Priya Nair</td>
+                    <td>Northwind Labs</td>
+                    <td>5 hours ago</td>
+                    <td><span class="pill pending">Pending Review</span></td>
+                    <td class="right">
+                      <div class="action-pill-group">
+                        <button class="action-pill accept"><span class="material-symbols-outlined">check</span> Accept</button>
+                        <button class="action-pill reject"><span class="material-symbols-outlined">close</span> Reject</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><p class="candidate-name">Growth Marketing Lead</p></td>
+                    <td>David Chen</td>
+                    <td>GlobalReach</td>
+                    <td>Yesterday</td>
+                    <td><span class="pill pending">Pending Review</span></td>
+                    <td class="right">
+                      <div class="action-pill-group">
+                        <button class="action-pill accept"><span class="material-symbols-outlined">check</span> Accept</button>
+                        <button class="action-pill reject"><span class="material-symbols-outlined">close</span> Reject</button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="table-panel-footer">
+              <p style="font-size:13px; color: var(--text-muted);">Showing 3 of 642 job posts</p>
+              <div class="pagination">
+                <button class="page-btn"><span class="material-symbols-outlined" style="font-size:18px;">chevron_left</span></button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn"><span class="material-symbols-outlined" style="font-size:18px;">chevron_right</span></button>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+
+
+  <script src="/static/js/super_admin_auth.js"></script>
+  <script src="/static/js/super_admin_app.js"></script>
+</body>
+</html>

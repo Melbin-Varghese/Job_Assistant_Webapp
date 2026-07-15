@@ -4,6 +4,10 @@ venv/
 # Environment Variables
 .env
 
+# Google OAuth
+credentials.json
+token.pickle
+
 # Python Cache
 __pycache__/
 *.pyc

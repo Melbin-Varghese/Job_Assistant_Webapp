@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Total Recruiters | CareerMomentum Super Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/super_admin.css" />
+  <script>
+    if (!sessionStorage.getItem("cm_admin_session")) { window.location.href = "{{ url_for('super_admin_login') }}"; }
+  </script>
+</head>
+<body>
+
+  <nav class="topbar">
+    <div class="topbar-brand">
+      <span class="brand-mark">CM</span>
+      CareerMomentum
+    </div>
+    <div class="topbar-actions">
+      <button class="topbar-icon-btn"><span class="material-symbols-outlined">notifications</span></button>
+      <div class="topbar-divider"></div>
+      <a href="{{ url_for('super_admin_profile') }}" style="text-decoration:none;">
+        <div class="user-chip">
+          <div>
+            <p class="user-chip-name" data-identity-name>Super Admin</p>
+            <p class="user-chip-role" data-identity-role>Super Admin</p>
+          </div>
+          <div class="avatar-fallback" data-identity-initials>SA</div>
+        </div>
+      </a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="dashboard-hero">
+      <div class="dashboard-wrap">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <div class="sidebar-profile">
+            <div class="sidebar-avatar"><span class="material-symbols-outlined">shield_person</span></div>
+            <div>
+              <p class="sidebar-profile-name">CareerMomentum Admin</p>
+              <p class="sidebar-profile-status">Super Admin Access</p>
+            </div>
+          </div>
+
+          <nav class="sidebar-nav">
+            <a href="{{ url_for('super_admin_dashboard') }}" >
+              <span class="material-symbols-outlined">dashboard</span>
+              <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('super_admin_job') }}" >
+              <span class="material-symbols-outlined">work</span>
+              <span>Total Job Posts</span>
+            </a>
+            <a href="{{ url_for('super_admin_recruiters') }}" class="active">
+              <span class="material-symbols-outlined">business_center</span>
+              <span>Total Recruiters</span>
+            </a>
+            <a href="{{ url_for('super_admin_user') }}" >
+              <span class="material-symbols-outlined">manage_accounts</span>
+              <span>Total Users</span>
+            </a>
+            <a href="{{ url_for('super_admin_setting') }}" >
+              <span class="material-symbols-outlined">settings</span>
+              <span>Settings</span>
+            </a>
+          </nav>
+
+          <div class="sidebar-footer">
+            <button class="sidebar-logout" data-action="logout">
+              <span class="material-symbols-outlined">logout</span>
+              <span>Log Out</span>
+            </button>
+          </div>
+        </aside>
+
+        <!-- Main content -->
+        <div class="dashboard-main">
+          <div class="dashboard-header">
+            <div>
+              <h1>Total Recruiters</h1>
+              <p>All companies currently posting jobs on CareerMomentum.</p>
+            </div>
+            <div class="dashboard-actions">
+              <button class="btn btn-outline">
+                <span class="material-symbols-outlined" style="font-size:18px;">filter_list</span>
+                Filter
+              </button>
+              <button class="btn btn-primary">
+                <span class="material-symbols-outlined" style="font-size:18px;">add</span>
+                Invite Recruiter
+              </button>
+            </div>
+          </div>
+
+          <div class="stats-grid" style="margin-bottom: 20px;">
+            <div class="stat-card">
+              <span class="material-symbols-outlined stat-card-icon">business_center</span>
+              <p class="stat-label">Total Recruiters</p>
+              <div class="stat-value-row">
+                <h3 class="stat-value">406</h3>
+                <span class="stat-delta"><span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">trending_up</span> +8%</span>
+              </div>
+              <div class="stat-bar"><div class="stat-bar-fill" style="width: 68%"></div></div>
+              <p class="stat-note">32 pending verification.</p>
+            </div>
+            <div class="stat-card">
+              <span class="material-symbols-outlined stat-card-icon">verified</span>
+              <p class="stat-label">Active</p>
+              <div class="stat-value-row"><h3 class="stat-value">358</h3></div>
+              <div class="stat-bar"><div class="stat-bar-fill" style="width: 88%"></div></div>
+              <p class="stat-note">Currently posting live jobs.</p>
+            </div>
+            <div class="stat-card">
+              <span class="material-symbols-outlined stat-card-icon">block</span>
+              <p class="stat-label">Suspended / Blocked</p>
+              <div class="stat-value-row"><h3 class="stat-value">16</h3></div>
+              <div class="stat-bar"><div class="stat-bar-fill" style="width: 4%"></div></div>
+              <p class="stat-note">Flagged for policy violations.</p>
+            </div>
+          </div>
+
+          <section class="table-panel">
+            <div class="table-panel-header">
+              <div>
+                <h3>Recruiters</h3>
+                <p>All companies currently posting jobs on CareerMomentum.</p>
+              </div>
+              <span class="table-panel-count">406 recruiters</span>
+            </div>
+
+            <div style="overflow-x:auto;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Recruiter</th>
+                    <th>Company</th>
+                    <th>Jobs Posted</th>
+                    <th>Status</th>
+                    <th class="right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="candidate-cell">
+                        <div class="candidate-avatar">MS</div>
+                        <div>
+                          <p class="candidate-name">Marcus Sterling</p>
+                          <p class="candidate-email">m.sterling@lumina-ai.com</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td>Lumina AI</td>
+                    <td>18</td>
+                    <td><span class="status-dot-row active"><span class="status-dot"></span> Active</span></td>
+                    <td class="right">
+                      <div class="action-pill-group">
+                        <button class="action-pill suspend">Suspend</button>
+                        <button class="action-pill block">Block</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="candidate-cell">
+                        <div class="candidate-avatar">PN</div>
+                        <div>
+                          <p class="candidate-name">Priya Nair</p>
+                          <p class="candidate-email">priya.n@northwind.io</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td>Northwind Labs</td>
+                    <td>9</td>
+                    <td><span class="status-dot-row verifying"><span class="status-dot"></span> Verifying</span></td>
+                    <td class="right">
+                      <div class="action-pill-group">
+                        <button class="action-pill suspend">Suspend</button>
+                        <button class="action-pill block">Block</button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="candidate-cell">
+                        <div class="candidate-avatar">DC</div>
+                        <div>
+                          <p class="candidate-name">David Chen</p>
+                          <p class="candidate-email">dchen@globalreach.org</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td>GlobalReach</td>
+                    <td>4</td>
+                    <td><span class="status-dot-row suspended"><span class="status-dot"></span> Suspended</span></td>
+                    <td class="right">
+                      <div class="action-pill-group">
+                        <button class="action-pill suspend" disabled style="opacity:0.5; cursor:not-allowed;">Suspend</button>
+                        <button class="action-pill block">Block</button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="table-panel-footer">
+              <p style="font-size:13px; color: var(--text-muted);">Showing 3 of 406 recruiters</p>
+              <div class="pagination">
+                <button class="page-btn"><span class="material-symbols-outlined" style="font-size:18px;">chevron_left</span></button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn"><span class="material-symbols-outlined" style="font-size:18px;">chevron_right</span></button>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+
+
+  <script src="/static/js/super_admin_auth.js"></script>
+  <script src="/static/js/super_admin_app.js"></script>
+</body>
+</html>

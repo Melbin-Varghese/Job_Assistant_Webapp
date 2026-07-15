@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Super Admin Login | CareerMomentum</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/super_admin.css" />
+  <script>
+    // Already logged in? skip straight to the dashboard.
+    if (sessionStorage.getItem("cm_admin_session")) {
+      window.location.href = "{{ url_for('super_admin_dashboard') }}";
+    }
+  </script>
+</head>
+<body>
+  <div class="login-shell">
+    <div class="login-card">
+      <div class="login-mark">CM</div>
+      <h1>Super Admin Login</h1>
+      <p class="hint">Sign in with your CareerMomentum super admin account.</p>
+
+      <div class="login-error" id="loginError">Invalid email or password.</div>
+
+      <form id="loginForm" novalidate>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="admin@careermomentum.com" autocomplete="username" required />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="••••••••" autocomplete="current-password" required />
+        </div>
+        <button type="submit" class="login-submit">Sign In</button>
+      </form>
+
+      <p class="login-note">
+        Access is restricted to the 4 super admin accounts on file.
+        There's no self-registration — new admins are added directly by engineering.
+      </p>
+    </div>
+  </div>
+
+  <script src="/static/js/super_admin_auth.js"></script>
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const errorBox = document.getElementById("loginError");
+
+      if (cmLogin(email, password)) {
+        window.location.href = "{{ url_for('super_admin_dashboard') }}";
+      } else {
+        errorBox.classList.add("show");
+      }
+    });
+  </script>
+</body>
+</html>

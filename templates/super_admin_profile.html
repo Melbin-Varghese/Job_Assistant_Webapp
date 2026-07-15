@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>My Profile | CareerMomentum Super Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/super_admin.css" />
+  <script>
+    if (!sessionStorage.getItem("cm_admin_session")) { window.location.href = "{{ url_for('super_admin_login') }}"; }
+  </script>
+</head>
+<body>
+
+  <nav class="topbar">
+    <div class="topbar-brand">
+      <span class="brand-mark">CM</span>
+      CareerMomentum
+    </div>
+    <div class="topbar-actions">
+      <button class="topbar-icon-btn"><span class="material-symbols-outlined">notifications</span></button>
+      <div class="topbar-divider"></div>
+      <a href="{{ url_for('super_admin_profile') }}" style="text-decoration:none;">
+        <div class="user-chip">
+          <div>
+            <p class="user-chip-name" data-identity-name>Super Admin</p>
+            <p class="user-chip-role" data-identity-role>Super Admin</p>
+          </div>
+          <div class="avatar-fallback" data-identity-initials>SA</div>
+        </div>
+      </a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="dashboard-hero">
+      <div class="dashboard-wrap">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <div class="sidebar-profile">
+            <div class="sidebar-avatar"><span class="material-symbols-outlined">shield_person</span></div>
+            <div>
+              <p class="sidebar-profile-name">CareerMomentum Admin</p>
+              <p class="sidebar-profile-status">Super Admin Access</p>
+            </div>
+          </div>
+
+          <nav class="sidebar-nav">
+            <a href="{{ url_for('super_admin_dashboard') }}" >
+              <span class="material-symbols-outlined">dashboard</span>
+              <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('super_admin_job') }}" >
+              <span class="material-symbols-outlined">work</span>
+              <span>Total Job Posts</span>
+            </a>
+            <a href="{{ url_for('super_admin_recruiters') }}" >
+              <span class="material-symbols-outlined">business_center</span>
+              <span>Total Recruiters</span>
+            </a>
+            <a href="{{ url_for('super_admin_user') }}" >
+              <span class="material-symbols-outlined">manage_accounts</span>
+              <span>Total Users</span>
+            </a>
+            <a href="{{ url_for('super_admin_setting') }}" >
+              <span class="material-symbols-outlined">settings</span>
+              <span>Settings</span>
+            </a>
+          </nav>
+
+          <div class="sidebar-footer">
+            <button class="sidebar-logout" data-action="logout">
+              <span class="material-symbols-outlined">logout</span>
+              <span>Log Out</span>
+            </button>
+          </div>
+        </aside>
+
+        <!-- Main content -->
+        <div class="dashboard-main">
+          <div class="dashboard-header">
+            <div>
+              <h1>My Profile</h1>
+              <p>Your super admin account details.</p>
+            </div>
+          </div>
+
+          <div class="profile-hero">
+            <div class="profile-avatar-lg" data-identity-initials>SA</div>
+            <div>
+              <h2 data-identity-name>Super Admin</h2>
+              <p data-identity-role>Super Admin</p>
+              <p class="profile-email" data-identity-email>admin@careermomentum.com</p>
+            </div>
+          </div>
+
+          <div class="profile-grid">
+            <div class="settings-card">
+              <h3>Account Details</h3>
+              <p class="hint">Contact engineering to change these — there's no self-registration for super admins.</p>
+
+              <div class="field">
+                <label>Full Name</label>
+                <input type="text" data-identity-name-input disabled />
+              </div>
+              <div class="field">
+                <label>Email</label>
+                <input type="text" data-identity-email-input disabled />
+              </div>
+              <div class="field">
+                <label>Role</label>
+                <input type="text" value="Super Admin" disabled />
+              </div>
+              <div class="field">
+                <label>Access Level</label>
+                <input type="text" value="Full platform access (jobs, recruiters, users, settings)" disabled />
+              </div>
+            </div>
+
+            <div class="settings-card">
+              <h3>Session</h3>
+              <p class="hint">You're signed in on this device.</p>
+
+              <div class="settings-row">
+                <div>
+                  <p class="settings-row-label">Signed in as</p>
+                  <p class="settings-row-desc" data-identity-email>admin@careermomentum.com</p>
+                </div>
+                <span class="pill completed">Active</span>
+              </div>
+
+              <div class="settings-row">
+                <div>
+                  <p class="settings-row-label">Session storage</p>
+                  <p class="settings-row-desc">Cleared automatically when you log out or close the browser.</p>
+                </div>
+              </div>
+
+              <button class="btn btn-outline" style="width:100%; justify-content:center; margin-top: 10px;" data-action="logout">
+                <span class="material-symbols-outlined" style="font-size:18px;">logout</span>
+                Log Out
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const s = cmGetSession();
+    if (!s) return;
+    const nameInput = document.querySelector("[data-identity-name-input]");
+    const emailInput = document.querySelector("[data-identity-email-input]");
+    if (nameInput) nameInput.value = s.name;
+    if (emailInput) emailInput.value = s.email;
+  });
+</script>
+
+  <script src="/static/js/super_admin_auth.js"></script>
+  <script src="/static/js/super_admin_app.js"></script>
+</body>
+</html>

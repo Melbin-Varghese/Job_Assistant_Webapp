@@ -63,6 +63,35 @@ def terms_of_services():
     return render_template("terms_of_services.html")
 
 
+@pages_bp.route("/super_admin_login.html")
+def super_admin_login():
+    return render_template("super_admin_login.html")
+
+@pages_bp.route("/super_admin_dashboard.html")
+def super_admin_dashboard():
+    return render_template("super_admin_dashboard.html")
+
+
+@pages_bp.route("/super_admin_user.html")
+def super_admin_user():
+    return render_template("super_admin_user.html")
+
+@pages_bp.route("/super_admin_job.html")
+def super_admin_job():
+    return render_template("super_admin_job.html")
+
+@pages_bp.route("/super_admin_profile.html")
+def super_admin_profile():
+    return render_template("super_admin_profile.html")
+
+@pages_bp.route("/super_admin_recruiters.html")
+def super_admin_recruiters():
+    return render_template("super_admin_recruiters.html")
+
+@pages_bp.route("/super_admin_setting.html")
+def super_admin_setting():
+    return render_template("super_admin_setting.html")
+
 # ----------settings_support_user page ----------
 
 

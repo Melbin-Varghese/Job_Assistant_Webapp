@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Settings | CareerMomentum Super Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/super_admin.css" />
+  <script>
+    if (!sessionStorage.getItem("cm_admin_session")) { window.location.href = "{{ url_for('super_admin_login') }}"; }
+  </script>
+</head>
+<body>
+
+  <nav class="topbar">
+    <div class="topbar-brand">
+      <span class="brand-mark">CM</span>
+      CareerMomentum
+    </div>
+    <div class="topbar-actions">
+      <button class="topbar-icon-btn"><span class="material-symbols-outlined">notifications</span></button>
+      <div class="topbar-divider"></div>
+      <a href="{{ url_for('super_admin_profile') }}" style="text-decoration:none;">
+        <div class="user-chip">
+          <div>
+            <p class="user-chip-name" data-identity-name>Super Admin</p>
+            <p class="user-chip-role" data-identity-role>Super Admin</p>
+          </div>
+          <div class="avatar-fallback" data-identity-initials>SA</div>
+        </div>
+      </a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="dashboard-hero">
+      <div class="dashboard-wrap">
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <div class="sidebar-profile">
+            <div class="sidebar-avatar"><span class="material-symbols-outlined">shield_person</span></div>
+            <div>
+              <p class="sidebar-profile-name">CareerMomentum Admin</p>
+              <p class="sidebar-profile-status">Super Admin Access</p>
+            </div>
+          </div>
+
+          <nav class="sidebar-nav">
+            <a href="{{ url_for('super_admin_dashboard') }}" >
+              <span class="material-symbols-outlined">dashboard</span>
+              <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('super_admin_job') }}" >
+              <span class="material-symbols-outlined">work</span>
+              <span>Total Job Posts</span>
+            </a>
+            <a href="{{ url_for('super_admin_recruiters') }}" >
+              <span class="material-symbols-outlined">business_center</span>
+              <span>Total Recruiters</span>
+            </a>
+            <a href="{{ url_for('super_admin_user') }}" >
+              <span class="material-symbols-outlined">manage_accounts</span>
+              <span>Total Users</span>
+            </a>
+            <a href="{{ url_for('super_admin_setting') }}" class="active">
+              <span class="material-symbols-outlined">settings</span>
+              <span>Settings</span>
+            </a>
+          </nav>
+
+          <div class="sidebar-footer">
+            <button class="sidebar-logout" data-action="logout">
+              <span class="material-symbols-outlined">logout</span>
+              <span>Log Out</span>
+            </button>
+          </div>
+        </aside>
+
+        <!-- Main content -->
+        <div class="dashboard-main">
+          <div class="dashboard-header">
+            <div>
+              <h1>Settings</h1>
+              <p>Platform preferences and super admin controls.</p>
+            </div>
+          </div>
+
+          <div class="settings-grid">
+            <div class="settings-card">
+              <h3>Approval Rules</h3>
+              <p class="hint">Controls what happens automatically before a job post goes live.</p>
+
+              <div class="settings-row">
+                <div>
+                  <p class="settings-row-label">Require manual review for every job post</p>
+                  <p class="settings-row-desc">New listings stay in Pending until a super admin approves them.</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" checked />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="settings-row">
+                <div>
+                  <p class="settings-row-label">Auto-verify recruiters with a company email</p>
+                  <p class="settings-row-desc">Skip manual verification if the domain matches a known company.</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="settings-row">
+                <div>
+                  <p class="settings-row-label">Flag users with low AI match confidence</p>
+                  <p class="settings-row-desc">Send accounts below 40% match confidence to the review queue.</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" checked />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-card">
+              <h3>Notifications</h3>
+              <p class="hint">Choose what super admins get alerted about.</p>
+
+              <div class="settings-row">
+                <div>
+                  <p class="settings-row-label">New job post submitted</p>
+                  <p class="settings-row-desc">Email + in-app notification.</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" checked />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="settings-row">
+                <div>
+                  <p class="settings-row-label">Recruiter flagged for review</p>
+                  <p class="settings-row-desc">In-app notification only.</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" checked />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+
+              <div class="settings-row">
+                <div>
+                  <p class="settings-row-label">Weekly platform summary</p>
+                  <p class="settings-row-desc">Sent every Monday at 9:00 AM.</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" />
+                  <span class="switch-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-card">
+              <h3>Platform Details</h3>
+              <p class="hint">Basic info shown across CareerMomentum.</p>
+
+              <div class="field">
+                <label for="platformName">Platform Name</label>
+                <input type="text" id="platformName" value="CareerMomentum" />
+              </div>
+              <div class="field">
+                <label for="supportEmail">Support Email</label>
+                <input type="email" id="supportEmail" value="support@careermomentum.com" />
+              </div>
+              <div class="field">
+                <label for="timezone">Default Timezone</label>
+                <select id="timezone">
+                  <option>UTC</option>
+                  <option selected>Asia/Kolkata (IST)</option>
+                  <option>America/New_York</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" type="button">Save Changes</button>
+            </div>
+
+            <div class="settings-card">
+              <h3>Super Admin Accounts</h3>
+              <p class="hint">Access is limited to 4 named super admins — no self-registration.</p>
+
+              <div class="settings-row">
+                <div>
+                  <p class="settings-row-label">Alex Rivera</p>
+                  <p class="settings-row-desc">admin1@careermomentum.com</p>
+                </div>
+                <span class="pill completed">Active</span>
+              </div>
+              <div class="settings-row">
+                <div>
+                  <p class="settings-row-label">Priya Sharma</p>
+                  <p class="settings-row-desc">admin2@careermomentum.com</p>
+                </div>
+                <span class="pill completed">Active</span>
+              </div>
+              <div class="settings-row">
+                <div>
+                  <p class="settings-row-label">Michael Chen</p>
+                  <p class="settings-row-desc">admin3@careermomentum.com</p>
+                </div>
+                <span class="pill completed">Active</span>
+              </div>
+              <div class="settings-row">
+                <div>
+                  <p class="settings-row-label">Sara Thomas</p>
+                  <p class="settings-row-desc">admin4@careermomentum.com</p>
+                </div>
+                <span class="pill completed">Active</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+
+
+  <script src="/static/js/super_admin_auth.js"></script>
+  <script src="/static/js/super_admin_app.js"></script>
+</body>
+</html>
