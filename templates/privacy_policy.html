@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Privacy Policy | Job Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/static/css/style_about_privacy.css" />
+</head>
+
+<body>
+  <a href="#main-content" class="skip-link">Skip to content</a>
+
+  <header class="navbar">
+    <div class="logo">Job Assistant</div>
+    <ul class="nav-links">
+      <li><a href="{{ url_for('index') }}"class='active'>Home</a></li>
+    </ul>
+  </header>
+
+  <main id="main-content">
+    <section class="page-banner">
+      <span class="badge">Legal</span>
+      <h1>Privacy <span class="highlight">Policy</span></h1>
+      <p>Last Updated: July 2026</p>
+    </section>
+
+    <section class="feature-grid">
+      <div class="feature-card feature-wide">
+        <h2>1. Introduction</h2>
+        <p>
+          Job Assistant respects your privacy. This Privacy Policy explains how we
+          collect, use, and protect your personal information while using our platform.
+        </p>
+      </div>
+
+      <div class="feature-card feature-wide">
+        <h2>2. Information We Collect</h2>
+        <ul>
+          <li>Name</li>
+          <li>Email Address</li>
+          <li>Resume (PDF / DOCX)</li>
+          <li>Skills and Education Details</li>
+          <li>Job Application Information</li>
+          <li>Login Information</li>
+        </ul>
+      </div>
+
+      <div class="feature-card feature-wide">
+        <h2>3. How We Use Your Information</h2>
+        <ul>
+          <li>Analyze resumes using AI.</li>
+          <li>Generate ATS scores.</li>
+          <li>Recommend suitable jobs.</li>
+          <li>Improve user experience.</li>
+          <li>Maintain platform security.</li>
+        </ul>
+      </div>
+
+      <div class="feature-card feature-wide">
+        <h2>4. Data Protection</h2>
+        <p>
+          We use industry-standard security practices to protect your personal data.
+          Only authorized administrators can access stored information.
+        </p>
+      </div>
+
+      <div class="feature-card feature-wide">
+        <h2>5. Resume Privacy</h2>
+        <p>
+          Uploaded resumes are used only for ATS analysis, resume improvement,
+          and job recommendation. They are never shared without your permission.
+        </p>
+      </div>
+
+      <div class="feature-card feature-wide">
+        <h2>6. Cookies</h2>
+        <p>
+          Our platform may use cookies to improve performance, remember preferences,
+          and enhance your browsing experience.
+        </p>
+      </div>
+
+      <div class="feature-card feature-wide">
+        <h2>7. Third-Party Services</h2>
+        <p>
+          Job Assistant may integrate trusted AI services and email services
+          to provide resume analysis and notifications.
+        </p>
+      </div>
+
+      <div class="feature-card feature-wide">
+        <h2>8. User Rights</h2>
+        <ul>
+          <li>Access your personal information.</li>
+          <li>Update profile details.</li>
+          <li>Delete your account.</li>
+          <li>Request removal of uploaded resumes.</li>
+        </ul>
+      </div>
+
+      <div class="feature-card feature-wide">
+        <h2>9. Contact Us</h2>
+        <p>
+          <strong>Email:</strong> <a href="mailto:support@jobassistant.com">support@jobassistant.com</a><br /><br />
+          For any privacy-related questions, feel free to contact our support team.
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>
+      <div class="footer-logo">Job Assistant</div>
+      <p>AI-powered recruitment platform connecting job seekers and employers.</p>
+    </div>
+    <div class="footer-links">
+      <a href="{{ url_for('about') }}"class='active'>About</a>
+      <a href="{{ url_for('terms_of_services') }}"class='active'>Terms of Service</a>
+      <a href="{{ url_for('privacy_policy') }}"class='active'>Contact</a>
+    </div>
+    <div class="footer-copy">© 2026 Job Assistant. All Rights Reserved.</div>
+  </footer>
+</body>
+</html>

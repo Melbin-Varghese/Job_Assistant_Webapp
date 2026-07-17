@@ -1,224 +1,113 @@
 <!DOCTYPE html>
-<html class="light" lang="en">
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <title>About - CareerMomentum</title>
-
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-
-  <script src="/static/js/tailwind-config.js"></script>
-  <link rel="stylesheet" href="/job/static/css/user.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>About - Job Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/static/css/style_about_privacy.css" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" />
 </head>
-<body class="bg-surface text-on-surface font-body-md overflow-x-hidden">
 
-  <nav class="flex justify-between items-center w-full px-margin-desktop h-16 sticky top-0 z-50 bg-surface-container-lowest dark:bg-primary-container shadow-[0px_4px_20px_rgba(26,43,60,0.05)] transition-all duration-200 ease-in-out">
-    <div class="font-headline-md text-headline-md font-bold text-primary dark:text-primary-fixed-dim">CareerMomentum</div>
+<body>
+  <a href="#main-content" class="skip-link">Skip to content</a>
 
-    <div class="flex items-center space-x-6">
-      <a href="resource.html" class="font-label-md text-label-md text-secondary dark:text-secondary-fixed border-b-2 border-transparent pb-1 hover:border-secondary dark:hover:border-secondary-fixed transition-all duration-300">
-        Resources
-      </a>
+  <header class="navbar">
+    <div class="logo">Job Assistant</div>
+    <ul class="nav-links">
+      <li><a href="{{ url_for('index') }}"class='active'>Home</a></li>
+      
+      
+    </ul>
+  </header>
 
-      <a href="main_index.html" class="font-label-md text-label-md text-secondary dark:text-secondary-fixed border-b-2 border-transparent pb-1 hover:border-secondary dark:hover:border-secondary-fixed transition-all duration-300">
-        Dashboard
-      </a>
-
-      <a href="about.html" class="font-label-md text-label-md text-secondary dark:text-secondary-fixed border-b-2 border-secondary dark:border-secondary-fixed pb-1 transition-all duration-300">
-        About
-      </a>
-
-      <div class="flex items-center space-x-3">
-        <a href="Employer.html" class="px-4 py-2 rounded-lg border border-outline-variant text-primary font-semibold hover:bg-surface-container-low transition-colors">
-          Employers
-        </a>
-        <a href="login.html" class="px-4 py-2 rounded-lg border border-outline-variant text-primary font-semibold hover:bg-surface-container-low transition-colors">
-          Login
-        </a>
-        <a href="register.html" class="px-4 py-2 rounded-lg bg-primary text-white font-semibold hover:bg-primary/90 transition-colors">
-          Register
-        </a>
-      </div>
-    </div>
-  </nav>
-
-  <main>
-    <section class="hero-gradient min-h-[520px] flex items-center relative overflow-hidden py-stack-lg px-margin-mobile md:px-margin-desktop">
-      <div class="container mx-auto grid md:grid-cols-2 gap-stack-lg items-center relative z-10">
-        <div class="space-y-stack-md">
-          <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-secondary-container/20 border border-secondary-fixed/30 text-secondary-fixed font-label-md">
-            <span class="material-symbols-outlined text-[18px] mr-2">auto_awesome</span>
-            About CareerMomentum
-          </div>
-
-          <h1 class="font-headline-xl text-headline-xl text-white">
-            Build better careers with
-            <span class="text-transparent bg-clip-text bg-gradient-to-r from-secondary-fixed to-primary-fixed-dim">AI</span>
-          </h1>
-
-          <p class="text-on-primary-container text-body-lg max-w-xl opacity-80">
-            CareerMomentum helps job seekers create ATS-friendly resumes, improve job matches, and discover opportunities through intelligent recommendations and modern career tools.
-          </p>
-
-          
-        </div>
-
-        <div class="hidden md:block relative h-full">
-          <div class="absolute inset-0 flex items-center justify-center">
-            <div class="absolute w-[400px] h-[400px] bg-secondary/20 rounded-full blur-[120px]"></div>
-            <div class="absolute w-[300px] h-[300px] bg-primary-fixed-dim/10 rounded-full blur-[80px] -translate-x-20"></div>
-
-            <div class="relative w-full aspect-square max-w-md glass-card rounded-3xl p-10 flex items-center justify-center">
-              <div class="grid grid-cols-2 gap-4 w-full">
-                <div class="bg-white/10 rounded-2xl p-4 border border-white/10">
-                  <span class="material-symbols-outlined text-secondary-fixed text-4xl">fact_check</span>
-                  <p class="text-white mt-3 font-semibold">ATS Analysis</p>
-                </div>
-                <div class="bg-white/10 rounded-2xl p-4 border border-white/10">
-                  <span class="material-symbols-outlined text-secondary-fixed text-4xl">edit_note</span>
-                  <p class="text-white mt-3 font-semibold">Resume Builder</p>
-                </div>
-                <div class="bg-white/10 rounded-2xl p-4 border border-white/10">
-                  <span class="material-symbols-outlined text-secondary-fixed text-4xl">travel_explore</span>
-                  <p class="text-white mt-3 font-semibold">Job Matching</p>
-                </div>
-                <div class="bg-white/10 rounded-2xl p-4 border border-white/10">
-                  <span class="material-symbols-outlined text-secondary-fixed text-4xl">psychology</span>
-                  <p class="text-white mt-3 font-semibold">Career Coach</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+  <main id="main-content">
+    <section class="page-banner">
+      <span class="badge">About Us</span>
+      <h1>About <span class="highlight">Job Assistant</span></h1>
+      <p>
+        Job Assistant is an AI-powered recruitment platform that helps job seekers
+        build ATS-friendly resumes, improve resume quality, analyze job compatibility,
+        and discover the best career opportunities through intelligent recommendations.
+      </p>
     </section>
 
-    <section class="py-24 px-margin-mobile md:px-margin-desktop bg-surface">
-      <div class="container mx-auto">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div class="bg-white p-8 rounded-2xl shadow-[0px_4px_20px_rgba(26,43,60,0.05)] border border-outline-variant/30">
-            <h2 class="font-headline-lg text-headline-lg text-primary mb-4">Our Mission</h2>
-            <p class="text-on-surface-variant text-body-md">
-              Our mission is to bridge the gap between talented candidates and recruiters using artificial intelligence. We help users prepare ATS-friendly resumes, identify missing skills, and confidently apply for jobs.
-            </p>
-          </div>
-
-          <div class="bg-white p-8 rounded-2xl shadow-[0px_4px_20px_rgba(26,43,60,0.05)] border border-outline-variant/30">
-            <h2 class="font-headline-lg text-headline-lg text-primary mb-4">Our Vision</h2>
-            <p class="text-on-surface-variant text-body-md">
-              To become one of the leading AI-powered recruitment platforms by providing smart resume analysis, career guidance, and intelligent hiring solutions for both job seekers and employers.
-            </p>
-          </div>
-        </div>
+    <section class="feature-grid">
+      <div class="feature-card">
+        <h2>🤖 AI ATS Analyzer</h2>
+        <p>
+          Analyze resumes against job descriptions using Artificial Intelligence.
+          Receive ATS scores, keyword matching, and personalized suggestions.
+        </p>
       </div>
-    </section>
 
-    <section class="py-24 px-margin-mobile md:px-margin-desktop bg-primary text-white overflow-hidden relative">
-      <div class="container mx-auto relative z-10">
-        <div class="text-center mb-16">
-          <h2 class="font-headline-lg text-headline-lg text-white mb-4">Platform Highlights</h2>
-          <p class="text-primary-fixed-dim max-w-2xl mx-auto opacity-70">
-            Everything you need to analyze, improve, and manage your career journey in one place.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
-          <div class="glass-card p-8 rounded-2xl border-primary-fixed/10">
-            <div class="w-12 h-12 bg-secondary/30 rounded-lg flex items-center justify-center mb-6 text-secondary-fixed">
-              <span class="material-symbols-outlined text-3xl">fact_check</span>
-            </div>
-            <h3 class="font-headline-md text-headline-md text-white mb-3">AI Resume Analysis</h3>
-            <p class="text-on-primary-container text-body-md opacity-80">Instant ATS score and keyword matching.</p>
-          </div>
-
-          <div class="glass-card p-8 rounded-2xl border-primary-fixed/10">
-            <div class="w-12 h-12 bg-secondary/30 rounded-lg flex items-center justify-center mb-6 text-secondary-fixed">
-              <span class="material-symbols-outlined text-3xl">edit_note</span>
-            </div>
-            <h3 class="font-headline-md text-headline-md text-white mb-3">Resume Builder</h3>
-            <p class="text-on-primary-container text-body-md opacity-80">Create beautiful professional resumes.</p>
-          </div>
-
-          <div class="glass-card p-8 rounded-2xl border-primary-fixed/10">
-            <div class="w-12 h-12 bg-secondary/30 rounded-lg flex items-center justify-center mb-6 text-secondary-fixed">
-              <span class="material-symbols-outlined text-3xl">travel_explore</span>
-            </div>
-            <h3 class="font-headline-md text-headline-md text-white mb-3">Job Portal</h3>
-            <p class="text-on-primary-container text-body-md opacity-80">Browse verified jobs approved by Super Admin.</p>
-          </div>
-
-          <div class="glass-card p-8 rounded-2xl border-primary-fixed/10">
-            <div class="w-12 h-12 bg-secondary/30 rounded-lg flex items-center justify-center mb-6 text-secondary-fixed">
-              <span class="material-symbols-outlined text-3xl">lock</span>
-            </div>
-            <h3 class="font-headline-md text-headline-md text-white mb-3">Secure Platform</h3>
-            <p class="text-on-primary-container text-body-md opacity-80">Three-level authentication with User, Admin and Super Admin.</p>
-          </div>
-
-          <div class="glass-card p-8 rounded-2xl border-primary-fixed/10">
-            <div class="w-12 h-12 bg-secondary/30 rounded-lg flex items-center justify-center mb-6 text-secondary-fixed">
-              <span class="material-symbols-outlined text-3xl">analytics</span>
-            </div>
-            <h3 class="font-headline-md text-headline-md text-white mb-3">Analytics</h3>
-            <p class="text-on-primary-container text-body-md opacity-80">Track resume performance and job applications.</p>
-          </div>
-
-          <div class="glass-card p-8 rounded-2xl border-primary-fixed/10">
-            <div class="w-12 h-12 bg-secondary/30 rounded-lg flex items-center justify-center mb-6 text-secondary-fixed">
-              <span class="material-symbols-outlined text-3xl">dashboard</span>
-            </div>
-            <h3 class="font-headline-md text-headline-md text-white mb-3">Modern Dashboard</h3>
-            <p class="text-on-primary-container text-body-md opacity-80">Responsive interface with a professional design.</p>
-          </div>
-        </div>
+      <div class="feature-card">
+        <h2>📄 Resume Builder</h2>
+        <p>
+          Create professional resumes from scratch with modern templates and
+          download them instantly.
+        </p>
       </div>
-    </section>
 
-    <section class="py-24 px-margin-mobile md:px-margin-desktop bg-surface">
-      <div class="container mx-auto">
-        <div class="mb-12">
-          <h2 class="font-headline-lg text-headline-lg text-primary mb-2">Why CareerMomentum</h2>
-          <p class="text-on-surface-variant">A focused toolkit designed to help job seekers move faster and apply smarter.</p>
-        </div>
+      <div class="feature-card">
+        <h2>🛠 Resume Improvement</h2>
+        <p>
+          Improve your existing resume with AI-powered recommendations to
+          increase interview chances.
+        </p>
+      </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="bg-white p-6 rounded-2xl shadow-[0px_4px_20px_rgba(26,43,60,0.05)] border border-outline-variant/30">
-            <h3 class="font-label-md text-primary text-lg mb-2">Fast insights</h3>
-            <p class="text-on-surface-variant">See gaps, strengths, and next steps in seconds.</p>
-          </div>
-          <div class="bg-white p-6 rounded-2xl shadow-[0px_4px_20px_rgba(26,43,60,0.05)] border border-outline-variant/30">
-            <h3 class="font-label-md text-primary text-lg mb-2">Better matches</h3>
-            <p class="text-on-surface-variant">Get recommendations aligned with your skills and goals.</p>
-          </div>
-          <div class="bg-white p-6 rounded-2xl shadow-[0px_4px_20px_rgba(26,43,60,0.05)] border border-outline-variant/30">
-            <h3 class="font-label-md text-primary text-lg mb-2">Cleaner workflow</h3>
-            <p class="text-on-surface-variant">Manage analysis, building, and applications from one dashboard.</p>
-          </div>
-        </div>
+      <div class="feature-card">
+        <h2>💼 Job Recommendation</h2>
+        <p>
+          Receive personalized job recommendations based on skills,
+          education, and experience.
+        </p>
+      </div>
+
+      <div class="feature-card feature-wide">
+        <h2>Our Mission</h2>
+        <p>
+          Our mission is to bridge the gap between talented candidates and recruiters
+          using Artificial Intelligence. We help users prepare ATS-friendly resumes,
+          identify missing skills, and confidently apply for jobs.
+        </p>
+      </div>
+
+      <div class="feature-card feature-wide">
+        <h2>Our Vision</h2>
+        <p>
+          To become one of the leading AI-powered recruitment platforms by providing
+          smart resume analysis, career guidance, and intelligent hiring solutions
+          for both job seekers and employers.
+        </p>
+      </div>
+
+      <div class="feature-card feature-wide">
+        <h2>Platform Highlights</h2>
+        <ul>
+          <li><strong>AI Resume Analysis</strong> — Instant ATS score and keyword matching.</li>
+          <li><strong>Resume Builder</strong> — Create beautiful professional resumes.</li>
+          <li><strong>Job Portal</strong> — Browse verified jobs approved by Super Admin.</li>
+          <li><strong>Secure Platform</strong> — Three-level authentication with User, Admin and Super Admin.</li>
+          <li><strong>Analytics</strong> — Track resume performance and job applications.</li>
+          <li><strong>Modern Dashboard</strong> — Responsive interface with a professional design.</li>
+        </ul>
       </div>
     </section>
   </main>
 
-  <footer class="w-full py-stack-lg px-margin-desktop flex flex-col md:flex-row justify-between items-center bg-primary dark:bg-on-primary-fixed">
-    <div class="flex flex-col items-center md:items-start mb-8 md:mb-0">
-      <div class="font-headline-md text-headline-md text-on-primary mb-2">CareerMomentum</div>
-      <p class="text-primary-fixed-dim opacity-80 text-label-sm text-center md:text-left max-w-xs">Elevating careers through intelligent data and human-centric design.</p>
+  <footer class="footer">
+    <div>
+      <div class="footer-logo">Job Assistant</div>
+      <p>AI-powered recruitment platform connecting job seekers and employers.</p>
     </div>
-
-    <div class="flex flex-wrap justify-center gap-gutter mb-8 md:mb-0">
-      <a class="font-label-sm text-label-sm text-primary-fixed-dim opacity-80 hover:text-secondary-fixed transition-colors" href="about.html">About</a>
-      <a class="font-label-sm text-label-sm text-primary-fixed-dim opacity-80 hover:text-secondary-fixed transition-colors" href="privacy.html">Privacy Policy</a>
-      <a class="font-label-sm text-label-sm text-primary-fixed-dim opacity-80 hover:text-secondary-fixed transition-colors" href="contact.html">Contact</a>
-      <a class="font-label-sm text-label-sm text-primary-fixed-dim opacity-80 hover:text-secondary-fixed transition-colors" href="terms_of_services.html">Terms Of Services</a>
+    <div class="footer-links">
+      <a href="{{ url_for('privacy_policy') }}"class='active'>Privacy Policy</a>
+      <a href="{{ url_for('terms_of_services') }}"class='active'>Terms of Service</a>
+      <a href="{{ url_for('contact') }}"class='active'>Contact</a>
     </div>
-
-    <div class="flex flex-col items-center md:items-end">
-      <div class="font-label-sm text-label-sm text-primary-fixed-dim opacity-80">© 2026 CareerMomentum. All rights reserved.</div>
-    </div>
+    <div class="footer-copy">© 2026 Job Assistant | AI Powered Recruitment Platform</div>
   </footer>
-
-  <script src="/static/js/script.js"></script>
 </body>
 </html>

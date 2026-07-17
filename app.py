@@ -86,6 +86,19 @@ def create_app():
     def about():
         return render_template("about.html")
     
+
+    @app.route("/terms_of_services")
+    def terms_of_services():
+        return render_template("terms_of_services.html")
+    
+    @app.route("/privacy_policy")
+    def privacy_policy():
+        return render_template("privacy_policy.html")
+    
+    @app.route("/contact")
+    def contact():
+        return render_template("contact.html")
+    
     @app.route("/super_admin_login")
     def super_admin_login():
         return render_template("super_admin_login.html")

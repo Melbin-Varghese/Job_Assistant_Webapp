@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Terms of Service | Job Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/static/css/style_about_privacy.css" />
+</head>
+
+<body>
+  <a href="#main-content" class="skip-link">Skip to content</a>
+
+  <header class="navbar">
+    <div class="logo">Job Assistant</div>
+    <ul class="nav-links">
+      <li><a href="{{ url_for('index') }}"class='active'>Home</a></li>
+      
+    </ul>
+  </header>
+
+  <main id="main-content">
+    <section class="page-banner">
+      <span class="badge">Legal</span>
+      <h1>Terms of <span class="highlight">Service</span></h1>
+      <p>Last Updated: July 2026</p>
+    </section>
+
+    <section class="feature-grid">
+      <div class="feature-card feature-wide">
+        <h2>1. Acceptance of Terms</h2>
+        <p>
+          By accessing or using Job Assistant, you agree to comply with these Terms of Service.
+          If you do not agree, please discontinue use of the platform.
+        </p>
+      </div>
+
+      <div class="feature-card feature-wide">
+        <h2>2. User Accounts</h2>
+        <ul>
+          <li>Provide accurate registration information.</li>
+          <li>Keep your login credentials secure.</li>
+          <li>You are responsible for all activities under your account.</li>
+        </ul>
+      </div>
+
+      <div class="feature-card feature-wide">
+        <h2>3. Resume Upload</h2>
+        <p>
+          Users may upload resumes only for ATS analysis, resume improvement, and job applications.
+          You must ensure that the uploaded documents belong to you or that you have permission to use them.
+        </p>
+      </div>
+
+      <div class="feature-card feature-wide">
+        <h2>4. Job Applications</h2>
+        <p>
+          Job Assistant provides a platform to discover and apply for jobs.
+          We do not guarantee employment, interviews, or job offers.
+        </p>
+      </div>
+
+      <div class="feature-card feature-wide">
+        <h2>5. Admin Responsibilities</h2>
+        <ul>
+          <li>Post only genuine job opportunities.</li>
+          <li>Provide accurate company and job details.</li>
+          <li>Avoid misleading or fraudulent job postings.</li>
+        </ul>
+      </div>
+
+      <div class="feature-card feature-wide">
+        <h2>6. Super Admin Rights</h2>
+        <p>
+          The Super Admin has the authority to approve, reject, edit, or remove job postings
+          that violate platform policies.
+        </p>
+      </div>
+
+      <div class="feature-card feature-wide">
+        <h2>7. Prohibited Activities</h2>
+        <ul>
+          <li>Uploading harmful or illegal content.</li>
+          <li>Attempting unauthorized access.</li>
+          <li>Posting fake job listings.</li>
+          <li>Violating intellectual property rights.</li>
+        </ul>
+      </div>
+
+      <div class="feature-card feature-wide">
+        <h2>8. Limitation of Liability</h2>
+        <p>
+          Job Assistant is provided "as is." We are not responsible for employment decisions,
+          third-party actions, or any losses resulting from platform use.
+        </p>
+      </div>
+
+      <div class="feature-card feature-wide">
+        <h2>9. Changes to Terms</h2>
+        <p>
+          We may update these Terms of Service at any time.
+          Continued use of the platform indicates your acceptance of the updated terms.
+        </p>
+      </div>
+
+      <div class="feature-card feature-wide">
+        <h2>10. Contact Information</h2>
+        <p>
+          Email: support@jobassistant.com<br />
+          Website: <a href="https://www.jobassistant.com">www.jobassistant.com</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>
+      <div class="footer-logo">Job Assistant</div>
+      <p>AI-powered recruitment platform connecting job seekers and employers.</p>
+    </div>
+    <div class="footer-links">
+      <a href="{{ url_for('about') }}"class='active'>About</a>
+      <a href="{{ url_for('privacy_policy') }}"class='active'>Privacy Policy</a>
+      <a href="{{ url_for('contact') }}"class='active'>Contact</a>
+    </div>
+    <div class="footer-copy">© 2026 Job Assistant. All Rights Reserved.</div>
+  </footer>
+</body>
+</html>

@@ -80,10 +80,10 @@
     </div>
 
     <div class="footer-links">
-      <a href="about.html">About</a>
-      <a href="privacy_policy.html">Privacy Policy</a>
-      <a href="contact.html">Contact</a>
-      <a href="terms_of_services.html">Terms Of Services</a>
+      <a href="{{ url_for('about') }}"class='active'>About</a>
+      <a href="{{ url_for('contact') }}"class='active'>Contact</a>
+      <a href="{{ url_for('terms_of_services') }}"class='active'>Terms of Service</a>
+      <a href="{{ url_for('contact') }}"class='active'>Privacy Policy</a>
     </div>
 
     <div class="footer-copy">© 2026 CareerMomentum. All rights reserved.</div>
