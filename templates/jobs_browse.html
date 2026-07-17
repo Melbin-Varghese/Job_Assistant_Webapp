@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ category_label + ' Jobs' if category_label else 'Browse Jobs' }} - CareerMomentum</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+
+  <style>
+    /* Small additions only -- everything else reuses style.css classes
+       already used on main_explore.html so this page matches. */
+    .jb-filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .jb-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(0, 106, 106, 0.1);
+      color: #006a6a;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .jb-chip a { color: inherit; text-decoration: none; font-weight: 800; }
+    .jb-results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .jb-skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 10px 0;
+    }
+    .jb-skill-tag {
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(0, 106, 106, 0.08);
+      color: #006a6a;
+    }
+    .jb-empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: #44474c;
+    }
+    .btn.applied {
+      background: #e6f4f1;
+      color: #0d9488;
+      cursor: default;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== Navbar (same as main_explore.html) ===== -->
+  <nav class="navbar">
+    <div class="logo">CareerMomentum</div>
+
+    <div class="nav-links">
+      <a href="{{ url_for('resources') }}">Resources</a>
+      <a href="{{ url_for('index') }}">Dashboard</a>
+    </div>
+
+    <div class="nav-buttons">
+      {% if is_logged_in %}
+        
+      {% else %}
+        <a href="{{ url_for('employer_auth.employer_login_register_page') }}" class="btn btn-outline">Employers</a>
+        <a href="{{ url_for('seeker_auth.seeker_login_register_page') }}" class="btn btn-outline">Seekers</a>
+      {% endif %}
+    </div>
+  </nav>
+
+  <!-- ===== Page banner + search ===== -->
+  <section class="hero">
+    <div class="hero-content">
+      <span class="hero-badge">✨ Browse Jobs</span>
+      <h1>{{ category_label + ' Jobs' if category_label else 'Find Your Next Role' }}</h1>
+      <p>Open to everyone -- no login needed to look around. Sign in as a seeker when you're ready to apply.</p>
+
+      <form class="search-box" id="search-container" method="GET" action="{{ url_for('job_browse.browse') }}">
+        <div class="search-row" id="simple-search">
+          <input type="text" name="keyword" id="trigger-input" placeholder="Search by role, company, or skill..." value="{{ keyword }}" />
+          <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+
+        <div class="search-filters" id="expanded-filters">
+          <div class="filter-field">
+            <label>Location</label>
+            <input type="text" name="location" placeholder="Enter location" value="{{ location }}" />
+          </div>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== Results ===== -->
+  <section class="section">
+    <div class="section-header">
+      <div>
+        <h2>{{ jobs|length }} job{{ '' if jobs|length == 1 else 's' }} found</h2>
+        <p>Only jobs approved by CareerMomentum's Super Admin are shown.</p>
+      </div>
+      <a href="{{ url_for('job_browse.browse') }}" class="link-arrow">View All Categories →</a>
+    </div>
+
+    {% if category_label or keyword or location %}
+    <div class="jb-filter-bar">
+      {% if category_label %}<span class="jb-chip">📁 {{ category_label }}</span>{% endif %}
+      {% if keyword %}<span class="jb-chip">🔎 “{{ keyword }}”</span>{% endif %}
+      {% if location %}<span class="jb-chip">📍 {{ location }}</span>{% endif %}
+      <a href="{{ url_for('job_browse.browse') }}" class="jb-chip" style="background:none; border:1px solid #e0e3e5; color:#44474c;">Clear ✕</a>
+    </div>
+    {% endif %}
+
+    {% if jobs %}
+    <div class="jb-results-grid">
+      {% for job in jobs %}
+      <div class="job-card">
+        <span class="job-tag">{{ job.job_type }}</span>
+        <h3>{{ job.title }}</h3>
+        <p>{{ job.company_name }}{% if job.location %} • {{ job.location }}{% endif %}</p>
+
+        {% if job.skills_list() %}
+        <div class="jb-skills">
+          {% for skill in job.skills_list()[:6] %}
+          <span class="jb-skill-tag">{{ skill }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="job-meta">
+          <span>{{ job.experience_level }}</span>
+          <span>Posted {{ job.created_at.strftime('%b %d, %Y') if job.created_at else '' }}</span>
+        </div>
+
+        {% if is_seeker %}
+          {% if job.id in applied_job_ids %}
+          <button class="btn applied" type="button" disabled>✓ Applied</button>
+          {% else %}
+          <button class="btn btn-primary" type="button" onclick="applyToJob({{ job.id }}, this)">Apply Now</button>
+          {% endif %}
+        {% else %}
+          <a href="{{ url_for('seeker_auth.seeker_login_register_page') }}" class="btn btn-primary">Login to Apply</a>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="jb-empty">
+      <h3>No jobs match this search yet</h3>
+      <p>Try a broader keyword, or <a href="{{ url_for('job_browse.browse') }}">browse all approved jobs</a>.</p>
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- ===== Footer (same as main_explore.html) ===== -->
+  <footer class="footer">
+    <div>
+      <div class="footer-logo">CareerMomentum</div>
+      <p>Elevating careers through intelligent data and human-centric design.</p>
+    </div>
+
+    <div class="footer-links">
+      <a href="{{ url_for('about') }}">About</a>
+      <a href="{{ url_for('index') }}">Home</a>
+    </div>
+
+    <div class="footer-copy">© 2026 CareerMomentum. All rights reserved.</div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  <script>
+    async function applyToJob(jobId, btn) {
+      btn.disabled = true;
+      const original = btn.textContent;
+      btn.textContent = 'Applying…';
+
+      try {
+        const res = await fetch('{{ url_for("seeker_dashboard.apply_to_job") }}', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: 'job_id=' + encodeURIComponent(jobId),
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+          btn.textContent = '✓ Applied';
+          btn.classList.remove('btn-primary');
+          btn.classList.add('applied');
+        } else {
+          alert(data.error || 'Could not apply. Please try again.');
+          btn.disabled = false;
+          btn.textContent = original;
+        }
+      } catch (err) {
+        alert('Network error -- please try again.');
+        btn.disabled = false;
+        btn.textContent = original;
+      }
+    }
+  </script>
+</body>
+</html>

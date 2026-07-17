@@ -10,7 +10,7 @@ client = Groq(
 )
 
 DB_USER = os.getenv("DB_USER", "root")
-DB_PASSWORD = quote_plus(os.getenv("DB_PASSWORD", "1234"))
+DB_PASSWORD = quote_plus(os.getenv("DB_PASSWORD", "Password@123"))
 DB_HOST = os.getenv("DB_HOST", "localhost")
 DB_NAME = os.getenv("DB_NAME", "careermomentum")
 

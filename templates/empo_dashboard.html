@@ -84,7 +84,7 @@
           </div>
 
           <nav class="sidebar-nav">
-            <a href="{{ url_for('employer_pages.dashboard') }}">
+            <a href="{{ url_for('employer_pages.dashboard') }}" class="active">
               <span class="material-symbols-outlined">dashboard</span>
               <span>Dashboard</span>
             </a>
@@ -92,21 +92,15 @@
               <span class="material-symbols-outlined">work</span>
               <span>Jobs</span>
             </a>
-            <a href="{{ url_for('employer_pages.candidates') }}" class="active">
+            <a href="{{ url_for('employer_pages.candidates') }}">
               <span class="material-symbols-outlined">group</span>
               <span>Candidates</span>
             </a>
             <a href="{{ url_for('employer_pages.settings') }}">
               <span class="material-symbols-outlined">settings</span>
-              <span>Settings & Suuport</span>
+              <span>Settings &amp; Support</span>
             </a>
-            
-            
           </nav>
-
-          
-
-          >
         </aside>
 
         <!-- Main content -->
@@ -118,68 +112,32 @@
               <span class="material-symbols-outlined stat-card-icon">work</span>
               <p class="stat-label">Total Jobs</p>
               <div class="stat-value-row">
-                <h3 class="stat-value">42</h3>
-                <span class="stat-delta">
-                  <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">trending_up</span> +12%
-                </span>
+                <h3 class="stat-value">{{ job_count }}</h3>
               </div>
-              <div class="stat-bar">
-                <div class="stat-bar-fill" style="width: 66%"></div>
-              </div>
+              <p style="font-size:12.5px; color:var(--text-muted,#93a0b4); margin-top:8px;">Jobs you've posted (any status).</p>
             </div>
 
             <div class="stat-card">
               <span class="material-symbols-outlined stat-card-icon">group</span>
               <p class="stat-label">Total Candidates</p>
               <div class="stat-value-row">
-                <h3 class="stat-value">1,284</h3>
-                <span class="stat-delta">
-                  <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">trending_up</span> +8%
-                </span>
+                <h3 class="stat-value">{{ candidate_count }}</h3>
               </div>
-              <div class="stat-bar">
-                <div class="stat-bar-fill" style="width: 75%"></div>
-              </div>
+              <p style="font-size:12.5px; color:var(--text-muted,#93a0b4); margin-top:8px;">Unique people who've applied to your jobs.</p>
             </div>
 
             <div class="stat-card">
               <span class="material-symbols-outlined stat-card-icon">assignment_ind</span>
               <p class="stat-label">New Applications</p>
               <div class="stat-value-row">
-                <h3 class="stat-value">156</h3>
-                <span class="stat-delta warn">
-                  <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">trending_down</span> -2%
-                </span>
+                <h3 class="stat-value">{{ new_application_count }}</h3>
               </div>
-              <div class="stat-bar">
-                <div class="stat-bar-fill" style="width: 50%"></div>
-              </div>
+              <p style="font-size:12.5px; color:var(--text-muted,#93a0b4); margin-top:8px;">Awaiting your review on the Candidates page.</p>
             </div>
           </div>
 
-          <!-- Chart + AI Insights -->
-          
-              
-              
-              
-           
-             
-              
-          </div>
-
-          <!-- Candidates table -->
-          
-           
-                    
-                  </tr>
-
-                  
-
-                
-            
-
+        </div>
       </div>
-
     </section>
 
     <footer class="footer">
@@ -188,17 +146,5 @@
   </main>
   <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
   <script src="{{ url_for('static', filename='js/script.js') }}"></script>
-  <script>
-    // Force the correct sidebar item to be highlighted for THIS page,
-    // regardless of any active-state logic in script.js (fixes the
-    // "Jobs stays highlighted on the Dashboard page" issue).
-    (function () {
-      document.querySelectorAll('.sidebar-nav a').forEach(function (link) {
-        link.classList.remove('active');
-      });
-      var current = document.querySelector('.sidebar-nav a[href$="empo_dashboard.html"]');
-      if (current) current.classList.add('active');
-    })();
-  </script>
 </body>
 </html>

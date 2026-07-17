@@ -85,16 +85,7 @@
               <h1>System Overview</h1>
               <p>Real-time performance and user acquisition metrics across CareerMomentum.</p>
             </div>
-            <div class="dashboard-actions">
-              <button class="btn btn-outline">
-                <span class="material-symbols-outlined" style="font-size:18px;">calendar_today</span>
-                Last 24 Hours
-              </button>
-              <button class="btn btn-primary">
-                <span class="material-symbols-outlined" style="font-size:18px;">download</span>
-                Export Reports
-              </button>
-            </div>
+            
           </div>
 
           <!-- Platform counts -->
@@ -103,39 +94,35 @@
               <span class="material-symbols-outlined stat-card-icon">business_center</span>
               <p class="stat-label">Total Recruiters</p>
               <div class="stat-value-row">
-                <h3 class="stat-value">406</h3>
-                <span class="stat-delta">
-                  <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">trending_up</span> +8%
-                </span>
+                <h3 class="stat-value">{{ stats.total_employers }}</h3>
               </div>
-              <div class="stat-bar"><div class="stat-bar-fill" style="width: 68%"></div></div>
-              <p class="stat-note">32 pending verification.</p>
+              <div class="stat-bar"><div class="stat-bar-fill" style="width: {{ (stats.active_employers / stats.total_employers * 100) | round(0, 'floor') if stats.total_employers else 0 }}%"></div></div>
+              <p class="stat-note">{{ stats.active_employers }} active, {{ stats.suspended_employers }} suspended/blocked.</p>
             </a>
 
-            <a href="{{ url_for('super_admin_user') }}" class="stat-card" style="text-decoration:none; color:inherit;">
+            <a href="{{ url_for('super_admin_user) }}" class="stat-card" style="text-decoration:none; color:inherit;">
               <span class="material-symbols-outlined stat-card-icon">group</span>
               <p class="stat-label">Total Users</p>
               <div class="stat-value-row">
-                <h3 class="stat-value">1,284</h3>
-                <span class="stat-delta">
-                  <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">trending_up</span> +12%
-                </span>
+                <h3 class="stat-value">{{ stats.total_seekers }}</h3>
               </div>
-              <div class="stat-bar"><div class="stat-bar-fill" style="width: 80%"></div></div>
-              <p class="stat-note">18 flagged for review.</p>
+              <div class="stat-bar"><div class="stat-bar-fill" style="width: {{ (stats.active_seekers / stats.total_seekers * 100) | round(0, 'floor') if stats.total_seekers else 0 }}%"></div></div>
+              <p class="stat-note">{{ stats.flagged_seekers }} flagged for review.</p>
             </a>
 
             <a href="{{ url_for('super_admin_job') }}" class="stat-card" style="text-decoration:none; color:inherit;">
               <span class="material-symbols-outlined stat-card-icon">work</span>
               <p class="stat-label">Total Job Posts</p>
               <div class="stat-value-row">
-                <h3 class="stat-value">642</h3>
+                <h3 class="stat-value">{{ stats.total_jobs }}</h3>
+                {% if stats.pending_jobs > 0 %}
                 <span class="stat-delta warn">
-                  <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">priority_high</span> 14 pending
+                  <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">priority_high</span> {{ stats.pending_jobs }} pending
                 </span>
+                {% endif %}
               </div>
-              <div class="stat-bar"><div class="stat-bar-fill" style="width: 55%"></div></div>
-              <p class="stat-note">14 job posts await your approval.</p>
+              <div class="stat-bar"><div class="stat-bar-fill" style="width: {{ (stats.approved_jobs / stats.total_jobs * 100) | round(0, 'floor') if stats.total_jobs else 0 }}%"></div></div>
+              <p class="stat-note">{{ stats.pending_jobs }} job posts await your approval.</p>
             </a>
           </div>
 
@@ -154,16 +141,17 @@
                   <tr><th>Job Title</th><th>Recruiter</th><th>Company</th><th>Submitted</th><th>Status</th></tr>
                 </thead>
                 <tbody>
+                  {% for job in pending_jobs %}
                   <tr>
-                    <td><p class="candidate-name">Senior Product Designer</p></td>
-                    <td>Marcus Sterling</td><td>Lumina AI</td><td>2 hours ago</td>
+                    <td><p class="candidate-name">{{ job.title }}</p></td>
+                    <td>{{ job.employer.employer_name if job.employer else "—" }}</td>
+                    <td>{{ job.company_name }}</td>
+                    <td>{{ job.created_at.strftime("%b %d, %Y") if job.created_at else "" }}</td>
                     <td><span class="pill pending">Pending Review</span></td>
                   </tr>
-                  <tr>
-                    <td><p class="candidate-name">Backend Engineer, Payments</p></td>
-                    <td>Priya Nair</td><td>Northwind Labs</td><td>5 hours ago</td>
-                    <td><span class="pill pending">Pending Review</span></td>
-                  </tr>
+                  {% else %}
+                  <tr><td colspan="5" style="text-align:center; color: var(--text-muted);">No jobs pending approval.</td></tr>
+                  {% endfor %}
                 </tbody>
               </table>
             </div>
@@ -184,34 +172,32 @@
                   <tr><th>User Name</th><th>Email</th><th>Role</th><th>Status</th></tr>
                 </thead>
                 <tbody>
+                  {% for user in recent_users %}
                   <tr>
                     <td>
                       <div class="candidate-cell">
-                        <div class="candidate-avatar">ER</div>
+                        <div class="candidate-avatar">{{ (user.name[:2] if user.name else "??") | upper }}</div>
                         <div>
-                          <p class="candidate-name">Elena Rodriguez</p>
-                          <p class="candidate-email">Registered Today, 10:42 AM</p>
+                          <p class="candidate-name">{{ user.name }}</p>
+                          <p class="candidate-email">{{ user.created_at.strftime("%b %d, %Y") if user.created_at else "" }}</p>
                         </div>
                       </div>
                     </td>
-                    <td>elena.r@techcorp.io</td>
-                    <td><span class="pill role">Job Seeker</span></td>
-                    <td><span class="status-dot-row active"><span class="status-dot"></span> Active</span></td>
-                  </tr>
-                  <tr>
+                    <td>{{ user.email }}</td>
+                    <td><span class="pill role">{{ user.role }}</span></td>
                     <td>
-                      <div class="candidate-cell">
-                        <div class="candidate-avatar">MS</div>
-                        <div>
-                          <p class="candidate-name">Marcus Sterling</p>
-                          <p class="candidate-email">Registered Today, 09:15 AM</p>
-                        </div>
-                      </div>
+                      {% if user.status == "Active" %}
+                      <span class="status-dot-row active"><span class="status-dot"></span> Active</span>
+                      {% elif user.status == "Suspended" %}
+                      <span class="status-dot-row suspended"><span class="status-dot"></span> Suspended</span>
+                      {% else %}
+                      <span class="status-dot-row suspended"><span class="status-dot"></span> Blocked</span>
+                      {% endif %}
                     </td>
-                    <td>m.sterling@lumina-ai.com</td>
-                    <td><span class="pill role">Recruiter</span></td>
-                    <td><span class="status-dot-row verifying"><span class="status-dot"></span> Verifying</span></td>
                   </tr>
+                  {% else %}
+                  <tr><td colspan="4" style="text-align:center; color: var(--text-muted);">No registrations yet.</td></tr>
+                  {% endfor %}
                 </tbody>
               </table>
             </div>

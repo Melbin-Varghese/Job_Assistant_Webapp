@@ -15,6 +15,9 @@ from flask_login import login_required, current_user
 
 from crud import (
     create_job,
+    get_job_by_id,
+    update_job,
+    delete_job,
     list_jobs_by_employer,
     list_applications_by_employer,
     get_application_by_id,
@@ -28,7 +31,19 @@ employer_pages_bp = Blueprint("employer_pages", __name__)
 @employer_pages_bp.route("/employer/dashboard-home")
 @login_required
 def dashboard():
-    return render_template("empo_dashboard.html")
+    jobs = list_jobs_by_employer(current_user.id)
+    applications = list_applications_by_employer(current_user.id)
+
+    job_count = len(jobs)
+    candidate_count = len({app.seeker_id for app in applications})  # unique applicants
+    new_application_count = sum(1 for app in applications if app.status == "Applied")
+
+    return render_template(
+        "empo_dashboard.html",
+        job_count=job_count,
+        candidate_count=candidate_count,
+        new_application_count=new_application_count,
+    )
 
 
 @employer_pages_bp.route("/employer/jobs", methods=["GET", "POST"])
@@ -76,6 +91,67 @@ def jobs():
         "empo_job_posting_page.html",
         jobs=list_jobs_by_employer(current_user.id),
     )
+
+
+@employer_pages_bp.route("/employer/jobs/<int:job_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_job(job_id):
+    job = get_job_by_id(job_id)
+
+    # Only the employer who posted it can edit it -- otherwise any
+    # logged-in employer could edit another company's job by guessing
+    # an id in the URL.
+    if not job or job.employer_id != current_user.id:
+        return redirect(url_for("employer_pages.jobs"))
+
+    if request.method == "POST":
+        title = request.form.get("jobTitle", "").strip()
+        company_name = request.form.get("companyName", "").strip()
+        company_website = request.form.get("companyWebsite", "").strip()
+        company_email = request.form.get("companyEmail", "").strip()
+        location = request.form.get("location", "").strip()
+        job_type = request.form.get("jobType", "Full-time").strip()
+        experience_level = request.form.get("experience", "Entry").strip()
+        description = request.form.get("jobDescription", "").strip()
+        skills_raw = request.form.get("keySkills", "").strip()
+
+        if not all([title, company_name, company_email, description]):
+            return render_template(
+                "empo_job_edit.html",
+                job=job,
+                error="Please fill in all required fields (Job Title, Company Name, Company Email, Job Description).",
+            )
+
+        update_job(
+            job_id,
+            title=title,
+            company_name=company_name,
+            company_website=company_website or None,
+            company_email=company_email,
+            location=location or None,
+            job_type=job_type or "Full-time",
+            experience_level=experience_level or "Entry",
+            description=description,
+            skills=skills_raw,
+        )
+
+        return redirect(url_for("employer_pages.jobs", updated=1))
+
+    return render_template("empo_job_edit.html", job=job)
+
+
+@employer_pages_bp.route("/employer/jobs/<int:job_id>/delete", methods=["POST"])
+@login_required
+def delete_job_route(job_id):
+    job = get_job_by_id(job_id)
+
+    # Same ownership check as edit -- silently no-ops instead of
+    # erroring if the job isn't found or belongs to someone else, so
+    # a stale/tampered form post can't delete another employer's job.
+    if job and job.employer_id == current_user.id:
+        delete_job(job_id)
+
+    return redirect(url_for("employer_pages.jobs", deleted=1))
 
 
 @employer_pages_bp.route("/employer/candidates")

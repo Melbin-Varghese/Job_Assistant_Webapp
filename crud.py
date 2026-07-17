@@ -89,6 +89,48 @@ def set_employer_password(employer_id, new_password):
 
 
 # ==========================================================================
+# EMPLOYER — Status (super admin: suspend / unsuspend / block / unblock)
+# ==========================================================================
+def suspend_employer(employer_id):
+    employer = get_employer_by_id(employer_id)
+    if not employer:
+        return None
+    employer.status = "Suspended"
+    db.session.commit()
+    return employer
+
+
+def unsuspend_employer(employer_id):
+    """Restores a suspended employer to Active. Does nothing if the
+    employer is Blocked -- unblock_employer() should be used instead."""
+    employer = get_employer_by_id(employer_id)
+    if not employer:
+        return None
+    if employer.status == "Suspended":
+        employer.status = "Active"
+        db.session.commit()
+    return employer
+
+
+def block_employer(employer_id):
+    employer = get_employer_by_id(employer_id)
+    if not employer:
+        return None
+    employer.status = "Blocked"
+    db.session.commit()
+    return employer
+
+
+def unblock_employer(employer_id):
+    employer = get_employer_by_id(employer_id)
+    if not employer:
+        return None
+    employer.status = "Active"
+    db.session.commit()
+    return employer
+
+
+# ==========================================================================
 # EMPLOYER — Delete
 # ==========================================================================
 def delete_employer(employer_id):
@@ -171,6 +213,27 @@ def set_seeker_password(seeker_id, new_password):
 
 
 # ==========================================================================
+# SEEKER — Status (super admin: block / unblock)
+# ==========================================================================
+def block_seeker(seeker_id):
+    seeker = get_seeker_by_id(seeker_id)
+    if not seeker:
+        return None
+    seeker.status = "Blocked"
+    db.session.commit()
+    return seeker
+
+
+def unblock_seeker(seeker_id):
+    seeker = get_seeker_by_id(seeker_id)
+    if not seeker:
+        return None
+    seeker.status = "Active"
+    db.session.commit()
+    return seeker
+
+
+# ==========================================================================
 # SEEKER — Delete
 # ==========================================================================
 def delete_seeker(seeker_id):
@@ -220,22 +283,29 @@ def create_job(employer_id, title, company_name, company_email, description,
 def get_job_by_id(job_id):
     return Job.query.get(job_id)
 
+def list_all_jobs():
+    return Job.query.order_by(Job.created_at.desc()).all()
 
 def list_jobs_by_employer(employer_id):
     return Job.query.filter_by(employer_id=employer_id).order_by(Job.created_at.desc()).all()
 
 
 def list_all_jobs():
-    """All jobs across every employer, newest first -- used by the
-    seeker-facing job search/explore page."""
-    return Job.query.order_by(Job.created_at.desc()).all()
+    """Approved jobs across every employer, newest first -- used by the
+    seeker-facing job search/explore page. Jobs still Pending or
+    Rejected by the super admin are excluded."""
+    return (
+        Job.query.filter_by(status="Approved")
+        .order_by(Job.created_at.desc())
+        .all()
+    )
 
 
 def search_jobs(keyword=None, location=None, job_type=None):
     """Simple case-insensitive search over title/company/skills, plus
     optional location and job_type filters. Used by the seeker-facing
     dashboard search bar (job type dropdown + keyword + location)."""
-    query = Job.query
+    query = Job.query.filter_by(status="Approved")
 
     if keyword:
         like = f"%{keyword}%"
@@ -254,6 +324,39 @@ def search_jobs(keyword=None, location=None, job_type=None):
         query = query.filter(Job.job_type.ilike(f"%{job_type}%"))
 
     return query.order_by(Job.created_at.desc()).all()
+
+
+def list_jobs_for_admin(status=None):
+    """All jobs regardless of status, newest first -- used by the super
+    admin's Total Job Posts page. Pass status="Pending" to get just the
+    ones awaiting review (what the dashboard/job page's table shows)."""
+    query = Job.query
+    if status:
+        query = query.filter_by(status=status)
+    return query.order_by(Job.created_at.desc()).all()
+
+
+# ==========================================================================
+# JOB — Approve / Reject (super admin)
+# ==========================================================================
+def approve_job(job_id):
+    """Returns the updated Job, or None if no job with that id exists."""
+    job = get_job_by_id(job_id)
+    if not job:
+        return None
+    job.status = "Approved"
+    db.session.commit()
+    return job
+
+
+def reject_job(job_id):
+    """Returns the updated Job, or None if no job with that id exists."""
+    job = get_job_by_id(job_id)
+    if not job:
+        return None
+    job.status = "Rejected"
+    db.session.commit()
+    return job
 
 
 # ==========================================================================

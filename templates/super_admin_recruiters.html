@@ -102,24 +102,23 @@
               <span class="material-symbols-outlined stat-card-icon">business_center</span>
               <p class="stat-label">Total Recruiters</p>
               <div class="stat-value-row">
-                <h3 class="stat-value">406</h3>
-                <span class="stat-delta"><span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">trending_up</span> +8%</span>
+                <h3 class="stat-value">{{ total_employers_count }}</h3>
               </div>
-              <div class="stat-bar"><div class="stat-bar-fill" style="width: 68%"></div></div>
-              <p class="stat-note">32 pending verification.</p>
+              <div class="stat-bar"><div class="stat-bar-fill" style="width: {{ (active_employers_count / total_employers_count * 100)|round|int if total_employers_count else 0 }}%"></div></div>
+              <p class="stat-note">{{ verifying_employers_count }} pending verification.</p>
             </div>
             <div class="stat-card">
               <span class="material-symbols-outlined stat-card-icon">verified</span>
               <p class="stat-label">Active</p>
-              <div class="stat-value-row"><h3 class="stat-value">358</h3></div>
-              <div class="stat-bar"><div class="stat-bar-fill" style="width: 88%"></div></div>
+              <div class="stat-value-row"><h3 class="stat-value">{{ active_employers_count }}</h3></div>
+              <div class="stat-bar"><div class="stat-bar-fill" style="width: {{ (active_employers_count / total_employers_count * 100)|round|int if total_employers_count else 0 }}%"></div></div>
               <p class="stat-note">Currently posting live jobs.</p>
             </div>
             <div class="stat-card">
               <span class="material-symbols-outlined stat-card-icon">block</span>
               <p class="stat-label">Suspended / Blocked</p>
-              <div class="stat-value-row"><h3 class="stat-value">16</h3></div>
-              <div class="stat-bar"><div class="stat-bar-fill" style="width: 4%"></div></div>
+              <div class="stat-value-row"><h3 class="stat-value">{{ suspended_or_blocked_employers_count }}</h3></div>
+              <div class="stat-bar"><div class="stat-bar-fill" style="width: {{ (suspended_or_blocked_employers_count / total_employers_count * 100)|round|int if total_employers_count else 0 }}%"></div></div>
               <p class="stat-note">Flagged for policy violations.</p>
             </div>
           </div>
@@ -130,7 +129,7 @@
                 <h3>Recruiters</h3>
                 <p>All companies currently posting jobs on CareerMomentum.</p>
               </div>
-              <span class="table-panel-count">406 recruiters</span>
+              <span class="table-panel-count">{{ total_employers_count }} recruiters</span>
             </div>
 
             <div style="overflow-x:auto;">
@@ -144,73 +143,53 @@
                     <th class="right">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
+                <tbody id="recruitersTableBody">
+                  {% for employer in employers %}
+                  <tr data-employer-id="{{ employer.id }}">
                     <td>
                       <div class="candidate-cell">
-                        <div class="candidate-avatar">MS</div>
+                        <div class="candidate-avatar">{{ employer.employer_name[:2]|upper }}</div>
                         <div>
-                          <p class="candidate-name">Marcus Sterling</p>
-                          <p class="candidate-email">m.sterling@lumina-ai.com</p>
+                          <p class="candidate-name">{{ employer.employer_name }}</p>
+                          <p class="candidate-email">{{ employer.company_email }}</p>
                         </div>
                       </div>
                     </td>
-                    <td>Lumina AI</td>
-                    <td>18</td>
-                    <td><span class="status-dot-row active"><span class="status-dot"></span> Active</span></td>
+                    <td>{{ employer.company_name }}</td>
+                    <td>{{ employer.jobs|length }}</td>
+                    <td class="statusCell">
+                      {% if employer.status == "Active" %}
+                        <span class="status-dot-row active"><span class="status-dot"></span> Active</span>
+                      {% elif employer.status == "Verifying" %}
+                        <span class="status-dot-row verifying"><span class="status-dot"></span> Verifying</span>
+                      {% else %}
+                        <span class="status-dot-row suspended"><span class="status-dot"></span> {{ employer.status }}</span>
+                      {% endif %}
+                    </td>
                     <td class="right">
                       <div class="action-pill-group">
-                        <button class="action-pill suspend">Suspend</button>
-                        <button class="action-pill block">Block</button>
+                        {% if employer.status == "Blocked" %}
+                          <button class="action-pill unblock" data-employer-id="{{ employer.id }}">Unblock</button>
+                        {% else %}
+                          {% if employer.status == "Suspended" %}
+                            <button class="action-pill unsuspend" data-employer-id="{{ employer.id }}">Unsuspend</button>
+                          {% else %}
+                            <button class="action-pill suspend" data-employer-id="{{ employer.id }}">Suspend</button>
+                          {% endif %}
+                          <button class="action-pill block" data-employer-id="{{ employer.id }}">Block</button>
+                        {% endif %}
                       </div>
                     </td>
                   </tr>
-                  <tr>
-                    <td>
-                      <div class="candidate-cell">
-                        <div class="candidate-avatar">PN</div>
-                        <div>
-                          <p class="candidate-name">Priya Nair</p>
-                          <p class="candidate-email">priya.n@northwind.io</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>Northwind Labs</td>
-                    <td>9</td>
-                    <td><span class="status-dot-row verifying"><span class="status-dot"></span> Verifying</span></td>
-                    <td class="right">
-                      <div class="action-pill-group">
-                        <button class="action-pill suspend">Suspend</button>
-                        <button class="action-pill block">Block</button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <div class="candidate-cell">
-                        <div class="candidate-avatar">DC</div>
-                        <div>
-                          <p class="candidate-name">David Chen</p>
-                          <p class="candidate-email">dchen@globalreach.org</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>GlobalReach</td>
-                    <td>4</td>
-                    <td><span class="status-dot-row suspended"><span class="status-dot"></span> Suspended</span></td>
-                    <td class="right">
-                      <div class="action-pill-group">
-                        <button class="action-pill suspend" disabled style="opacity:0.5; cursor:not-allowed;">Suspend</button>
-                        <button class="action-pill block">Block</button>
-                      </div>
-                    </td>
-                  </tr>
+                  {% else %}
+                  <tr><td colspan="5" style="text-align:center; color: var(--text-muted);">No recruiters yet.</td></tr>
+                  {% endfor %}
                 </tbody>
               </table>
             </div>
 
             <div class="table-panel-footer">
-              <p style="font-size:13px; color: var(--text-muted);">Showing 3 of 406 recruiters</p>
+              <p style="font-size:13px; color: var(--text-muted);">Showing {{ employers|length }} of {{ total_employers_count }} recruiters</p>
               <div class="pagination">
                 <button class="page-btn"><span class="material-symbols-outlined" style="font-size:18px;">chevron_left</span></button>
                 <button class="page-btn active">1</button>

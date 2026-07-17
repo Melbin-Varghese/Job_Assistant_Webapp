@@ -102,31 +102,30 @@
               <span class="material-symbols-outlined stat-card-icon">work</span>
               <p class="stat-label">Total Job Posts</p>
               <div class="stat-value-row">
-                <h3 class="stat-value">642</h3>
+                <h3 class="stat-value">{{ total_jobs_count }}</h3>
                 <span class="stat-delta warn">
-                  <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">priority_high</span> 14 pending
+                  <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">priority_high</span> {{ pending_jobs|length }} pending
                 </span>
               </div>
-              <div class="stat-bar"><div class="stat-bar-fill" style="width: 55%"></div></div>
-              <p class="stat-note">14 job posts await your approval.</p>
+              <div class="stat-bar"><div class="stat-bar-fill" style="width: {{ (approved_jobs_count / total_jobs_count * 100)|round|int if total_jobs_count else 0 }}%"></div></div>
+              <p class="stat-note">{{ pending_jobs|length }} job posts await your approval.</p>
             </div>
             <div class="stat-card">
               <span class="material-symbols-outlined stat-card-icon">check_circle</span>
               <p class="stat-label">Approved & Live</p>
               <div class="stat-value-row">
-                <h3 class="stat-value">598</h3>
-                <span class="stat-delta"><span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">trending_up</span> +5%</span>
+                <h3 class="stat-value">{{ approved_jobs_count }}</h3>
               </div>
-              <div class="stat-bar"><div class="stat-bar-fill" style="width: 93%"></div></div>
+              <div class="stat-bar"><div class="stat-bar-fill" style="width: {{ (approved_jobs_count / total_jobs_count * 100)|round|int if total_jobs_count else 0 }}%"></div></div>
               <p class="stat-note">Visible to job seekers right now.</p>
             </div>
             <div class="stat-card">
               <span class="material-symbols-outlined stat-card-icon">block</span>
               <p class="stat-label">Rejected</p>
               <div class="stat-value-row">
-                <h3 class="stat-value">30</h3>
+                <h3 class="stat-value">{{ rejected_jobs_count }}</h3>
               </div>
-              <div class="stat-bar"><div class="stat-bar-fill" style="width: 5%"></div></div>
+              <div class="stat-bar"><div class="stat-bar-fill" style="width: {{ (rejected_jobs_count / total_jobs_count * 100)|round|int if total_jobs_count else 0 }}%"></div></div>
               <p class="stat-note">Did not meet posting guidelines.</p>
             </div>
           </div>
@@ -137,7 +136,7 @@
                 <h3>Job Postings — Pending Approval</h3>
                 <p>Review new listings from recruiters before they go live.</p>
               </div>
-              <span class="table-panel-count">14 awaiting review</span>
+              <span class="table-panel-count">{{ pending_jobs|length }} awaiting review</span>
             </div>
 
             <div style="overflow-x:auto;">
@@ -152,52 +151,30 @@
                     <th class="right">Actions</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td><p class="candidate-name">Senior Product Designer</p></td>
-                    <td>Marcus Sterling</td>
-                    <td>Lumina AI</td>
-                    <td>2 hours ago</td>
+                <tbody id="jobsTableBody">
+                  {% for job in pending_jobs %}
+                  <tr data-job-id="{{ job.id }}">
+                    <td><p class="candidate-name">{{ job.title }}</p></td>
+                    <td>{{ job.employer.employer_name }}</td>
+                    <td>{{ job.company_name }}</td>
+                    <td>{{ job.created_at.strftime('%b %d, %Y') }}</td>
                     <td><span class="pill pending">Pending Review</span></td>
                     <td class="right">
                       <div class="action-pill-group">
-                        <button class="action-pill accept"><span class="material-symbols-outlined">check</span> Accept</button>
-                        <button class="action-pill reject"><span class="material-symbols-outlined">close</span> Reject</button>
+                        <button class="action-pill accept" data-job-id="{{ job.id }}"><span class="material-symbols-outlined">check</span> Accept</button>
+                        <button class="action-pill reject" data-job-id="{{ job.id }}"><span class="material-symbols-outlined">close</span> Reject</button>
                       </div>
                     </td>
                   </tr>
-                  <tr>
-                    <td><p class="candidate-name">Backend Engineer, Payments</p></td>
-                    <td>Priya Nair</td>
-                    <td>Northwind Labs</td>
-                    <td>5 hours ago</td>
-                    <td><span class="pill pending">Pending Review</span></td>
-                    <td class="right">
-                      <div class="action-pill-group">
-                        <button class="action-pill accept"><span class="material-symbols-outlined">check</span> Accept</button>
-                        <button class="action-pill reject"><span class="material-symbols-outlined">close</span> Reject</button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td><p class="candidate-name">Growth Marketing Lead</p></td>
-                    <td>David Chen</td>
-                    <td>GlobalReach</td>
-                    <td>Yesterday</td>
-                    <td><span class="pill pending">Pending Review</span></td>
-                    <td class="right">
-                      <div class="action-pill-group">
-                        <button class="action-pill accept"><span class="material-symbols-outlined">check</span> Accept</button>
-                        <button class="action-pill reject"><span class="material-symbols-outlined">close</span> Reject</button>
-                      </div>
-                    </td>
-                  </tr>
+                  {% else %}
+                  <tr><td colspan="6" style="text-align:center; color: var(--text-muted);">No job posts pending review right now.</td></tr>
+                  {% endfor %}
                 </tbody>
               </table>
             </div>
 
             <div class="table-panel-footer">
-              <p style="font-size:13px; color: var(--text-muted);">Showing 3 of 642 job posts</p>
+              <p style="font-size:13px; color: var(--text-muted);">Showing {{ pending_jobs|length }} of {{ total_jobs_count }} job posts</p>
               <div class="pagination">
                 <button class="page-btn"><span class="material-symbols-outlined" style="font-size:18px;">chevron_left</span></button>
                 <button class="page-btn active">1</button>

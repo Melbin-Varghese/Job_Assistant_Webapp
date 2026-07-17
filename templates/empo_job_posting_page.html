@@ -612,7 +612,13 @@
                           {{ job.company_name }}
                         </p>
                       </div>
-                      <span class="jp-job-badge">{{ job.job_type }}</span>
+                      <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; justify-content:flex-end;">
+                        <span class="jp-job-badge"
+                              style="{% if job.status == 'Pending' %}background:rgba(245,165,36,0.15); color:#f5a524;{% elif job.status == 'Rejected' %}background:rgba(220,38,38,0.15); color:#f87171;{% endif %}">
+                          {{ job.status }}
+                        </span>
+                        <span class="jp-job-badge">{{ job.job_type }}</span>
+                      </div>
                     </div>
                     <div class="jp-job-meta">
                       {% if job.location %}
@@ -634,6 +640,19 @@
                       {% endfor %}
                     </div>
                     {% endif %}
+                    <div style="display:flex; gap:8px; margin-top:12px; padding-top:12px; border-top:1px solid var(--jp-border);">
+                      <a href="{{ url_for('employer_pages.edit_job', job_id=job.id) }}" class="jp-btn jp-btn-ghost" style="padding:7px 14px; font-size:12.5px;">
+                        <span class="material-symbols-outlined" style="font-size:15px;">edit</span>
+                        Edit
+                      </a>
+                      <form method="POST" action="{{ url_for('employer_pages.delete_job_route', job_id=job.id) }}"
+                            onsubmit="return confirm('Delete this job posting? This cannot be undone.');" style="margin:0;">
+                        <button type="submit" class="jp-btn jp-btn-ghost" style="padding:7px 14px; font-size:12.5px; color:var(--jp-danger); border-color:rgba(248,113,113,0.3);">
+                          <span class="material-symbols-outlined" style="font-size:15px;">delete</span>
+                          Delete
+                        </button>
+                      </form>
+                    </div>
                   </div>
                   {% endfor %}
                 {% else %}
@@ -734,18 +753,22 @@
       }
     })();
 
-    // ---- Success toast after a job is posted ----
-    // The route redirects to ?posted=1 after a successful save.
+    // ---- Success toast after a job is posted / updated / deleted ----
+    // The routes redirect with ?posted=1 / ?updated=1 / ?deleted=1.
     (function () {
       const params = new URLSearchParams(window.location.search);
-      if (params.get('posted') === '1') {
+      const messages = { posted: 'Job posted successfully', updated: 'Job updated successfully', deleted: 'Job deleted' };
+      const key = ['posted', 'updated', 'deleted'].find((k) => params.get(k) === '1');
+
+      if (key) {
         const toast = document.getElementById('jpToast');
-        if (toast) {
+        const toastText = document.getElementById('jpToastText');
+        if (toast && toastText) {
+          toastText.textContent = messages[key];
           toast.classList.add('show');
           setTimeout(() => toast.classList.remove('show'), 3000);
         }
-        // Clean the query param out of the URL without reloading
-        params.delete('posted');
+        params.delete(key);
         const cleanUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
         window.history.replaceState({}, '', cleanUrl);
       }

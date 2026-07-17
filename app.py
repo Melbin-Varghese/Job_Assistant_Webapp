@@ -10,11 +10,13 @@ or, for development with auto-reload:
 """
 
 import os
+from datetime import datetime
 
 from flask import Flask, redirect, url_for, render_template
 
 import config
 from extensions import db, login_manager
+import crud
 
 # Import models so SQLAlchemy knows about them before create_all() runs.
 import models  # noqa: F401
@@ -29,6 +31,8 @@ from routes.ats_checker import ats_checker_bp
 from routes.cover_letter import cover_letter_bp
 from routes.automation import automation_bp
 from routes.recommendation import recommendation_bp
+from routes.job_browse import job_browse_bp
+from super_admin_api import super_admin_api
 
 # If you already have other blueprints in routes/ (e.g. a "pages"
 # blueprint powering resource.html, about.html, etc.), import
@@ -58,10 +62,13 @@ def create_app():
     app.register_blueprint(cover_letter_bp)
     app.register_blueprint(automation_bp)
     app.register_blueprint(recommendation_bp)
+    app.register_blueprint(job_browse_bp)
+    app.register_blueprint(super_admin_api)
 
     @app.route("/")
     def index():
-        return render_template("main_explore.html")
+        featured_jobs = crud.list_all_jobs()[:4]
+        return render_template("main_explore.html", featured_jobs=featured_jobs)
 
     @app.route("/ai-coach")
     def ai_coach():
@@ -86,15 +93,89 @@ def create_app():
 
     @app.route("/super_admin_dashboard")
     def super_admin_dashboard():
-        return render_template("super_admin_dashboard.html")
+        employers = crud.list_employers()
+        seekers = crud.list_seekers()
+        all_jobs = crud.list_jobs_for_admin()
+
+        stats = {
+            "total_employers": len(employers),
+            "active_employers": sum(1 for e in employers if e.status == "Active"),
+            "suspended_employers": sum(
+                1 for e in employers if e.status in ("Suspended", "Blocked")
+            ),
+            "total_seekers": len(seekers),
+            "active_seekers": sum(1 for s in seekers if s.status == "Active"),
+            "flagged_seekers": sum(1 for s in seekers if s.status == "Blocked"),
+            "total_jobs": len(all_jobs),
+            "pending_jobs": sum(1 for j in all_jobs if j.status == "Pending"),
+            "approved_jobs": sum(1 for j in all_jobs if j.status == "Approved"),
+        }
+
+        pending_jobs = [j for j in all_jobs if j.status == "Pending"][:5]
+
+        # Recruiters and job seekers merged into one "recent registrations"
+        # feed, newest first. Employer.status can be "Verifying" -- the
+        # template's status pill only branches on Active/Suspended/else
+        # Blocked, so a Verifying recruiter will currently render as
+        # "Blocked" here. Worth adding a Verifying branch to the template
+        # if that distinction matters on this page.
+        recent_employers = [
+            {
+                "name": e.employer_name,
+                "email": e.company_email,
+                "role": "Recruiter",
+                "status": e.status,
+                "created_at": e.created_at,
+            }
+            for e in employers
+        ]
+        recent_seekers = [
+            {
+                "name": s.full_name,
+                "email": s.email,
+                "role": "Job Seeker",
+                "status": s.status,
+                "created_at": s.created_at,
+            }
+            for s in seekers
+        ]
+        recent_users = sorted(
+            recent_employers + recent_seekers,
+            key=lambda u: u["created_at"] or datetime.min,
+            reverse=True,
+        )[:5]
+
+        return render_template(
+            "super_admin_dashboard.html",
+            stats=stats,
+            pending_jobs=pending_jobs,
+            recent_users=recent_users,
+        )
     
     @app.route("/super_admin_user")
     def super_admin_user():
-        return render_template("super_admin_user.html")
+        seekers = crud.list_seekers()
+        return render_template(
+            "super_admin_user.html",
+            seekers=seekers,
+            total_seekers_count=len(seekers),
+            active_seekers_count=sum(1 for s in seekers if s.status == "Active"),
+            blocked_seekers_count=sum(1 for s in seekers if s.status == "Blocked"),
+        )
     
     @app.route("/super_admin_job")
     def super_admin_job():
-        return render_template("super_admin_job.html")
+        all_jobs = crud.list_jobs_for_admin()
+        pending_jobs = [j for j in all_jobs if j.status == "Pending"]
+        approved_jobs_count = sum(1 for j in all_jobs if j.status == "Approved")
+        rejected_jobs_count = sum(1 for j in all_jobs if j.status == "Rejected")
+        return render_template(
+            "super_admin_job.html",
+            pending_jobs=pending_jobs,
+            total_jobs_count=len(all_jobs),
+            approved_jobs_count=approved_jobs_count,
+            rejected_jobs_count=rejected_jobs_count,
+        )
     
     @app.route("/super_admin_profile")
     def super_admin_profile():
@@ -102,7 +183,17 @@ def create_app():
 
     @app.route("/super_admin_recruiters")
     def super_admin_recruiters():
-        return render_template("super_admin_recruiters.html")
+        employers = crud.list_employers()
+        return render_template(
+            "super_admin_recruiters.html",
+            employers=employers,
+            total_employers_count=len(employers),
+            active_employers_count=sum(1 for e in employers if e.status == "Active"),
+            verifying_employers_count=sum(1 for e in employers if e.status == "Verifying"),
+            suspended_or_blocked_employers_count=sum(
+                1 for e in employers if e.status in ("Suspended", "Blocked")
+            ),
+        )
     
 
     @app.route("/super_admin_setting")

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Edit Job — CareerMomentum Recruiter Dashboard</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}" />
+
+  <style>
+    /* Same tokens/classes as empo_job_posting_page.html so this page
+       looks like part of the same flow. */
+    :root {
+      --jp-bg: #0b1220;
+      --jp-panel: #101a2c;
+      --jp-panel-2: #0d1626;
+      --jp-border: rgba(255, 255, 255, 0.08);
+      --jp-text: #e7ecf3;
+      --jp-text-dim: #93a0b4;
+      --jp-teal: #14b8a6;
+      --jp-teal-dark: #0d9488;
+      --jp-danger: #f87171;
+    }
+
+    .jobs-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; gap: 16px; flex-wrap: wrap; }
+    .jobs-header h2 { font-size: 22px; font-weight: 800; color: var(--jp-text); margin: 0 0 4px 0; }
+    .jobs-header p { color: var(--jp-text-dim); font-size: 14px; margin: 0; }
+
+    .jp-form-card { background: var(--jp-panel); border: 1px solid var(--jp-border); border-radius: 16px; padding: 24px; max-width: 760px; }
+    .jp-form-card h3 { font-size: 17px; font-weight: 700; color: var(--jp-text); margin: 0 0 4px 0; display: flex; align-items: center; gap: 8px; }
+    .jp-form-card > p.jp-sub { color: var(--jp-text-dim); font-size: 13px; margin: 0 0 20px 0; }
+
+    .jp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .jp-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+    .jp-field.full { grid-column: 1 / -1; }
+    .jp-field label { font-size: 12.5px; font-weight: 600; color: var(--jp-text-dim); display: flex; align-items: center; gap: 6px; }
+    .jp-field label .req { color: var(--jp-teal); }
+
+    .jp-field input, .jp-field select, .jp-field textarea {
+      background: var(--jp-panel-2); border: 1px solid var(--jp-border); border-radius: 10px;
+      padding: 11px 12px; color: var(--jp-text); font-family: 'Inter', sans-serif; font-size: 14px; outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .jp-field input::placeholder, .jp-field textarea::placeholder { color: #5b6b82; }
+    .jp-field input:focus, .jp-field select:focus, .jp-field textarea:focus {
+      border-color: var(--jp-teal); box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15);
+    }
+    .jp-field textarea { resize: vertical; min-height: 130px; line-height: 1.5; }
+
+    .jp-skills-box {
+      background: var(--jp-panel-2); border: 1px solid var(--jp-border); border-radius: 10px;
+      padding: 8px 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-height: 46px;
+    }
+    .jp-skills-box:focus-within { border-color: var(--jp-teal); box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15); }
+    .jp-skill-tag {
+      display: inline-flex; align-items: center; gap: 6px; background: rgba(20, 184, 166, 0.12);
+      color: var(--jp-teal); border: 1px solid rgba(20, 184, 166, 0.35); padding: 4px 8px 4px 10px;
+      border-radius: 999px; font-size: 12.5px; font-weight: 600;
+    }
+    .jp-skill-tag button { background: none; border: none; color: var(--jp-teal); cursor: pointer; display: flex; padding: 0; opacity: 0.75; }
+    .jp-skill-tag button:hover { opacity: 1; }
+    .jp-skills-box input { flex: 1; min-width: 120px; background: transparent; border: none; outline: none; color: var(--jp-text); font-size: 14px; font-family: 'Inter', sans-serif; padding: 6px 4px; }
+    .jp-hint { font-size: 11.5px; color: #5b6b82; }
+
+    .jp-actions { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--jp-border); }
+    .jp-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid transparent; font-family: 'Inter', sans-serif; text-decoration: none; }
+    .jp-btn-primary { background: linear-gradient(135deg, var(--jp-teal), var(--jp-teal-dark)); color: #06231f; }
+    .jp-btn-primary:hover { filter: brightness(1.05); }
+    .jp-btn-ghost { background: transparent; border-color: var(--jp-border); color: var(--jp-text-dim); }
+    .jp-btn-ghost:hover { color: var(--jp-text); border-color: #3a4a63; }
+
+    .navbar { display: flex; align-items: center; gap: 24px; }
+    .navbar-search-wrap { flex: 1; display: flex; justify-content: center; min-width: 0; }
+    .navbar-search-wrap .content-search { width: 100%; max-width: 480px; }
+    .navbar .topbar-actions { flex: 0 0 auto; display: flex; align-items: center; gap: 14px; }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">CareerMomentum</div>
+    <div class="navbar-search-wrap">
+      <div class="content-search">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" placeholder="Search candidates, jobs, or analytics..." />
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <div class="topbar-divider"></div>
+      <a href="{{ url_for('employer_pages.profile') }}" style="text-decoration:none;">
+        <div class="user-chip">
+          <div>
+            <p class="user-chip-name">{{ current_user.employer_name }}</p>
+            <p class="user-chip-role">{{ current_user.company_name }}</p>
+          </div>
+          <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ current_user.employer_name|urlencode }}" alt="{{ current_user.employer_name }}" />
+        </div>
+      </a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="dashboard-hero">
+      <div class="dashboard-wrap">
+
+        <aside class="sidebar">
+          <div class="sidebar-profile">
+            <div class="sidebar-avatar">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+            </div>
+            <div>
+              <p class="sidebar-profile-name">CareerMomentum</p>
+              <p class="sidebar-profile-status">Recruiter Suite</p>
+            </div>
+          </div>
+
+          <nav class="sidebar-nav">
+            <a href="{{ url_for('employer_pages.dashboard') }}">
+              <span class="material-symbols-outlined">dashboard</span>
+              <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('employer_pages.jobs') }}" class="active">
+              <span class="material-symbols-outlined">work</span>
+              <span>Jobs</span>
+            </a>
+            <a href="{{ url_for('employer_pages.candidates') }}">
+              <span class="material-symbols-outlined">group</span>
+              <span>Candidates</span>
+            </a>
+            <a href="{{ url_for('employer_pages.settings') }}">
+              <span class="material-symbols-outlined">settings</span>
+              <span>Settings & Support</span>
+            </a>
+          </nav>
+        </aside>
+
+        <div class="dashboard-main">
+          <div class="jobs-header">
+            <div>
+              <h2>Edit Job</h2>
+              <p>Changes are saved back to this same listing -- seekers who already applied keep their application.</p>
+            </div>
+            <a href="{{ url_for('employer_pages.jobs') }}" class="jp-btn jp-btn-ghost">
+              <span class="material-symbols-outlined" style="font-size:18px;">arrow_back</span>
+              Back to Jobs
+            </a>
+          </div>
+
+          <div class="jp-form-card">
+            <h3>
+              <span class="material-symbols-outlined" style="color:var(--jp-teal); font-size:20px;">edit</span>
+              Job Details
+            </h3>
+            <p class="jp-sub">Fields marked <span class="req">*</span> are required.</p>
+
+            {% if error %}
+            <div class="form-error" style="color:#f87171; margin-bottom:14px; font-size:13px;">{{ error }}</div>
+            {% endif %}
+
+            <form id="jobEditForm" method="POST" action="{{ url_for('employer_pages.edit_job', job_id=job.id) }}" novalidate>
+              <div class="jp-grid">
+                <div class="jp-field full">
+                  <label for="jobTitle">Job Title <span class="req">*</span></label>
+                  <input type="text" id="jobTitle" name="jobTitle" value="{{ job.title }}" required />
+                </div>
+
+                <div class="jp-field">
+                  <label for="companyName">Company Name <span class="req">*</span></label>
+                  <input type="text" id="companyName" name="companyName" value="{{ job.company_name }}" required />
+                </div>
+
+                <div class="jp-field">
+                  <label for="companyWebsite">Company Website</label>
+                  <input type="url" id="companyWebsite" name="companyWebsite" value="{{ job.company_website or '' }}" placeholder="https://company.com" />
+                </div>
+
+                <div class="jp-field">
+                  <label for="companyEmail">Company Email <span class="req">*</span></label>
+                  <input type="email" id="companyEmail" name="companyEmail" value="{{ job.company_email }}" required />
+                </div>
+
+                <div class="jp-field">
+                  <label for="location">Location</label>
+                  <input type="text" id="location" name="location" value="{{ job.location or '' }}" placeholder="e.g. Remote / Bengaluru, IN" />
+                </div>
+
+                <div class="jp-field">
+                  <label for="jobType">Job Type</label>
+                  <select id="jobType" name="jobType">
+                    {% for opt in ['Full-time', 'Part-time', 'Contract', 'Internship', 'Remote'] %}
+                    <option value="{{ opt }}" {% if job.job_type == opt %}selected{% endif %}>{{ opt }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <div class="jp-field">
+                  <label for="experience">Experience Level</label>
+                  <select id="experience" name="experience">
+                    {% for val, label in [('Entry','Entry-level'), ('Mid','Mid-level'), ('Senior','Senior'), ('Lead','Lead / Principal')] %}
+                    <option value="{{ val }}" {% if job.experience_level == val %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <div class="jp-field full">
+                  <label for="jobDescription">Job Description <span class="req">*</span></label>
+                  <textarea id="jobDescription" name="jobDescription" required>{{ job.description }}</textarea>
+                </div>
+
+                <div class="jp-field full">
+                  <label for="keySkillsInput">Key Skills</label>
+                  <div class="jp-skills-box" id="skillsBox">
+                    <input type="text" id="keySkillsInput" placeholder="Type a skill and press Enter" />
+                  </div>
+                  <input type="hidden" id="keySkillsHidden" name="keySkills" value="{{ job.skills or '' }}" />
+                  <span class="jp-hint">Press Enter or comma to add each skill.</span>
+                </div>
+              </div>
+
+              <div class="jp-actions">
+                <a href="{{ url_for('employer_pages.jobs') }}" class="jp-btn jp-btn-ghost">Cancel</a>
+                <button type="submit" class="jp-btn jp-btn-primary">
+                  <span class="material-symbols-outlined" style="font-size:18px;">save</span>
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Same key-skills chip behavior as the job posting page, pre-seeded
+    // with this job's existing skills.
+    (function () {
+      const skillsBox = document.getElementById('skillsBox');
+      const skillsInput = document.getElementById('keySkillsInput');
+      const hiddenField = document.getElementById('keySkillsHidden');
+      if (!skillsBox || !skillsInput || !hiddenField) return;
+
+      let skills = [];
+
+      function syncHiddenField() {
+        hiddenField.value = skills.join(',');
+      }
+
+      function addChip(text) {
+        text = text.trim();
+        if (!text || skills.includes(text)) return;
+
+        skills.push(text);
+        syncHiddenField();
+
+        const chip = document.createElement('span');
+        chip.className = 'jp-skill-tag';
+        chip.textContent = text;
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.innerHTML = '&times;';
+        removeBtn.addEventListener('click', () => {
+          skills = skills.filter((s) => s !== text);
+          syncHiddenField();
+          chip.remove();
+        });
+
+        chip.appendChild(removeBtn);
+        skillsBox.insertBefore(chip, skillsInput);
+      }
+
+      skillsInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ',') {
+          e.preventDefault();
+          addChip(skillsInput.value);
+          skillsInput.value = '';
+        } else if (e.key === 'Backspace' && !skillsInput.value && skills.length) {
+          const last = skills[skills.length - 1];
+          skills = skills.slice(0, -1);
+          syncHiddenField();
+          const chips = skillsBox.querySelectorAll('.jp-skill-tag');
+          if (chips.length) chips[chips.length - 1].remove();
+        }
+      });
+
+      const form = document.getElementById('jobEditForm');
+      if (form) {
+        form.addEventListener('submit', () => {
+          if (skillsInput.value.trim()) {
+            addChip(skillsInput.value);
+            skillsInput.value = '';
+          }
+        });
+      }
+
+      // Pre-seed chips from this job's existing skills.
+      const existingSkills = {{ job.skills_list() | tojson }};
+      existingSkills.forEach(addChip);
+    })();
+  </script>
+</body>
+</html>

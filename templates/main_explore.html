@@ -9,6 +9,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
  
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <style>
+    /* .category-card is now an <a> (was a <div>) so it's clickable --
+       neutralize default link styling so it still looks identical. */
+    .category-card { text-decoration: none; color: inherit; }
+  </style>
 </head>
 <body>
  
@@ -35,20 +40,20 @@
       <h1>Explore Your Next <span class="highlight">Big Move</span></h1>
       <p>Harness the power of career-focused AI to navigate the job market with precision. Discover opportunities that align with your true potential.</p>
  
-      <div class="search-box" id="search-container">
+      <form class="search-box" id="search-container" method="GET" action="{{ url_for('job_browse.browse') }}">
         <div class="search-row" id="simple-search">
-          <input type="text" id="trigger-input" placeholder="Search jobs..." />
-          <button class="btn btn-primary">Search</button>
+          <input type="text" name="keyword" id="trigger-input" placeholder="Search jobs..." />
+          <button class="btn btn-primary" type="submit">Search</button>
         </div>
  
         <div class="search-filters hidden" id="expanded-filters">
           <div class="filter-field">
             <label>Job Title</label>
-            <input type="text" placeholder="Enter keywords" />
+            <input type="text" placeholder="Enter keywords" disabled title="Use the main search box above" />
           </div>
           <div class="filter-field">
             <label>Experience</label>
-            <select>
+            <select disabled title="Coming soon">
               <option>Fresher</option>
               <option>1</option>
               <option>2</option>
@@ -59,10 +64,10 @@
           </div>
           <div class="filter-field">
             <label>Location</label>
-            <input type="text" placeholder="Enter location" />
+            <input type="text" name="location" placeholder="Enter location" />
           </div>
         </div>
-      </div>
+      </form>
     </div>
   </section>
  
@@ -73,60 +78,60 @@
         <h2>Popular Categories</h2>
         <p>Browse opportunities across trending industries and specialized career tracks.</p>
       </div>
-      <a href="#" class="link-arrow">View All Categories →</a>
+      <a href="{{ url_for('job_browse.browse') }}" class="link-arrow">View All Categories →</a>
     </div>
  
     <div class="category-grid">
-      <div class="category-card">
+      <a href="{{ url_for('job_browse.browse', category='engineering') }}" class="category-card">
         <div class="category-icon">🛠️</div>
         <span class="category-title">Engineering</span>
-        <span class="category-count">1.2k+ Positions</span>
-      </div>
-      <div class="category-card">
+        <span class="category-count"></span>
+      </a>
+      <a href="{{ url_for('job_browse.browse', category='remote') }}" class="category-card">
         <div class="category-icon">🏠</div>
         <span class="category-title">Remote</span>
-        <span class="category-count">850+ Jobs</span>
-      </div>
-      <div class="category-card">
+        <span class="category-count"></span>
+      </a>
+      <a href="{{ url_for('job_browse.browse', category='creative') }}" class="category-card">
         <div class="category-icon">🎨</div>
         <span class="category-title">Creative</span>
-        <span class="category-count">420+ Positions</span>
-      </div>
-      <div class="category-card">
+        <span class="category-count"></span>
+      </a>
+      <a href="{{ url_for('job_browse.browse', category='finance') }}" class="category-card">
         <div class="category-icon">🏛️</div>
         <span class="category-title">Finance</span>
-        <span class="category-count">610+ Positions</span>
-      </div>
-      <div class="category-card">
+        <span class="category-count"></span>
+      </a>
+      <a href="{{ url_for('job_browse.browse', category='data-science') }}" class="category-card">
         <div class="category-icon">📊</div>
         <span class="category-title">Data Science</span>
-        <span class="category-count">290+ Positions</span>
-      </div>
-      <div class="category-card">
+        <span class="category-count"></span>
+      </a>
+      <a href="{{ url_for('job_browse.browse', category='marketing') }}" class="category-card">
         <div class="category-icon">📣</div>
         <span class="category-title">Marketing</span>
-        <span class="category-count">540+ Jobs</span>
-      </div>
-      <div class="category-card">
+        <span class="category-count"></span>
+      </a>
+      <a href="{{ url_for('job_browse.browse', category='hr-people') }}" class="category-card">
         <div class="category-icon">👥</div>
         <span class="category-title">HR &amp; People</span>
-        <span class="category-count">180+ Jobs</span>
-      </div>
-      <div class="category-card">
+        <span class="category-count"></span>
+      </a>
+      <a href="{{ url_for('job_browse.browse', category='healthcare') }}" class="category-card">
         <div class="category-icon">🏥</div>
         <span class="category-title">Healthcare</span>
-        <span class="category-count">720+ Jobs</span>
-      </div>
-      <div class="category-card">
+        <span class="category-count"></span>
+      </a>
+      <a href="{{ url_for('job_browse.browse', category='software-dev') }}" class="category-card">
         <div class="category-icon">💻</div>
         <span class="category-title">Software Dev</span>
-        <span class="category-count">1.5k+ Jobs</span>
-      </div>
-      <div class="category-card">
+        <span class="category-count"></span>
+      </a>
+      <a href="{{ url_for('job_browse.browse', category='all') }}" class="category-card">
         <div class="category-icon">⋯</div>
         <span class="category-title">All Industries</span>
-        <span class="category-count">5k+ Listings</span>
-      </div>
+        <span class="category-count"></span>
+      </a>
     </div>
   </section>
  
@@ -142,28 +147,28 @@
         <div class="tool-icon">📋</div>
         <h3>ATS Score Checker</h3>
         <p>Instantly analyze how well your resume matches specific job descriptions.</p>
-        <a href="ats_checker.html" class="btn btn-ghost">Try Now</a>
+        <a href="{{ url_for('ats_checker.ats_checker_page') }}" class="btn btn-ghost">Try Now</a>
       </div>
  
       <div class="tool-card">
         <div class="tool-icon">🔎</div>
         <h3>Job Recommendation</h3>
         <p>Get personalized job matches based on your unique skill set and preferences.</p>
-        <a href="recommendation.html" class="btn btn-ghost">Try Now</a>
+        <a href="{{ url_for('recommendation.recommendation_page') }}" class="btn btn-ghost">Try Now</a>
       </div>
  
       <div class="tool-card">
         <div class="tool-icon">✨</div>
         <h3>Cover Letter Generator</h3>
         <p>Generate tailored, professional cover letters in seconds using AI.</p>
-        <a href="cover_letter.html" class="btn btn-ghost">Try Now</a>
+        <a href="{{ url_for('cover_letter.cover_letter') }}" class="btn btn-ghost">Try Now</a>
       </div>
  
       <div class="tool-card">
         <div class="tool-icon">🧠</div>
         <h3>AI Career Coach</h3>
         <p>Receive 24/7 guidance on career transitions, salary negotiation, and growth.</p>
-        <a href="ai_assistant.html" class="btn btn-ghost">Try Now</a>
+        <a href="{{ url_for('ai_assistant.ai_assistant') }}" class="btn btn-ghost">Try Now</a>
       </div>
  
       <div class="tool-card">
@@ -192,36 +197,41 @@
     </div>
  
     <div class="jobs-grid">
-      <div class="job-card job-card-large">
-        <span class="job-tag">High Growth</span>
-        <h3>Senior AI Product Manager</h3>
-        <p>Lead the next generation of creative AI products at a global tech leader. Requires strong technical foundation and user-centric design approach.</p>
-        <div class="job-meta">
-          <span>Hybrid - London</span>
-          <span>$180k - $240k</span>
+      {% if featured_jobs %}
+        {% set big = featured_jobs[0] %}
+        <div class="job-card job-card-large">
+          <span class="job-tag">{{ big.job_type }}</span>
+          <h3>{{ big.title }}</h3>
+          <p>{{ big.description[:180] }}{% if big.description|length > 180 %}…{% endif %}</p>
+          <div class="job-meta">
+            <span>{{ big.location or 'Location flexible' }}</span>
+            <span>{{ big.company_name }}</span>
+          </div>
+          <a href="{{ url_for('job_browse.browse', job_id=big.id) }}" class="btn btn-primary">View &amp; Apply</a>
         </div>
-        <button class="btn btn-primary">Apply Now</button>
-      </div>
- 
-      <div class="job-card job-card-row">
-        <div>
-          <h4>Visual Interaction Designer</h4>
-          <p>Momentum Labs • Remote</p>
+
+        {% if featured_jobs|length > 1 %}
+        <a href="{{ url_for('job_browse.browse', job_id=featured_jobs[1].id) }}" class="job-card job-card-row" style="text-decoration:none; color:inherit;">
+          <div>
+            <h4>{{ featured_jobs[1].title }}</h4>
+            <p>{{ featured_jobs[1].company_name }} • {{ featured_jobs[1].location or 'Remote' }}</p>
+          </div>
+          <span class="arrow">→</span>
+        </a>
+        {% endif %}
+
+        {% for job in featured_jobs[2:4] %}
+        <a href="{{ url_for('job_browse.browse', job_id=job.id) }}" class="job-card" style="text-decoration:none; color:inherit;">
+          <h4>{{ job.title }}</h4>
+          <p>{{ job.company_name }}</p>
+          <span class="job-salary">{{ job.location or job.job_type }}</span>
+        </a>
+        {% endfor %}
+      {% else %}
+        <div style="grid-column: 1 / -1; text-align:center; padding:40px 20px; color:#44474c;">
+          <p>No approved job postings yet — check back soon, or <a href="{{ url_for('job_browse.browse', category='all') }}">browse all categories</a>.</p>
         </div>
-        <span class="arrow">→</span>
-      </div>
- 
-      <div class="job-card">
-        <h4>Data Analyst</h4>
-        <p>Global FinTech</p>
-        <span class="job-salary">$120k/yr</span>
-      </div>
- 
-      <div class="job-card">
-        <h4>Cloud Architect</h4>
-        <p>SkyScale Systems</p>
-        <span class="job-salary">$210k/yr</span>
-      </div>
+      {% endif %}
     </div>
   </section>
   <button id="chat-toggle-btn" class="chat-toggle-btn">
@@ -252,8 +262,8 @@
       <h2>Ready to Accelerate Your Career?</h2>
       <p>Join over 50,000 professionals who use CareerMomentum to land their dream roles with the help of AI.</p>
       <div class="cta-buttons">
-        <button class="btn btn-primary">Get Started Free</button>
-        <button class="btn btn-light">Explore Features</button>
+        <a href="{{ url_for('seeker_auth.seeker_login_register_page') }}" class="btn btn-primary">Get Started Free</a>
+        <a href="{{ url_for('resources') }}" class="btn btn-light">Explore Features</a>
       </div>
     </div>
   </section>

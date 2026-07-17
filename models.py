@@ -1,5 +1,5 @@
 """
-models.py
+models.py — FIXED VERSION
 Database tables. Employers and Seekers are kept as two separate
 tables (not one shared "User" table) since their registration forms
 collect genuinely different information -- an Employer has a company
@@ -10,6 +10,11 @@ type. Since Flask-Login normally expects ONE user table, we tell them
 apart using a prefixed ID: "employer-5" or "seeker-5". See
 extensions.py's user_loader for how that gets resolved back to the
 right table.
+
+CHANGES:
+- Added `status` field to Employer (default "Active")
+- Added `status` field to Seeker (default "Active")
+- Added `status` field to Job (default "Pending")
 """
 
 from datetime import datetime
@@ -30,6 +35,11 @@ class Employer(db.Model, UserMixin):
     company_email = db.Column(db.String(150), unique=True, nullable=False)
     mobile_number = db.Column(db.String(20), nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
+    
+    # ✅ FIXED: Added status field
+    # Possible values: "Active", "Verifying", "Suspended", "Blocked"
+    status = db.Column(db.String(30), nullable=False, default="Active")
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def set_password(self, password):
@@ -58,6 +68,11 @@ class Seeker(db.Model, UserMixin):
     work_status = db.Column(db.String(20), nullable=False, default="fresher")
 
     password_hash = db.Column(db.String(255), nullable=False)
+    
+    # ✅ FIXED: Added status field
+    # Possible values: "Active", "Blocked"
+    status = db.Column(db.String(30), nullable=False, default="Active")
+    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def set_password(self, password):
@@ -91,6 +106,10 @@ class Job(db.Model):
     # Stored as a comma-separated string (e.g. "Figma,SQL,Excel") --
     # simplest option without a separate skills/tags table.
     skills = db.Column(db.String(500), nullable=True)
+
+    # ✅ FIXED: Added status field
+    # Possible values: "Pending", "Approved", "Rejected"
+    status = db.Column(db.String(30), nullable=False, default="Pending")
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
