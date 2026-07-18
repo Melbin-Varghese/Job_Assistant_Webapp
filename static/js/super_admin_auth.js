@@ -11,7 +11,7 @@
 
 const CM_ADMINS = [
   { email: "akshaykunjumon8606@gmail.com", password: "akshayk", name: "Akshay Kunjumon",  role: "Super Admin", initials: "Ak" },
-  { email: "admin2@careermomentum.com", password: "Super@2024", name: "Priya Sharma", role: "Super Admin", initials: "PS" },
+  { email: "the3unknown404@gmail.com", password: "pass404", name: "Sreelekha", role: "Super Admin", initials: "SR" },
   { email: "admin3@careermomentum.com", password: "Super@2024", name: "Michael Chen", role: "Super Admin", initials: "MC" },
   { email: "admin4@careermomentum.com", password: "Super@2024", name: "Sara Thomas",  role: "Super Admin", initials: "ST" },
 ];

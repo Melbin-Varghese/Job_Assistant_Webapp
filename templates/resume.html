@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ResumeFit — ATS Resume Improver</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/resume.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">RF</span>
+      <span class="brand-name">ResumeFit</span>
+    </div>
+    <p class="tagline">Tailor your resume to any job description and export a clean, single-page, ATS-ready PDF.</p>
+
+    <ol class="steps">
+      <li class="step active" data-step="1">
+        <span class="step-num">01</span>
+        <span class="step-label">Upload resume</span>
+      </li>
+      <li class="step" data-step="2">
+        <span class="step-num">02</span>
+        <span class="step-label">Paste job description</span>
+      </li>
+      <li class="step" data-step="3">
+        <span class="step-num">03</span>
+        <span class="step-label">Review &amp; download</span>
+      </li>
+    </ol>
+
+    <div class="sidebar-footer">
+      <div class="footer-hint">Runs fully on your own server — files never leave your machine.</div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <section class="panel input-panel">
+      <h1>Match your resume to the job</h1>
+      <p class="sub">Upload your CV and the job description. We'll score the ATS match and generate a tailored, single-page PDF.</p>
+
+      <form id="ats-form">
+        <div class="field">
+          <label for="resume_file">Resume file</label>
+          <label class="dropzone" id="dropzone" for="resume_file">
+            <span class="dz-icon">&#8593;</span>
+            <span class="dz-text" id="dz-text">Drop your .pdf or .docx here, or click to browse</span>
+          </label>
+          <input type="file" id="resume_file" name="resume_file" accept=".pdf,.docx" required hidden>
+        </div>
+
+        <div class="field">
+          <label for="job_role">Target job role <span style="font-size: 12px; color: #666;">(optional - for professional summary)</span></label>
+          <input type="text" id="job_role" name="job_role" placeholder="e.g., AI Engineer, ML Developer, Data Scientist" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; width: 100%; font-family: inherit;" />
+        </div>
+
+        <div class="field">
+          <label for="job_description">Job description</label>
+          <textarea id="job_description" name="job_description" placeholder="Paste the full job description here..." required></textarea>
+        </div>
+
+        <button type="submit" id="submit-btn" class="btn-primary">
+          <span id="submit-label">Analyze &amp; Tailor Resume</span>
+        </button>
+        <div id="form-error" class="form-error" hidden></div>
+      </form>
+    </section>
+
+    <section class="panel results-panel" id="results-panel">
+      <div class="results-empty" id="results-empty">
+        <div class="empty-glyph">&#9679;</div>
+        <p>Your ATS match score and keyword breakdown will appear here.</p>
+      </div>
+
+      <div class="results-content" id="results-content" hidden>
+
+        <div class="score-row">
+          <div class="gauge-wrap">
+            <svg class="gauge" viewBox="0 0 140 140">
+              <circle class="gauge-track" cx="70" cy="70" r="60"></circle>
+              <circle class="gauge-value" id="gauge-before" cx="70" cy="70" r="60"></circle>
+            </svg>
+            <div class="gauge-label">
+              <span class="gauge-number" id="score-before-num">0%</span>
+              <span class="gauge-caption">Original</span>
+            </div>
+          </div>
+          <div class="score-arrow">&#8594;</div>
+          <div class="gauge-wrap accent">
+            <svg class="gauge" viewBox="0 0 140 140">
+              <circle class="gauge-track" cx="70" cy="70" r="60"></circle>
+              <circle class="gauge-value" id="gauge-after" cx="70" cy="70" r="60"></circle>
+            </svg>
+            <div class="gauge-label">
+              <span class="gauge-number" id="score-after-num">0%</span>
+              <span class="gauge-caption">Tailored</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="kw-block">
+          <h3>Matched keywords <span class="kw-count" id="matched-count">0</span></h3>
+          <div class="tags tags-matched" id="matched-tags"></div>
+        </div>
+
+        <div class="kw-block">
+          <h3>Added to your tailored resume <span class="kw-count added" id="added-count">0</span></h3>
+          <div class="tags tags-added" id="added-tags"></div>
+          <p class="kw-note">Review these — keep only skills you genuinely have before applying.</p>
+        </div>
+
+        <div class="kw-block">
+          <h3>Still missing <span class="kw-count missing" id="missing-count">0</span></h3>
+          <div class="tags tags-missing" id="missing-tags"></div>
+        </div>
+
+        <a id="download-link" class="btn-primary download-btn" href="#" download>
+          Download Tailored Resume (PDF, 1 page)
+        </a>
+        <button type="button" class="btn-secondary" id="reset-btn">Start over</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="/static/js/resume.js"></script>
+</body>
+</html>

@@ -575,13 +575,15 @@ def mark_all_notifications_read(seeker_id):
 # CANDIDATE SEARCH (employer searching seekers)
 # ==========================================================================
 def search_seekers(query):
-    """Searches Active seekers by their profile headline and summary
-    (case-insensitive substring match), e.g. an employer searching
-    "AI Engineer" matches a seeker whose headline says "AI/ML Engineer".
-    Seekers with no profile yet (no headline/summary filled in) won't
-    match anything -- that's expected, there's nothing to search.
-    Returns a list of (Seeker, SeekerProfile) tuples, newest profile
-    updates first."""
+    """Searches Active seekers by name, profile headline, and profile
+    summary (case-insensitive substring match) -- e.g. an employer
+    searching "AI Engineer" matches a seeker whose headline says
+    "AI/ML Engineer", and searching a person's name matches them too,
+    even if they haven't filled in a profile yet (outer join, so a
+    name match doesn't require a SeekerProfile row to exist).
+    Returns a list of (Seeker, SeekerProfile) tuples -- SeekerProfile
+    may be None for a name-only match -- newest profile updates
+    first, name-only matches last."""
     query = (query or "").strip()
     if not query:
         return []
@@ -589,15 +591,16 @@ def search_seekers(query):
     like = f"%{query}%"
     return (
         db.session.query(Seeker, SeekerProfile)
-        .join(SeekerProfile, SeekerProfile.seeker_id == Seeker.id)
+        .outerjoin(SeekerProfile, SeekerProfile.seeker_id == Seeker.id)
         .filter(Seeker.status == "Active")
         .filter(
             db.or_(
+                Seeker.full_name.ilike(like),
                 SeekerProfile.headline.ilike(like),
                 SeekerProfile.summary.ilike(like),
             )
         )
-        .order_by(SeekerProfile.updated_at.desc())
+        .order_by(SeekerProfile.updated_at.is_(None), SeekerProfile.updated_at.desc())
         .all()
     )
 

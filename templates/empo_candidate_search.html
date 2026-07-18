@@ -31,9 +31,9 @@
     .cs-summary { font-size: 12.5px; color: #93a0b4; line-height: 1.6; margin: 0; }
     .cs-skills { display: flex; flex-wrap: wrap; gap: 6px; }
     .cs-skill-tag { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: rgba(20,184,166,0.12); color: #14b8a6; }
-    .cs-actions { display: flex; gap: 8px; margin-top: 6px; }
+    .cs-actions { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
     .cs-btn {
-      flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      flex: 1 1 auto; min-width: 90px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
       padding: 9px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer;
       border: 1px solid transparent; font-family: 'Inter', sans-serif; text-decoration: none;
     }
@@ -53,7 +53,7 @@
     <div class="navbar-search-wrap">
       <form class="content-search" method="GET" action="{{ url_for('messaging.search_candidates') }}">
         <span class="material-symbols-outlined">search</span>
-        <input type="text" name="q" value="{{ query }}" placeholder="Search candidates by role, e.g. AI Engineer..." />
+        <input type="text" name="q" value="{{ query }}" placeholder="Search by name, role, or skill, e.g. AI Engineer..." />
       </form>
     </div>
 
@@ -113,7 +113,7 @@
         <div class="dashboard-main">
           <div class="cs-header">
             <h2>{% if query %}Results for "{{ query }}"{% else %}Search Candidates{% endif %}</h2>
-            <p>Matches seeker profile headlines and summaries -- e.g. searching "AI Engineer" finds anyone whose profile mentions it.</p>
+            <p>Matches candidate name, profile headline, and summary -- e.g. searching "AI Engineer" or a person's name both work.</p>
           </div>
 
           {% if not query %}
@@ -130,15 +130,15 @@
                 <img class="cs-avatar" src="https://api.dicebear.com/7.x/initials/svg?seed={{ seeker.full_name|urlencode }}" alt="{{ seeker.full_name }}" />
                 <div>
                   <p class="cs-name">{{ seeker.full_name }}</p>
-                  {% if profile.headline %}<p class="cs-headline">{{ profile.headline }}</p>{% endif %}
+                  {% if profile and profile.headline %}<p class="cs-headline">{{ profile.headline }}</p>{% endif %}
                 </div>
               </div>
 
-              {% if profile.summary %}
+              {% if profile and profile.summary %}
               <p class="cs-summary">{{ profile.summary[:140] }}{% if profile.summary|length > 140 %}…{% endif %}</p>
               {% endif %}
 
-              {% if profile.skills_list() %}
+              {% if profile and profile.skills_list() %}
               <div class="cs-skills">
                 {% for skill in profile.skills_list()[:5] %}
                 <span class="cs-skill-tag">{{ skill }}</span>
@@ -150,6 +150,10 @@
                 <a href="{{ url_for('messaging.candidate_profile', seeker_id=seeker.id) }}" class="cs-btn cs-btn-primary">
                   <span class="material-symbols-outlined" style="font-size:16px;">visibility</span>
                   View Profile
+                </a>
+                <a href="{{ url_for('messaging.employer_messages', seeker_id=seeker.id) }}" class="cs-btn cs-btn-ghost">
+                  <span class="material-symbols-outlined" style="font-size:16px;">chat</span>
+                  Message
                 </a>
                 <button type="button"
                         class="cs-btn cs-btn-follow{{ ' following' if seeker.id in followed_ids else '' }}"

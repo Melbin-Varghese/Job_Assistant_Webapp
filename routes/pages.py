@@ -42,6 +42,9 @@ def employer():
     return render_template("empolyer_login_register.html")
 
 
+
+
+
 # ---------- Footer pages ----------
 @pages_bp.route("/about.html")
 def about():

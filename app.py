@@ -31,6 +31,7 @@ from routes.ats_checker import ats_checker_bp
 from routes.cover_letter import cover_letter_bp
 from routes.automation import automation_bp
 from routes.recommendation import recommendation_bp
+from routes.resume import resume_bp
 from routes.job_browse import job_browse_bp
 from routes.messaging import messaging_bp
 from super_admin_api import super_admin_api
@@ -63,6 +64,7 @@ def create_app():
     app.register_blueprint(cover_letter_bp)
     app.register_blueprint(automation_bp)
     app.register_blueprint(recommendation_bp)
+    app.register_blueprint(resume_bp)
     app.register_blueprint(job_browse_bp)
     app.register_blueprint(messaging_bp)
     app.register_blueprint(super_admin_api)

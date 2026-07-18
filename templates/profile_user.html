@@ -41,6 +41,7 @@
               </div>
             </div>
             <div class="profile-hero-actions">
+              <span id="profileSaveStatus" style="font-size:12.5px; font-weight:600; color:#fff; align-self:center; margin-right:4px;"></span>
               <a href="{{ url_for('support_user') }}" class="btn btn-light">
                 <span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle;">
                   settings
@@ -166,7 +167,10 @@
       <p class="footer-copy">© 2026 CareerMomentum. Powered by Next-Gen Intelligence.</p>
     </div>
     <div class="footer-links">
-      
+      <a href="privacy_policy.html">Privacy Policy</a>
+      <a href="terms_of_services.html">Terms of Service</a>
+      <a href="#">Cookie Settings</a>
+      <a href="contact.html">Contact Us</a>
     </div>
   </footer>
 
@@ -176,7 +180,13 @@
     (function () {
       const STORAGE_KEY = 'cm_jobseeker_profile';
 
-      // ---- Data model. Blank by default — nothing is pre-filled. ----
+      // The actual saved profile, rendered server-side from the database
+      // (seeker_auth.py's /seeker/profile route). This is the real
+      // source of truth -- localStorage below is just an unsaved-draft
+      // cache, not the primary store.
+      const SERVER_PROFILE = {{ profile | tojson }};
+
+      // ---- Data model. Filled from the server on load. ----
       let profile = {
         name: '', headline: '', location: '', phone: '', email: '',
         linkedin: '', github: '', summary: '',
@@ -190,15 +200,75 @@
       // back to readonly even while the profile is being edited.
       let editing = false;
 
+      function hasProfileData(p) {
+        return !!(p && (
+          p.headline || p.summary ||
+          (p.skills && p.skills.length) ||
+          (p.experience && p.experience.length) ||
+          (p.projects && p.projects.length) ||
+          (p.education && p.education.length)
+        ));
+      }
+
       function loadProfile() {
+        if (hasProfileData(SERVER_PROFILE)) {
+          // The database already has a saved profile -- that's the
+          // real source of truth from here on.
+          profile = Object.assign(profile, SERVER_PROFILE);
+          return;
+        }
+
+        // Nothing saved server-side yet. This page used to only ever
+        // write to localStorage and never actually reach the backend,
+        // so anyone who filled this in before that was fixed has real
+        // data sitting only in their browser. Recover it here, then
+        // immediately save it for real so it stops being browser-only.
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
-          if (raw) profile = Object.assign(profile, JSON.parse(raw));
-        } catch (e) { console.warn('Could not load saved profile', e); }
+          if (raw) {
+            const cached = JSON.parse(raw);
+            if (hasProfileData(cached)) {
+              profile = Object.assign(profile, SERVER_PROFILE, cached);
+              saveProfile();
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn('Could not read cached profile draft', e);
+        }
+
+        profile = Object.assign(profile, SERVER_PROFILE);
       }
 
       function saveProfile() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+
+        const statusEl = document.getElementById('profileSaveStatus');
+        if (statusEl) { statusEl.textContent = 'Saving…'; statusEl.style.color = ''; }
+
+        fetch('{{ url_for("seeker_auth.profile_save") }}', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(profile),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            if (!statusEl) return;
+            if (data && data.ok) {
+              statusEl.textContent = 'Saved ✓';
+              setTimeout(() => { statusEl.textContent = ''; }, 2500);
+            } else {
+              statusEl.textContent = 'Could not save -- please try again.';
+              statusEl.style.color = '#c4392b';
+            }
+          })
+          .catch((err) => {
+            console.error('Profile save request failed', err);
+            if (statusEl) {
+              statusEl.textContent = 'Could not save -- check your connection.';
+              statusEl.style.color = '#c4392b';
+            }
+          });
       }
 
       // ---- Scalar fields: bind once, update on input, no re-render needed ----
