@@ -23,6 +23,7 @@ from crud import (
     get_application_by_id,
     update_application_status,
     create_notification,
+    count_unread_messages_for_employer,
 )
 
 employer_pages_bp = Blueprint("employer_pages", __name__)
@@ -43,6 +44,7 @@ def dashboard():
         job_count=job_count,
         candidate_count=candidate_count,
         new_application_count=new_application_count,
+        unread_message_count=count_unread_messages_for_employer(current_user.id),
     )
 
 
@@ -68,6 +70,7 @@ def jobs():
                 "empo_job_posting_page.html",
                 jobs=list_jobs_by_employer(current_user.id),
                 error="Please fill in all required fields (Job Title, Company Name, Company Email, Job Description).",
+                unread_message_count=count_unread_messages_for_employer(current_user.id),
             )
 
         create_job(
@@ -90,6 +93,7 @@ def jobs():
     return render_template(
         "empo_job_posting_page.html",
         jobs=list_jobs_by_employer(current_user.id),
+        unread_message_count=count_unread_messages_for_employer(current_user.id),
     )
 
 
@@ -120,6 +124,7 @@ def edit_job(job_id):
                 "empo_job_edit.html",
                 job=job,
                 error="Please fill in all required fields (Job Title, Company Name, Company Email, Job Description).",
+                unread_message_count=count_unread_messages_for_employer(current_user.id),
             )
 
         update_job(
@@ -137,7 +142,11 @@ def edit_job(job_id):
 
         return redirect(url_for("employer_pages.jobs", updated=1))
 
-    return render_template("empo_job_edit.html", job=job)
+    return render_template(
+        "empo_job_edit.html",
+        job=job,
+        unread_message_count=count_unread_messages_for_employer(current_user.id),
+    )
 
 
 @employer_pages_bp.route("/employer/jobs/<int:job_id>/delete", methods=["POST"])
@@ -159,7 +168,12 @@ def delete_job_route(job_id):
 def candidates():
     applications = list_applications_by_employer(current_user.id)
     has_jobs = len(list_jobs_by_employer(current_user.id)) > 0
-    return render_template("empo_can_page.html", applications=applications, has_jobs=has_jobs)
+    return render_template(
+        "empo_can_page.html",
+        applications=applications,
+        has_jobs=has_jobs,
+        unread_message_count=count_unread_messages_for_employer(current_user.id),
+    )
 
 
 @employer_pages_bp.route("/employer/candidates/<int:application_id>/status", methods=["POST"])
@@ -202,7 +216,10 @@ def update_candidate_status(application_id):
 @employer_pages_bp.route("/employer/settings")
 @login_required
 def settings():
-    return render_template("empo_setting_support_profile.html")
+    return render_template(
+        "empo_setting_support_profile.html",
+        unread_message_count=count_unread_messages_for_employer(current_user.id),
+    )
 
 
 @employer_pages_bp.route("/employer/profile")
@@ -228,4 +245,5 @@ def profile():
         "empo_profile.html",
         profile_stats=profile_stats,
         recent_jobs=jobs[:3],
+        unread_message_count=count_unread_messages_for_employer(current_user.id),
     )

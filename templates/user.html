@@ -90,6 +90,11 @@
               <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
               <span>AI Career Coach</span>
             </a>
+            <a href="{{ url_for('messaging.seeker_messages') }}">
+              <span class="material-symbols-outlined">chat</span>
+              <span>Messages</span>
+              {% if unread_message_count %}<span class="nav-badge" style="position:static; margin-left:auto;">{{ unread_message_count }}</span>{% endif %}
+            </a>
             <a href="{{ url_for('seeker_auth.settings') }}">
               <span class="material-symbols-outlined">settings</span>
               <span>Settings & Support</span>

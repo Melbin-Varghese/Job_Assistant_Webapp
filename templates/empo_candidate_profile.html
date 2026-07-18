@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>{{ seeker.full_name }} | CareerMomentum</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}" />
+
+  <style>
+    .navbar { display: flex; align-items: center; gap: 24px; }
+    .navbar-search-wrap { flex: 1; display: flex; justify-content: center; min-width: 0; }
+    .navbar-search-wrap .content-search { width: 100%; max-width: 480px; }
+    .navbar .topbar-actions { flex: 0 0 auto; display: flex; align-items: center; gap: 14px; }
+
+    .cp-hero {
+      background: linear-gradient(135deg, #0d9488, #101a2c 65%);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 28px;
+      display: flex; align-items: center; gap: 22px; margin-bottom: 24px; flex-wrap: wrap;
+    }
+    .cp-avatar { width: 84px; height: 84px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.4); }
+    .cp-hero-info h2 { margin: 0 0 4px 0; font-size: 22px; font-weight: 800; color: #fff; }
+    .cp-hero-info p { margin: 0; color: rgba(255,255,255,0.85); font-size: 13.5px; }
+    .cp-hero-actions { margin-left: auto; display: flex; gap: 10px; }
+    .cp-btn {
+      display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 10px;
+      font-size: 14px; font-weight: 600; cursor: pointer; border: 1px solid transparent;
+      font-family: 'Inter', sans-serif; text-decoration: none;
+    }
+    .cp-btn-primary { background: #fff; color: #0d9488; }
+    .cp-btn-ghost { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.3); color: #fff; }
+    .cp-btn-ghost.following { background: rgba(255,255,255,0.9); color: #0d9488; }
+
+    .cp-grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; }
+    @media (max-width: 1000px) { .cp-grid { grid-template-columns: 1fr; } }
+    .cp-card { background: #101a2c; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+    .cp-card h3 { font-size: 16px; font-weight: 700; color: #e7ecf3; margin: 0 0 16px 0; }
+    .cp-info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 13.5px; }
+    .cp-info-row:last-child { border-bottom: none; }
+    .cp-info-row span.k { color: #93a0b4; }
+    .cp-info-row span.v { color: #e7ecf3; font-weight: 600; }
+    .cp-skills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .cp-skill-tag { font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 999px; background: rgba(20,184,166,0.12); color: #14b8a6; }
+    .cp-timeline-item { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .cp-timeline-item:last-child { border-bottom: none; }
+    .cp-timeline-item p.t { margin: 0; font-size: 13.5px; color: #e7ecf3; font-weight: 700; }
+    .cp-timeline-item p.s { margin: 2px 0; font-size: 12.5px; color: #14b8a6; }
+    .cp-timeline-item p.d { margin: 4px 0 0; font-size: 12.5px; color: #93a0b4; line-height: 1.6; }
+    .cp-empty-note { font-size: 13px; color: #93a0b4; }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">CareerMomentum</div>
+
+    <div class="navbar-search-wrap">
+      <form class="content-search" method="GET" action="{{ url_for('messaging.search_candidates') }}">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" name="q" placeholder="Search candidates by role, e.g. AI Engineer..." />
+      </form>
+    </div>
+
+    <div class="topbar-actions">
+      <div class="topbar-divider"></div>
+      <a href="{{ url_for('employer_pages.profile') }}" style="text-decoration:none;">
+        <div class="user-chip">
+          <div>
+            <p class="user-chip-name">{{ current_user.employer_name }}</p>
+            <p class="user-chip-role">{{ current_user.company_name }}</p>
+          </div>
+          <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ current_user.employer_name|urlencode }}" alt="{{ current_user.employer_name }}" />
+        </div>
+      </a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="dashboard-hero">
+      <div class="dashboard-wrap">
+
+        <aside class="sidebar">
+          <div class="sidebar-profile">
+            <div class="sidebar-avatar">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+            </div>
+            <div>
+              <p class="sidebar-profile-name">CareerMomentum</p>
+              <p class="sidebar-profile-status">Recruiter Suite</p>
+            </div>
+          </div>
+
+          <nav class="sidebar-nav">
+            <a href="{{ url_for('employer_pages.dashboard') }}">
+              <span class="material-symbols-outlined">dashboard</span>
+              <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('employer_pages.jobs') }}">
+              <span class="material-symbols-outlined">work</span>
+              <span>Jobs</span>
+            </a>
+            <a href="{{ url_for('employer_pages.candidates') }}">
+              <span class="material-symbols-outlined">group</span>
+              <span>Candidates</span>
+            </a>
+            <a href="{{ url_for('messaging.employer_messages') }}">
+              <span class="material-symbols-outlined">chat</span>
+              <span>Messages</span>
+            </a>
+            <a href="{{ url_for('employer_pages.settings') }}">
+              <span class="material-symbols-outlined">settings</span>
+              <span>Settings & Support</span>
+            </a>
+          </nav>
+        </aside>
+
+        <div class="dashboard-main">
+
+          <a href="{{ url_for('messaging.search_candidates') }}" style="display:inline-flex; align-items:center; gap:6px; color:#93a0b4; font-size:13px; text-decoration:none; margin-bottom:16px;">
+            <span class="material-symbols-outlined" style="font-size:16px;">arrow_back</span>
+            Back to Search
+          </a>
+
+          <div class="cp-hero">
+            <img class="cp-avatar" src="https://api.dicebear.com/7.x/initials/svg?seed={{ seeker.full_name|urlencode }}" alt="{{ seeker.full_name }}" />
+            <div class="cp-hero-info">
+              <h2>{{ seeker.full_name }}</h2>
+              <p>{{ profile.headline if profile else seeker.work_status.title() }}</p>
+              {% if profile and profile.location %}<p style="margin-top:6px;">📍 {{ profile.location }}</p>{% endif %}
+            </div>
+            <div class="cp-hero-actions">
+              <button type="button" class="cp-btn cp-btn-ghost{{ ' following' if following else '' }}" id="followBtn" data-seeker-id="{{ seeker.id }}" onclick="toggleFollow()">
+                <span class="material-symbols-outlined" style="font-size:18px;" id="followIcon">{{ 'how_to_reg' if following else 'person_add' }}</span>
+                <span id="followLabel">{{ 'Following' if following else 'Follow' }}</span>
+              </button>
+              <a href="{{ url_for('messaging.employer_messages', seeker_id=seeker.id) }}" class="cp-btn cp-btn-primary">
+                <span class="material-symbols-outlined" style="font-size:18px;">chat</span>
+                Message
+              </a>
+            </div>
+          </div>
+
+          <div class="cp-grid">
+            <div>
+              {% if profile and profile.summary %}
+              <div class="cp-card">
+                <h3>Summary</h3>
+                <p style="margin:0; color:#93a0b4; font-size:13.5px; line-height:1.7;">{{ profile.summary }}</p>
+              </div>
+              {% endif %}
+
+              {% if profile and profile.experience_list() %}
+              <div class="cp-card">
+                <h3>Experience</h3>
+                {% for exp in profile.experience_list() %}
+                <div class="cp-timeline-item">
+                  <p class="t">{{ exp.role }}</p>
+                  <p class="s">{{ exp.company }}{% if exp.period %} · {{ exp.period }}{% endif %}</p>
+                  {% if exp.desc %}<p class="d">{{ exp.desc }}</p>{% endif %}
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %}
+
+              {% if profile and profile.projects_list() %}
+              <div class="cp-card">
+                <h3>Projects</h3>
+                {% for proj in profile.projects_list() %}
+                <div class="cp-timeline-item">
+                  <p class="t">{{ proj.title }}</p>
+                  {% if proj.stack %}<p class="s">{{ proj.stack }}</p>{% endif %}
+                  {% if proj.desc %}<p class="d">{{ proj.desc }}</p>{% endif %}
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %}
+
+              {% if profile and profile.education_list() %}
+              <div class="cp-card">
+                <h3>Education</h3>
+                {% for edu in profile.education_list() %}
+                <div class="cp-timeline-item">
+                  <p class="t">{{ edu.degree }}</p>
+                  <p class="s">{{ edu.school }}{% if edu.period %} · {{ edu.period }}{% endif %}</p>
+                </div>
+                {% endfor %}
+              </div>
+              {% endif %}
+
+              {% if not profile %}
+              <div class="cp-card">
+                <p class="cp-empty-note">This candidate hasn't filled in their full profile yet.</p>
+              </div>
+              {% endif %}
+            </div>
+
+            <div>
+              <div class="cp-card">
+                <h3>Contact</h3>
+                <div class="cp-info-row"><span class="k">Email</span><span class="v">{{ seeker.email }}</span></div>
+                <div class="cp-info-row"><span class="k">Phone</span><span class="v">{{ seeker.mobile_number }}</span></div>
+                <div class="cp-info-row"><span class="k">Work Status</span><span class="v">{{ seeker.work_status.title() }}</span></div>
+                {% if profile and profile.linkedin %}<div class="cp-info-row"><span class="k">LinkedIn</span><span class="v"><a href="{{ profile.linkedin }}" target="_blank" rel="noopener" style="color:#14b8a6;">Profile</a></span></div>{% endif %}
+                {% if profile and profile.github %}<div class="cp-info-row"><span class="k">GitHub</span><span class="v"><a href="{{ profile.github }}" target="_blank" rel="noopener" style="color:#14b8a6;">Profile</a></span></div>{% endif %}
+              </div>
+
+              {% if profile and (profile.skills_list() or profile.additional_skills_list()) %}
+              <div class="cp-card">
+                <h3>Skills</h3>
+                <div class="cp-skills">
+                  {% for skill in profile.skills_list() + profile.additional_skills_list() %}
+                  <span class="cp-skill-tag">{{ skill }}</span>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    async function toggleFollow() {
+      const btn = document.getElementById('followBtn');
+      const seekerId = btn.dataset.seekerId;
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(`/employer/candidates/${seekerId}/follow`, { method: 'POST' });
+        const data = await res.json();
+        if (!data.ok) { alert(data.error || 'Something went wrong.'); return; }
+
+        btn.classList.toggle('following', data.following);
+        document.getElementById('followLabel').textContent = data.following ? 'Following' : 'Follow';
+        document.getElementById('followIcon').textContent = data.following ? 'how_to_reg' : 'person_add';
+      } catch (err) {
+        alert('Network error -- please try again.');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

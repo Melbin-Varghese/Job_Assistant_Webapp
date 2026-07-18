@@ -14,7 +14,7 @@ belongs in this file.
 import json
 
 from extensions import db
-from models import Employer, Seeker, Job, SeekerProfile, Application, Notification
+from models import Employer, Seeker, Job, SeekerProfile, Application, Notification, Follow, Message
 
 
 # ==========================================================================
@@ -283,8 +283,6 @@ def create_job(employer_id, title, company_name, company_email, description,
 def get_job_by_id(job_id):
     return Job.query.get(job_id)
 
-def list_all_jobs():
-    return Job.query.order_by(Job.created_at.desc()).all()
 
 def list_jobs_by_employer(employer_id):
     return Job.query.filter_by(employer_id=employer_id).order_by(Job.created_at.desc()).all()
@@ -572,3 +570,224 @@ def mark_all_notifications_read(seeker_id):
         {"is_read": True}
     )
     db.session.commit()
+
+# ==========================================================================
+# CANDIDATE SEARCH (employer searching seekers)
+# ==========================================================================
+def search_seekers(query):
+    """Searches Active seekers by their profile headline and summary
+    (case-insensitive substring match), e.g. an employer searching
+    "AI Engineer" matches a seeker whose headline says "AI/ML Engineer".
+    Seekers with no profile yet (no headline/summary filled in) won't
+    match anything -- that's expected, there's nothing to search.
+    Returns a list of (Seeker, SeekerProfile) tuples, newest profile
+    updates first."""
+    query = (query or "").strip()
+    if not query:
+        return []
+
+    like = f"%{query}%"
+    return (
+        db.session.query(Seeker, SeekerProfile)
+        .join(SeekerProfile, SeekerProfile.seeker_id == Seeker.id)
+        .filter(Seeker.status == "Active")
+        .filter(
+            db.or_(
+                SeekerProfile.headline.ilike(like),
+                SeekerProfile.summary.ilike(like),
+            )
+        )
+        .order_by(SeekerProfile.updated_at.desc())
+        .all()
+    )
+
+
+def get_seeker_with_profile(seeker_id):
+    """Returns (Seeker, SeekerProfile) for the given id, or (None, None)
+    if the seeker doesn't exist. SeekerProfile may itself be None if
+    the seeker hasn't filled in their profile yet."""
+    seeker = Seeker.query.get(seeker_id)
+    if not seeker:
+        return None, None
+    return seeker, seeker.profile
+
+
+# ==========================================================================
+# FOLLOW — employer following a seeker's profile
+# ==========================================================================
+def follow_seeker(employer_id, seeker_id):
+    """Idempotent -- following someone you already follow is a no-op,
+    not an error, so the UI doesn't need to special-case it."""
+    existing = Follow.query.filter_by(employer_id=employer_id, seeker_id=seeker_id).first()
+    if existing:
+        return existing
+
+    follow = Follow(employer_id=employer_id, seeker_id=seeker_id)
+    db.session.add(follow)
+    db.session.commit()
+    return follow
+
+
+def unfollow_seeker(employer_id, seeker_id):
+    Follow.query.filter_by(employer_id=employer_id, seeker_id=seeker_id).delete()
+    db.session.commit()
+
+
+def is_following(employer_id, seeker_id):
+    return (
+        Follow.query.filter_by(employer_id=employer_id, seeker_id=seeker_id).first()
+        is not None
+    )
+
+
+def list_followed_seekers(employer_id):
+    """Returns (Seeker, SeekerProfile) tuples for everyone this
+    employer follows, newest follow first."""
+    return (
+        db.session.query(Seeker, SeekerProfile)
+        .join(Follow, Follow.seeker_id == Seeker.id)
+        .outerjoin(SeekerProfile, SeekerProfile.seeker_id == Seeker.id)
+        .filter(Follow.employer_id == employer_id)
+        .order_by(Follow.created_at.desc())
+        .all()
+    )
+
+
+# ==========================================================================
+# MESSAGES — employer <-> seeker chat
+# ==========================================================================
+def send_message(employer_id, seeker_id, sender_role, body=None,
+                  attachment_stored_filename=None, attachment_original_filename=None,
+                  attachment_content_type=None):
+    """sender_role is "employer" or "seeker" -- whichever side is
+    sending this particular message. Raises ValueError if there's
+    neither text nor an attachment (an empty message)."""
+    body = (body or "").strip() or None
+
+    if not body and not attachment_stored_filename:
+        raise ValueError("Message can't be empty.")
+
+    if sender_role not in ("employer", "seeker"):
+        raise ValueError("Invalid sender role.")
+
+    message = Message(
+        employer_id=employer_id,
+        seeker_id=seeker_id,
+        sender_role=sender_role,
+        body=body,
+        attachment_stored_filename=attachment_stored_filename,
+        attachment_original_filename=attachment_original_filename,
+        attachment_content_type=attachment_content_type,
+    )
+    db.session.add(message)
+    db.session.commit()
+    return message
+
+
+def list_messages(employer_id, seeker_id):
+    """Full thread between one employer and one seeker, oldest first
+    (chat reading order)."""
+    return (
+        Message.query.filter_by(employer_id=employer_id, seeker_id=seeker_id)
+        .order_by(Message.created_at.asc())
+        .all()
+    )
+
+
+def get_message_by_id(message_id):
+    return Message.query.get(message_id)
+
+
+def mark_thread_read(employer_id, seeker_id, reader_role):
+    """Marks every message in this thread sent by the OTHER side as
+    read -- e.g. when the seeker opens the thread, their unread count
+    should only drop for messages the employer sent."""
+    other_role = "seeker" if reader_role == "employer" else "employer"
+    Message.query.filter_by(
+        employer_id=employer_id, seeker_id=seeker_id, sender_role=other_role, is_read=False
+    ).update({"is_read": True})
+    db.session.commit()
+
+
+def list_conversations_for_employer(employer_id):
+    """One row per seeker this employer has ever messaged (or been
+    messaged by), each with the latest message and unread count from
+    that seeker, newest activity first."""
+    seeker_ids = [
+        row[0] for row in
+        db.session.query(Message.seeker_id)
+        .filter(Message.employer_id == employer_id)
+        .distinct()
+        .all()
+    ]
+
+    conversations = []
+    for seeker_id in seeker_ids:
+        seeker = Seeker.query.get(seeker_id)
+        if not seeker:
+            continue
+        last_message = (
+            Message.query.filter_by(employer_id=employer_id, seeker_id=seeker_id)
+            .order_by(Message.created_at.desc())
+            .first()
+        )
+        unread_count = Message.query.filter_by(
+            employer_id=employer_id, seeker_id=seeker_id, sender_role="seeker", is_read=False
+        ).count()
+        conversations.append({
+            "seeker": seeker,
+            "last_message": last_message,
+            "unread_count": unread_count,
+        })
+
+    conversations.sort(
+        key=lambda c: c["last_message"].created_at if c["last_message"] else 0,
+        reverse=True,
+    )
+    return conversations
+
+
+def list_conversations_for_seeker(seeker_id):
+    """Same as list_conversations_for_employer, mirrored for the
+    seeker's inbox -- one row per employer they've exchanged messages
+    with."""
+    employer_ids = [
+        row[0] for row in
+        db.session.query(Message.employer_id)
+        .filter(Message.seeker_id == seeker_id)
+        .distinct()
+        .all()
+    ]
+
+    conversations = []
+    for employer_id in employer_ids:
+        employer = Employer.query.get(employer_id)
+        if not employer:
+            continue
+        last_message = (
+            Message.query.filter_by(employer_id=employer_id, seeker_id=seeker_id)
+            .order_by(Message.created_at.desc())
+            .first()
+        )
+        unread_count = Message.query.filter_by(
+            employer_id=employer_id, seeker_id=seeker_id, sender_role="employer", is_read=False
+        ).count()
+        conversations.append({
+            "employer": employer,
+            "last_message": last_message,
+            "unread_count": unread_count,
+        })
+
+    conversations.sort(
+        key=lambda c: c["last_message"].created_at if c["last_message"] else 0,
+        reverse=True,
+    )
+    return conversations
+
+
+def count_unread_messages_for_seeker(seeker_id):
+    return Message.query.filter_by(seeker_id=seeker_id, sender_role="employer", is_read=False).count()
+
+
+def count_unread_messages_for_employer(employer_id):
+    return Message.query.filter_by(employer_id=employer_id, sender_role="seeker", is_read=False).count()

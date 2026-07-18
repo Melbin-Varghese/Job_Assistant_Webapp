@@ -17,3 +17,5 @@ __pycache__/
 
 # Generated files
 generated_pdfs/
+# Message attachments (user-uploaded files/photos, not source)
+uploads/

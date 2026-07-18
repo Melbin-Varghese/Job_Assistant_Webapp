@@ -33,6 +33,7 @@ from crud import (
     list_applications_by_seeker,
     list_notifications_by_seeker,
     count_unread_notifications,
+    count_unread_messages_for_seeker,
     mark_all_notifications_read,
 )
 
@@ -63,6 +64,7 @@ def dashboard():
         applied_job_ids=list_applied_job_ids(current_user.id),
         notifications=list_notifications_by_seeker(current_user.id),
         unread_notification_count=count_unread_notifications(current_user.id),
+        unread_message_count=count_unread_messages_for_seeker(current_user.id),
     )
 
 

@@ -32,6 +32,7 @@ from routes.cover_letter import cover_letter_bp
 from routes.automation import automation_bp
 from routes.recommendation import recommendation_bp
 from routes.job_browse import job_browse_bp
+from routes.messaging import messaging_bp
 from super_admin_api import super_admin_api
 
 # If you already have other blueprints in routes/ (e.g. a "pages"
@@ -63,6 +64,7 @@ def create_app():
     app.register_blueprint(automation_bp)
     app.register_blueprint(recommendation_bp)
     app.register_blueprint(job_browse_bp)
+    app.register_blueprint(messaging_bp)
     app.register_blueprint(super_admin_api)
 
     @app.route("/")
@@ -85,16 +87,21 @@ def create_app():
     @app.route("/about")
     def about():
         return render_template("about.html")
-    
 
-    @app.route("/terms_of_services")
-    def terms_of_services():
-        return render_template("terms_of_services.html")
-    
-    @app.route("/privacy_policy")
+    # These three don't have dedicated pages built yet -- routing them
+    # to Coming Soon means every footer link that calls
+    # url_for('privacy_policy' / 'terms_of_services' / 'contact')
+    # across the site resolves instead of throwing a BuildError.
+    # Swap render_template("coming_soon.html") for a real template
+    # once these pages exist.
+    @app.route("/privacy-policy")
     def privacy_policy():
         return render_template("privacy_policy.html")
-    
+
+    @app.route("/terms-of-service")
+    def terms_of_services():
+        return render_template("terms_of_services.html")
+
     @app.route("/contact")
     def contact():
         return render_template("contact.html")

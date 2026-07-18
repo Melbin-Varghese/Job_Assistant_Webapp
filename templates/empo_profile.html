@@ -81,10 +81,10 @@
   <nav class="navbar">
     <div class="logo">CareerMomentum</div>
     <div class="navbar-search-wrap">
-      <div class="content-search">
+      <form class="content-search" method="GET" action="{{ url_for('messaging.search_candidates') }}">
         <span class="material-symbols-outlined">search</span>
-        <input type="text" placeholder="Search candidates, jobs, or analytics..." />
-      </div>
+        <input type="text" name="q" placeholder="Search candidates by role, e.g. AI Engineer..." />
+      </form>
     </div>
     <div class="topbar-actions">
       
@@ -128,6 +128,11 @@
             <a href="{{ url_for('employer_pages.candidates') }}">
               <span class="material-symbols-outlined">group</span>
               <span>Candidates</span>
+            </a>
+            <a href="{{ url_for('messaging.employer_messages') }}">
+              <span class="material-symbols-outlined">chat</span>
+              <span>Messages</span>
+              {% if unread_message_count %}<span class="nav-badge" style="position:static; margin-left:auto;">{{ unread_message_count }}</span>{% endif %}
             </a>
             <a href="{{ url_for('employer_pages.settings') }}">
               <span class="material-symbols-outlined">leaderboard</span>

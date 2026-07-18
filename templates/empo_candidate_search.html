@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Search Candidates | CareerMomentum</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}" />
+
+  <style>
+    .navbar { display: flex; align-items: center; gap: 24px; }
+    .navbar-search-wrap { flex: 1; display: flex; justify-content: center; min-width: 0; }
+    .navbar-search-wrap .content-search { width: 100%; max-width: 480px; }
+    .navbar .topbar-actions { flex: 0 0 auto; display: flex; align-items: center; gap: 14px; }
+
+    .cs-header { margin-bottom: 20px; }
+    .cs-header h2 { font-size: 22px; font-weight: 800; color: #e7ecf3; margin: 0 0 4px 0; }
+    .cs-header p { color: #93a0b4; font-size: 14px; margin: 0; }
+
+    .cs-results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .cs-card {
+      background: #101a2c; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 20px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .cs-card-top { display: flex; align-items: center; gap: 12px; }
+    .cs-avatar { width: 46px; height: 46px; border-radius: 50%; flex: 0 0 auto; }
+    .cs-name { margin: 0; font-size: 15px; font-weight: 700; color: #e7ecf3; }
+    .cs-headline { margin: 2px 0 0; font-size: 12.5px; color: #14b8a6; font-weight: 600; }
+    .cs-summary { font-size: 12.5px; color: #93a0b4; line-height: 1.6; margin: 0; }
+    .cs-skills { display: flex; flex-wrap: wrap; gap: 6px; }
+    .cs-skill-tag { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: rgba(20,184,166,0.12); color: #14b8a6; }
+    .cs-actions { display: flex; gap: 8px; margin-top: 6px; }
+    .cs-btn {
+      flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 9px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer;
+      border: 1px solid transparent; font-family: 'Inter', sans-serif; text-decoration: none;
+    }
+    .cs-btn-primary { background: linear-gradient(135deg, #14b8a6, #0d9488); color: #06231f; }
+    .cs-btn-ghost { background: transparent; border-color: rgba(255,255,255,0.15); color: #e7ecf3; }
+    .cs-btn-follow { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: #e7ecf3; }
+    .cs-btn-follow.following { background: rgba(20,184,166,0.15); border-color: rgba(20,184,166,0.4); color: #14b8a6; }
+
+    .cs-empty { text-align: center; padding: 60px 20px; color: #93a0b4; }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">CareerMomentum</div>
+
+    <div class="navbar-search-wrap">
+      <form class="content-search" method="GET" action="{{ url_for('messaging.search_candidates') }}">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" name="q" value="{{ query }}" placeholder="Search candidates by role, e.g. AI Engineer..." />
+      </form>
+    </div>
+
+    <div class="topbar-actions">
+      <div class="topbar-divider"></div>
+      <a href="{{ url_for('employer_pages.profile') }}" style="text-decoration:none;">
+        <div class="user-chip">
+          <div>
+            <p class="user-chip-name">{{ current_user.employer_name }}</p>
+            <p class="user-chip-role">{{ current_user.company_name }}</p>
+          </div>
+          <img src="https://api.dicebear.com/7.x/initials/svg?seed={{ current_user.employer_name|urlencode }}" alt="{{ current_user.employer_name }}" />
+        </div>
+      </a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="dashboard-hero">
+      <div class="dashboard-wrap">
+
+        <aside class="sidebar">
+          <div class="sidebar-profile">
+            <div class="sidebar-avatar">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+            </div>
+            <div>
+              <p class="sidebar-profile-name">CareerMomentum</p>
+              <p class="sidebar-profile-status">Recruiter Suite</p>
+            </div>
+          </div>
+
+          <nav class="sidebar-nav">
+            <a href="{{ url_for('employer_pages.dashboard') }}">
+              <span class="material-symbols-outlined">dashboard</span>
+              <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('employer_pages.jobs') }}">
+              <span class="material-symbols-outlined">work</span>
+              <span>Jobs</span>
+            </a>
+            <a href="{{ url_for('employer_pages.candidates') }}">
+              <span class="material-symbols-outlined">group</span>
+              <span>Candidates</span>
+            </a>
+            <a href="{{ url_for('messaging.employer_messages') }}">
+              <span class="material-symbols-outlined">chat</span>
+              <span>Messages</span>
+            </a>
+            <a href="{{ url_for('employer_pages.settings') }}">
+              <span class="material-symbols-outlined">settings</span>
+              <span>Settings & Support</span>
+            </a>
+          </nav>
+        </aside>
+
+        <div class="dashboard-main">
+          <div class="cs-header">
+            <h2>{% if query %}Results for "{{ query }}"{% else %}Search Candidates{% endif %}</h2>
+            <p>Matches seeker profile headlines and summaries -- e.g. searching "AI Engineer" finds anyone whose profile mentions it.</p>
+          </div>
+
+          {% if not query %}
+          <div class="cs-empty">
+            <span class="material-symbols-outlined" style="font-size:40px; opacity:0.4;">person_search</span>
+            <h3 style="margin:12px 0 4px; color:#e7ecf3;">Search for a candidate</h3>
+            <p>Use the search bar above -- try a role, skill, or keyword from a candidate's profile.</p>
+          </div>
+          {% elif results %}
+          <div class="cs-results-grid">
+            {% for seeker, profile in results %}
+            <div class="cs-card">
+              <div class="cs-card-top">
+                <img class="cs-avatar" src="https://api.dicebear.com/7.x/initials/svg?seed={{ seeker.full_name|urlencode }}" alt="{{ seeker.full_name }}" />
+                <div>
+                  <p class="cs-name">{{ seeker.full_name }}</p>
+                  {% if profile.headline %}<p class="cs-headline">{{ profile.headline }}</p>{% endif %}
+                </div>
+              </div>
+
+              {% if profile.summary %}
+              <p class="cs-summary">{{ profile.summary[:140] }}{% if profile.summary|length > 140 %}…{% endif %}</p>
+              {% endif %}
+
+              {% if profile.skills_list() %}
+              <div class="cs-skills">
+                {% for skill in profile.skills_list()[:5] %}
+                <span class="cs-skill-tag">{{ skill }}</span>
+                {% endfor %}
+              </div>
+              {% endif %}
+
+              <div class="cs-actions">
+                <a href="{{ url_for('messaging.candidate_profile', seeker_id=seeker.id) }}" class="cs-btn cs-btn-primary">
+                  <span class="material-symbols-outlined" style="font-size:16px;">visibility</span>
+                  View Profile
+                </a>
+                <button type="button"
+                        class="cs-btn cs-btn-follow{{ ' following' if seeker.id in followed_ids else '' }}"
+                        data-seeker-id="{{ seeker.id }}"
+                        onclick="toggleFollow(this)">
+                  <span class="material-symbols-outlined" style="font-size:16px;">{{ 'how_to_reg' if seeker.id in followed_ids else 'person_add' }}</span>
+                  <span class="follow-label">{{ 'Following' if seeker.id in followed_ids else 'Follow' }}</span>
+                </button>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="cs-empty">
+            <span class="material-symbols-outlined" style="font-size:40px; opacity:0.4;">search_off</span>
+            <h3 style="margin:12px 0 4px; color:#e7ecf3;">No candidates found</h3>
+            <p>No seeker profile headline or summary matches "{{ query }}". Try a broader term.</p>
+          </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    async function toggleFollow(btn) {
+      const seekerId = btn.dataset.seekerId;
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(`/employer/candidates/${seekerId}/follow`, { method: 'POST' });
+        const data = await res.json();
+        if (!data.ok) { alert(data.error || 'Something went wrong.'); return; }
+
+        const label = btn.querySelector('.follow-label');
+        const icon = btn.querySelector('.material-symbols-outlined');
+        btn.classList.toggle('following', data.following);
+        label.textContent = data.following ? 'Following' : 'Follow';
+        icon.textContent = data.following ? 'how_to_reg' : 'person_add';
+      } catch (err) {
+        alert('Network error -- please try again.');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

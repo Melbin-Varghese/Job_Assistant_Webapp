@@ -1,5 +1,5 @@
 """
-models.py — FIXED VERSION
+models.py
 Database tables. Employers and Seekers are kept as two separate
 tables (not one shared "User" table) since their registration forms
 collect genuinely different information -- an Employer has a company
@@ -10,11 +10,6 @@ type. Since Flask-Login normally expects ONE user table, we tell them
 apart using a prefixed ID: "employer-5" or "seeker-5". See
 extensions.py's user_loader for how that gets resolved back to the
 right table.
-
-CHANGES:
-- Added `status` field to Employer (default "Active")
-- Added `status` field to Seeker (default "Active")
-- Added `status` field to Job (default "Pending")
 """
 
 from datetime import datetime
@@ -35,12 +30,12 @@ class Employer(db.Model, UserMixin):
     company_email = db.Column(db.String(150), unique=True, nullable=False)
     mobile_number = db.Column(db.String(20), nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
-    
-    # ✅ FIXED: Added status field
-    # Possible values: "Active", "Verifying", "Suspended", "Blocked"
-    status = db.Column(db.String(30), nullable=False, default="Active")
-    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # "Active" / "Verifying" / "Suspended" / "Blocked" -- set by the super
+    # admin from the Total Recruiters page. Suspend is meant to be
+    # reversible (Unsuspend); Block is the harder action (Unblock).
+    status = db.Column(db.String(20), nullable=False, default="Verifying")
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -51,6 +46,9 @@ class Employer(db.Model, UserMixin):
     def get_id(self):
         # Prefixed so Flask-Login's user_loader knows which table to check.
         return f"employer-{self.id}"
+
+    def is_active_account(self):
+        return self.status not in ("Suspended", "Blocked")
 
     def __repr__(self):
         return f"<Employer {self.company_email}>"
@@ -68,12 +66,10 @@ class Seeker(db.Model, UserMixin):
     work_status = db.Column(db.String(20), nullable=False, default="fresher")
 
     password_hash = db.Column(db.String(255), nullable=False)
-    
-    # ✅ FIXED: Added status field
-    # Possible values: "Active", "Blocked"
-    status = db.Column(db.String(30), nullable=False, default="Active")
-    
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # "Active" / "Blocked" -- set by the super admin from the Total Users page.
+    status = db.Column(db.String(20), nullable=False, default="Active")
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -83,6 +79,9 @@ class Seeker(db.Model, UserMixin):
 
     def get_id(self):
         return f"seeker-{self.id}"
+
+    def is_active_account(self):
+        return self.status != "Blocked"
 
     def __repr__(self):
         return f"<Seeker {self.email}>"
@@ -107,9 +106,9 @@ class Job(db.Model):
     # simplest option without a separate skills/tags table.
     skills = db.Column(db.String(500), nullable=True)
 
-    # ✅ FIXED: Added status field
-    # Possible values: "Pending", "Approved", "Rejected"
-    status = db.Column(db.String(30), nullable=False, default="Pending")
+    # "Pending" / "Approved" / "Rejected" -- set by the super admin from the
+    # Total Job Posts page. Only "Approved" jobs are shown to seekers.
+    status = db.Column(db.String(20), nullable=False, default="Pending")
 
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -210,6 +209,72 @@ class Application(db.Model):
 
     def __repr__(self):
         return f"<Application job_id={self.job_id} seeker_id={self.seeker_id} status={self.status}>"
+
+
+class Follow(db.Model):
+    """
+    An employer following a seeker's profile -- surfaced from the
+    candidate search page. One row per (employer, seeker) pair; the
+    unique constraint stops a double-click from creating duplicates.
+    """
+    __tablename__ = "follows"
+    __table_args__ = (
+        db.UniqueConstraint("employer_id", "seeker_id", name="uq_follow_employer_seeker"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    employer_id = db.Column(db.Integer, db.ForeignKey("employers.id"), nullable=False)
+    seeker_id = db.Column(db.Integer, db.ForeignKey("seekers.id"), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    employer = db.relationship("Employer", backref=db.backref("follows", lazy=True))
+    seeker = db.relationship("Seeker", backref=db.backref("followers", lazy=True))
+
+    def __repr__(self):
+        return f"<Follow employer_id={self.employer_id} seeker_id={self.seeker_id}>"
+
+
+class Message(db.Model):
+    """
+    A single chat message between one employer and one seeker. There's
+    no separate "conversation" table -- the (employer_id, seeker_id)
+    pair on each row IS the thread, since only employer<->seeker
+    messaging exists (no seeker<->seeker or employer<->employer).
+
+    sender_role tells you which side of the pair sent it ("employer"
+    or "seeker"), since both participants are fixed per-thread but
+    either one can be the sender of any given message.
+    """
+    __tablename__ = "messages"
+
+    id = db.Column(db.Integer, primary_key=True)
+    employer_id = db.Column(db.Integer, db.ForeignKey("employers.id"), nullable=False)
+    seeker_id = db.Column(db.Integer, db.ForeignKey("seekers.id"), nullable=False)
+
+    sender_role = db.Column(db.String(10), nullable=False)  # "employer" or "seeker"
+
+    # Either body, attachment, or both may be present -- a message can
+    # be text-only, a file with no caption, or both together.
+    body = db.Column(db.Text, nullable=True)
+
+    # Attachment storage: stored_filename is the random on-disk name
+    # (avoids collisions/path traversal from the original filename);
+    # original_filename is what's shown to the user.
+    attachment_stored_filename = db.Column(db.String(255), nullable=True)
+    attachment_original_filename = db.Column(db.String(255), nullable=True)
+    attachment_content_type = db.Column(db.String(100), nullable=True)
+
+    is_read = db.Column(db.Boolean, nullable=False, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    employer = db.relationship("Employer", backref=db.backref("messages", lazy=True))
+    seeker = db.relationship("Seeker", backref=db.backref("messages", lazy=True))
+
+    def is_image(self):
+        return bool(self.attachment_content_type and self.attachment_content_type.startswith("image/"))
+
+    def __repr__(self):
+        return f"<Message employer_id={self.employer_id} seeker_id={self.seeker_id} sender={self.sender_role}>"
 
 
 class Notification(db.Model):

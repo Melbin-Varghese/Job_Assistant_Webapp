@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Messages | CareerMomentum</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/user.css') }}" />
+
+  <style>
+    .navbar { display: flex; align-items: center; gap: 24px; }
+    .navbar-search-wrap { flex: 1; display: flex; justify-content: center; min-width: 0; }
+    .navbar-search-wrap .content-search { width: 100%; max-width: 480px; }
+    .navbar .topbar-actions { flex: 0 0 auto; display: flex; align-items: center; gap: 14px; }
+
+    .msg-shell {
+      display: grid; grid-template-columns: 300px 1fr; gap: 0;
+      background: #101a2c; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px;
+      overflow: hidden; height: calc(100vh - 220px); min-height: 480px;
+    }
+
+    .msg-list { border-right: 1px solid rgba(255,255,255,0.08); overflow-y: auto; }
+    .msg-list-header { padding: 18px 18px 12px; font-size: 15px; font-weight: 800; color: #e7ecf3; }
+    .msg-list-item {
+      display: flex; align-items: center; gap: 10px; padding: 12px 18px; cursor: pointer;
+      text-decoration: none; border-left: 3px solid transparent;
+    }
+    .msg-list-item:hover { background: rgba(255,255,255,0.03); }
+    .msg-list-item.active { background: rgba(20,184,166,0.08); border-left-color: #14b8a6; }
+    .msg-list-avatar { width: 38px; height: 38px; border-radius: 50%; flex: 0 0 auto; }
+    .msg-list-name { margin: 0; font-size: 13.5px; font-weight: 700; color: #e7ecf3; }
+    .msg-list-preview { margin: 2px 0 0; font-size: 12px; color: #93a0b4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 170px; }
+    .msg-list-unread { margin-left: auto; background: #14b8a6; color: #06231f; font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 999px; }
+    .msg-list-empty { padding: 30px 18px; color: #93a0b4; font-size: 13px; text-align: center; }
+
+    .msg-thread { display: flex; flex-direction: column; height: 100%; }
+    .msg-thread-header { padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 10px; }
+    .msg-thread-header p { margin: 0; font-weight: 700; color: #e7ecf3; font-size: 14px; }
+    .msg-thread-empty { flex: 1; display: flex; align-items: center; justify-content: center; color: #93a0b4; font-size: 13.5px; flex-direction: column; gap: 8px; }
+    .msg-bubbles { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+
+    .msg-bubble-row { display: flex; }
+    .msg-bubble-row.mine { justify-content: flex-end; }
+    .msg-bubble {
+      max-width: 66%; padding: 10px 14px; border-radius: 14px; font-size: 13.5px; line-height: 1.5;
+      background: rgba(255,255,255,0.06); color: #e7ecf3;
+    }
+    .msg-bubble-row.mine .msg-bubble { background: linear-gradient(135deg, #14b8a6, #0d9488); color: #06231f; }
+    .msg-bubble-time { font-size: 10.5px; color: #6b7a90; margin-top: 4px; }
+    .msg-bubble-row.mine .msg-bubble-time { text-align: right; }
+
+    .msg-attachment-img { max-width: 220px; border-radius: 10px; margin-top: 6px; display: block; }
+    .msg-attachment-file {
+      display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12.5px;
+      text-decoration: none; color: inherit; background: rgba(0,0,0,0.15); padding: 6px 10px; border-radius: 8px;
+    }
+
+    .msg-composer { border-top: 1px solid rgba(255,255,255,0.08); padding: 14px 18px; }
+    .msg-composer-error { color: #f87171; font-size: 12.5px; margin: 0 0 8px; }
+    .msg-composer-row { display: flex; align-items: center; gap: 10px; }
+    .msg-composer input[type="text"] {
+      flex: 1; background: #0d1626; border: 1px solid rgba(255,255,255,0.1); border-radius: 999px;
+      padding: 11px 16px; color: #e7ecf3; font-family: 'Inter', sans-serif; font-size: 13.5px; outline: none;
+    }
+    .msg-attach-btn, .msg-send-btn {
+      display: inline-flex; align-items: center; justify-content: center; border: none; border-radius: 50%;
+      width: 38px; height: 38px; cursor: pointer; flex: 0 0 auto;
+    }
+    .msg-attach-btn { background: rgba(255,255,255,0.08); color: #93a0b4; }
+    .msg-send-btn { background: #14b8a6; color: #06231f; }
+    .msg-file-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #14b8a6; margin-top: 8px; }
+    .msg-file-chip button { background: none; border: none; color: #f87171; cursor: pointer; }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">CareerMomentum</div>
+
+    <div class="nav-buttons">
+      <div class="topbar-divider"></div>
+      <a href="{{ url_for('seeker_auth.profile') }}" style="text-decoration:none;">
+        <div class="user-chip">
+          <span class="user-role">Profile</span>
+          <div class="user-avatar">
+            <span class="material-symbols-outlined">person</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="dashboard-hero">
+      <div class="dashboard-wrap">
+
+        <aside class="sidebar">
+          <nav class="sidebar-nav">
+            <a href="{{ url_for('seeker_dashboard.dashboard') }}">
+              <span class="material-symbols-outlined">dashboard</span>
+              <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('coming_soon') }}">
+              <span class="material-symbols-outlined">description</span>
+              <span>Resume Builder</span>
+            </a>
+            <a href="{{ url_for('ats_checker.ats_checker_page') }}">
+              <span class="material-symbols-outlined">analytics</span>
+              <span>ATS Analysis</span>
+            </a>
+            <a href="{{ url_for('recommendation.recommendation_page') }}">
+              <span class="material-symbols-outlined">stars</span>
+              <span>Job Recommendations</span>
+            </a>
+            <a href="{{ url_for('cover_letter.cover_letter') }}">
+              <span class="material-symbols-outlined">mail</span>
+              <span>Cover Letter</span>
+            </a>
+            <a href="{{ url_for('automation.automation') }}">
+              <span class="material-symbols-outlined">forward_to_inbox</span>
+              <span>Email Automation</span>
+            </a>
+            <a href="{{ url_for('ai_assistant.ai_assistant') }}">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+              <span>AI Career Coach</span>
+            </a>
+            <a href="{{ url_for('messaging.seeker_messages') }}" class="active">
+              <span class="material-symbols-outlined">chat</span>
+              <span>Messages</span>
+            </a>
+            <a href="{{ url_for('seeker_auth.settings') }}">
+              <span class="material-symbols-outlined">settings</span>
+              <span>Settings & Support</span>
+            </a>
+          </nav>
+        </aside>
+
+        <div class="dashboard-main">
+          <div class="msg-shell">
+
+            <div class="msg-list">
+              <p class="msg-list-header">Messages</p>
+              {% if conversations %}
+                {% for conv in conversations %}
+                <a href="{{ url_for('messaging.seeker_messages', employer_id=conv.employer.id) }}"
+                   class="msg-list-item{{ ' active' if active_employer_id == conv.employer.id else '' }}">
+                  <img class="msg-list-avatar" src="https://api.dicebear.com/7.x/initials/svg?seed={{ conv.employer.employer_name|urlencode }}" alt="" />
+                  <div>
+                    <p class="msg-list-name">{{ conv.employer.employer_name }}</p>
+                    <p class="msg-list-preview">
+                      {% if conv.last_message %}
+                        {{ conv.last_message.body if conv.last_message.body else '📎 Attachment' }}
+                      {% endif %}
+                    </p>
+                  </div>
+                  {% if conv.unread_count %}<span class="msg-list-unread">{{ conv.unread_count }}</span>{% endif %}
+                </a>
+                {% endfor %}
+              {% else %}
+              <p class="msg-list-empty">No conversations yet. A recruiter will appear here once they message you.</p>
+              {% endif %}
+            </div>
+
+            <div class="msg-thread">
+              {% if active_employer %}
+                <div class="msg-thread-header">
+                  <img class="msg-list-avatar" src="https://api.dicebear.com/7.x/initials/svg?seed={{ active_employer.employer_name|urlencode }}" alt="" />
+                  <div>
+                    <p>{{ active_employer.employer_name }}</p>
+                    <p style="margin:0; font-size:11.5px; color:#93a0b4;">{{ active_employer.company_name }}</p>
+                  </div>
+                </div>
+
+                <div class="msg-bubbles" id="msgBubbles">
+                  {% if thread %}
+                    {% for m in thread %}
+                    <div class="msg-bubble-row {{ 'mine' if m.sender_role == 'seeker' else '' }}">
+                      <div>
+                        <div class="msg-bubble">
+                          {% if m.body %}{{ m.body }}{% endif %}
+                          {% if m.attachment_stored_filename %}
+                            {% if m.is_image() %}
+                            <a href="{{ url_for('messaging.attachment_download', message_id=m.id) }}" target="_blank">
+                              <img class="msg-attachment-img" src="{{ url_for('messaging.attachment_download', message_id=m.id) }}" alt="{{ m.attachment_original_filename }}" />
+                            </a>
+                            {% else %}
+                            <a class="msg-attachment-file" href="{{ url_for('messaging.attachment_download', message_id=m.id) }}">
+                              <span class="material-symbols-outlined" style="font-size:16px;">description</span>
+                              {{ m.attachment_original_filename }}
+                            </a>
+                            {% endif %}
+                          {% endif %}
+                        </div>
+                        <p class="msg-bubble-time">{{ m.created_at.strftime('%b %d, %I:%M %p') if m.created_at else '' }}</p>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  {% else %}
+                  <div class="msg-thread-empty">
+                    <span class="material-symbols-outlined" style="font-size:32px; opacity:0.4;">chat_bubble</span>
+                    Say hello to {{ active_employer.employer_name.split(' ')[0] }} to start the conversation.
+                  </div>
+                  {% endif %}
+                </div>
+
+                <div class="msg-composer">
+                  {% if error %}<p class="msg-composer-error">{{ error }}</p>{% endif %}
+                  <form method="POST" action="{{ url_for('messaging.seeker_send_message', employer_id=active_employer.id) }}" enctype="multipart/form-data" id="composerForm">
+                    <div class="msg-composer-row">
+                      <label class="msg-attach-btn" title="Attach a file or photo">
+                        <span class="material-symbols-outlined" style="font-size:19px;">attach_file</span>
+                        <input type="file" name="attachment" id="attachmentInput" style="display:none;" onchange="showFileChip(this)" />
+                      </label>
+                      <input type="text" name="body" placeholder="Type a message..." autocomplete="off" />
+                      <button type="submit" class="msg-send-btn"><span class="material-symbols-outlined" style="font-size:18px;">send</span></button>
+                    </div>
+                    <div id="fileChip"></div>
+                  </form>
+                </div>
+              {% else %}
+              <div class="msg-thread-empty">
+                <span class="material-symbols-outlined" style="font-size:36px; opacity:0.4;">forum</span>
+                Select a conversation to view messages from recruiters.
+              </div>
+              {% endif %}
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function showFileChip(input) {
+      const chipWrap = document.getElementById('fileChip');
+      chipWrap.innerHTML = '';
+      if (input.files.length) {
+        const chip = document.createElement('div');
+        chip.className = 'msg-file-chip';
+        chip.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px;">attachment</span> ' +
+          input.files[0].name + ' <button type="button" onclick="clearFile()">&times;</button>';
+        chipWrap.appendChild(chip);
+      }
+    }
+    function clearFile() {
+      document.getElementById('attachmentInput').value = '';
+      document.getElementById('fileChip').innerHTML = '';
+    }
+    // Auto-scroll to the latest message on load
+    (function () {
+      const bubbles = document.getElementById('msgBubbles');
+      if (bubbles) bubbles.scrollTop = bubbles.scrollHeight;
+    })();
+  </script>
+</body>
+</html>
