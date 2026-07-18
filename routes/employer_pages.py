@@ -208,4 +208,24 @@ def settings():
 @employer_pages_bp.route("/employer/profile")
 @login_required
 def profile():
-    return render_template("empo_profile.html")
+    jobs = list_jobs_by_employer(current_user.id)
+    applications = list_applications_by_employer(current_user.id)
+
+    # "Reviewed" = employer has made some decision on it, i.e. it's
+    # moved past the initial "Applied" state. Interview/Offer aren't
+    # reachable from the current Candidates page UI (only
+    # Shortlist/Reject buttons exist there yet), so those two will
+    # read 0 until that's wired up -- that's accurate, not a bug.
+    reviewed_statuses = {"Shortlisted", "Interview", "Offer", "Rejected"}
+    profile_stats = {
+        "jobs_posted": len(jobs),
+        "candidates_reviewed": sum(1 for a in applications if a.status in reviewed_statuses),
+        "interviews_scheduled": sum(1 for a in applications if a.status == "Interview"),
+        "offers_extended": sum(1 for a in applications if a.status == "Offer"),
+    }
+
+    return render_template(
+        "empo_profile.html",
+        profile_stats=profile_stats,
+        recent_jobs=jobs[:3],
+    )

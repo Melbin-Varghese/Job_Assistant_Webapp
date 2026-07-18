@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>My Applications | CareerMomentum</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/user.css" />
+
+  <style>
+    .apps-status-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 999px;
+    }
+    .apps-status-applied     { background: rgba(59,130,246,0.12); color: #3b82f6; }
+    .apps-status-shortlisted { background: rgba(20,184,166,0.12); color: #14b8a6; }
+    .apps-status-interview   { background: rgba(168,85,247,0.12); color: #a855f7; }
+    .apps-status-offer       { background: rgba(22,163,74,0.12); color: #16a34a; }
+    .apps-status-rejected    { background: rgba(220,38,38,0.12); color: #dc2626; }
+
+    .apps-empty { text-align: center; padding: 60px 20px; color: var(--text-muted, #6b7280); }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">CareerMomentum</div>
+
+    <div class="nav-buttons">
+      <div class="topbar-divider"></div>
+      <a href="{{ url_for('seeker_auth.profile') }}" style="text-decoration:none;">
+        <div class="user-chip">
+          <span class="user-role">Profile</span>
+          <div class="user-avatar">
+            <span class="material-symbols-outlined">person</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </nav>
+
+  <main>
+    <section class="dashboard-hero">
+      <div class="dashboard-wrap">
+
+        <aside class="sidebar">
+          <nav class="sidebar-nav">
+            <a href="{{ url_for('seeker_dashboard.dashboard') }}">
+              <span class="material-symbols-outlined">dashboard</span>
+              <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('coming_soon') }}">
+              <span class="material-symbols-outlined">description</span>
+              <span>Resume Builder</span>
+            </a>
+            <a href="{{ url_for('ats_checker.ats_checker_page') }}">
+              <span class="material-symbols-outlined">analytics</span>
+              <span>ATS Analysis</span>
+            </a>
+            <a href="{{ url_for('recommendation.recommendation_page') }}">
+              <span class="material-symbols-outlined">stars</span>
+              <span>Job Recommendations</span>
+            </a>
+            <a href="{{ url_for('cover_letter.cover_letter') }}">
+              <span class="material-symbols-outlined">mail</span>
+              <span>Cover Letter</span>
+            </a>
+            <a href="{{ url_for('automation.automation') }}">
+              <span class="material-symbols-outlined">forward_to_inbox</span>
+              <span>Email Automation</span>
+            </a>
+            <a href="{{ url_for('ai_assistant.ai_assistant') }}">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+              <span>AI Career Coach</span>
+            </a>
+            <a href="{{ url_for('seeker_auth.settings') }}">
+              <span class="material-symbols-outlined">settings</span>
+              <span>Settings & Support</span>
+            </a>
+          </nav>
+        </aside>
+
+        <div class="dashboard-main">
+          <div class="dashboard-header">
+            <div>
+              <h1 style="font-size:22px; color:var(--text-dark); margin-bottom:4px;">My Applications</h1>
+              <p style="color:var(--text-muted); font-size:13.5px;">
+                Jobs you've applied to on CareerMomentum, and the recruiter's current decision on each.
+              </p>
+            </div>
+            <div class="dashboard-actions">
+              <a href="{{ url_for('seeker_dashboard.dashboard') }}" class="btn btn-primary">
+                <span class="material-symbols-outlined" style="font-size:18px; vertical-align:middle;">search</span>
+                Find More Jobs
+              </a>
+            </div>
+          </div>
+
+          <div class="panel">
+            {% if applications %}
+            <div class="content-grid" style="grid-template-columns: 1fr; gap: 12px;">
+              {% for app in applications %}
+              <div class="match-card job-card">
+                <div class="match-top">
+                  <div class="match-role">
+                    <div class="match-icon">
+                      <span class="material-symbols-outlined">work</span>
+                    </div>
+                    <div>
+                      <h5 class="match-title">{{ app.job.title if app.job else 'Job no longer listed' }}</h5>
+                      <p class="match-company">
+                        {% if app.job %}{{ app.job.company_name }}{% if app.job.location %} · {{ app.job.location }}{% endif %}{% endif %}
+                      </p>
+                    </div>
+                  </div>
+
+                  <span class="apps-status-pill apps-status-{{ app.status|lower }}">
+                    {% if app.status == 'Applied' %}<span class="material-symbols-outlined" style="font-size:14px;">schedule</span>
+                    {% elif app.status == 'Shortlisted' %}<span class="material-symbols-outlined" style="font-size:14px;">star</span>
+                    {% elif app.status == 'Interview' %}<span class="material-symbols-outlined" style="font-size:14px;">event</span>
+                    {% elif app.status == 'Offer' %}<span class="material-symbols-outlined" style="font-size:14px;">celebration</span>
+                    {% elif app.status == 'Rejected' %}<span class="material-symbols-outlined" style="font-size:14px;">close</span>
+                    {% endif %}
+                    {{ app.status }}
+                  </span>
+                </div>
+
+                <div class="match-tip">
+                  <span class="material-symbols-outlined" style="font-size: 14px; color: var(--secondary);">schedule</span>
+                  Applied {{ app.applied_at.strftime('%b %d, %Y') if app.applied_at else '' }}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="apps-empty">
+              <span class="material-symbols-outlined" style="font-size:40px; opacity:0.4;">inbox</span>
+              <h3 style="margin:12px 0 4px;">No applications yet</h3>
+              <p style="margin:0 0 16px;">Jobs you apply to from the dashboard will show up here, along with the recruiter's decision.</p>
+              <a href="{{ url_for('seeker_dashboard.dashboard') }}" class="btn btn-primary">Browse Jobs</a>
+            </div>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>
+      <a href="{{ url_for('index') }}" class="btn btn-ghost">Logout</a>
+    </div>
+    <div class="footer-links">
+      <a href="privacy_policy.html">Privacy Policy</a>
+      <a href="terms_of_services.html">Terms of Service</a>
+      <a href="#">Cookie Settings</a>
+      <a href="contact.html">Contact Us</a>
+    </div>
+  </footer>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <title>My Profile — Lumina AI Recruiter Dashboard</title>
+  <title>My Profile — CareerMomentum Recruiter Dashboard</title>
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
@@ -79,7 +79,7 @@
 
 <body>
   <nav class="navbar">
-    <div class="logo">Career</div>
+    <div class="logo">CareerMomentum</div>
     <div class="navbar-search-wrap">
       <div class="content-search">
         <span class="material-symbols-outlined">search</span>
@@ -111,7 +111,7 @@
               <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
             </div>
             <div>
-              <p class="sidebar-profile-name">Lumina AI</p>
+              <p class="sidebar-profile-name">CareerMomentum</p>
               <p class="sidebar-profile-status">Recruiter Suite</p>
             </div>
           </div>
@@ -151,11 +151,10 @@
               <p>{{ current_user.company_name }}</p>
               <div class="pf-hero-badges">
                 <span class="pf-badge">{{ current_user.company_email }}</span>
-                <span class="pf-badge">Bengaluru, IN</span>
               </div>
             </div>
             <div class="pf-hero-actions">
-              <button class="pf-btn pf-btn-ghost" type="button" onclick="window.location.href='/templates/empo_setting_support_profile.html'">
+              <button class="pf-btn pf-btn-ghost" type="button" onclick="window.location.href='{{ url_for('employer_pages.settings') }}'">
                 <span class="material-symbols-outlined" style="font-size:18px;">settings</span>
                 Account Settings
               </button>
@@ -167,10 +166,10 @@
           </div>
 
           <div class="pf-stats">
-            <div class="pf-stat-card"><p class="v">12</p><p class="l">Jobs Posted</p></div>
-            <div class="pf-stat-card"><p class="v">86</p><p class="l">Candidates Reviewed</p></div>
-            <div class="pf-stat-card"><p class="v">14</p><p class="l">Interviews Scheduled</p></div>
-            <div class="pf-stat-card"><p class="v">5</p><p class="l">Offers Extended</p></div>
+            <div class="pf-stat-card"><p class="v">{{ profile_stats.jobs_posted }}</p><p class="l">Jobs Posted</p></div>
+            <div class="pf-stat-card"><p class="v">{{ profile_stats.candidates_reviewed }}</p><p class="l">Candidates Reviewed</p></div>
+            <div class="pf-stat-card"><p class="v">{{ profile_stats.interviews_scheduled }}</p><p class="l">Interviews Scheduled</p></div>
+            <div class="pf-stat-card"><p class="v">{{ profile_stats.offers_extended }}</p><p class="l">Offers Extended</p></div>
           </div>
 
           <div class="pf-grid">
@@ -178,25 +177,26 @@
               <div class="pf-card">
                 <h3>About</h3>
                 <p style="margin:0; color:#93a0b4; font-size:13.5px; line-height:1.7;">
-                  Alex leads talent acquisition at Lumina Technologies, focused on design and product roles.
-                  Passionate about building fast, fair hiring pipelines with the help of AI-assisted candidate scoring.
+                  {{ current_user.employer_name }} leads hiring at {{ current_user.company_name }} on CareerMomentum,
+                  posting roles and reviewing candidates through the Recruiter Suite.
                 </p>
               </div>
 
               <div class="pf-card">
                 <h3>Recent Activity</h3>
-                <div class="pf-activity-item">
-                  <div class="pf-activity-icon"><span class="material-symbols-outlined" style="font-size:18px;">work</span></div>
-                  <div><p class="t">Posted "Senior Product Designer"</p><p class="d">2 days ago</p></div>
-                </div>
-                <div class="pf-activity-item">
-                  <div class="pf-activity-icon"><span class="material-symbols-outlined" style="font-size:18px;">group</span></div>
-                  <div><p class="t">Reviewed Aisha Rahman's application</p><p class="d">3 days ago</p></div>
-                </div>
-                <div class="pf-activity-item">
-                  <div class="pf-activity-icon"><span class="material-symbols-outlined" style="font-size:18px;">event</span></div>
-                  <div><p class="t">Scheduled interview with Marcus Stone</p><p class="d">5 days ago</p></div>
-                </div>
+                {% if recent_jobs %}
+                  {% for job in recent_jobs %}
+                  <div class="pf-activity-item">
+                    <div class="pf-activity-icon"><span class="material-symbols-outlined" style="font-size:18px;">work</span></div>
+                    <div>
+                      <p class="t">Posted "{{ job.title }}"</p>
+                      <p class="d">{{ job.created_at.strftime('%b %d, %Y') if job.created_at else '' }}</p>
+                    </div>
+                  </div>
+                  {% endfor %}
+                {% else %}
+                  <p style="color:#93a0b4; font-size:13px; margin:0;">No jobs posted yet.</p>
+                {% endif %}
               </div>
             </div>
 
@@ -205,15 +205,12 @@
                 <h3>Contact Information</h3>
                 <div class="pf-info-row"><span class="k">Email</span><span class="v">{{ current_user.company_email }}</span></div>
                 <div class="pf-info-row"><span class="k">Phone</span><span class="v">{{ current_user.mobile_number }}</span></div>
-                <div class="pf-info-row"><span class="k">Location</span><span class="v">Bengaluru, IN</span></div>
-                <div class="pf-info-row"><span class="k">Team</span><span class="v">Talent Acquisition</span></div>
               </div>
 
               <div class="pf-card">
                 <h3>Account</h3>
                 <div class="pf-info-row"><span class="k">Company</span><span class="v">{{ current_user.company_name }}</span></div>
-                <div class="pf-info-row"><span class="k">Member since</span><span class="v">Jan 2025</span></div>
-                <div class="pf-info-row"><span class="k">Plan</span><span class="v">Recruiter Suite</span></div>
+                <div class="pf-info-row"><span class="k">Member since</span><span class="v">{{ current_user.created_at.strftime('%b %Y') if current_user.created_at else '—' }}</span></div>
               </div>
             </div>
           </div>

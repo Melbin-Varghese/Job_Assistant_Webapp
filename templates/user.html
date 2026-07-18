@@ -147,10 +147,10 @@
 
             <div class="dashboard-actions">
               
-              <button class="btn btn-primary">
+              <a href="{{ url_for('seeker_dashboard.my_applications') }}" class="btn btn-primary">
                 <span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle;">add_circle</span>
                 Track Manual Application
-              </button>
+              </a>
             </div>
           </div>
 
@@ -269,8 +269,23 @@
 
       <div class="match-tags" id="jobModalSkills" style="margin: 14px 0;"></div>
 
-      <p class="job-modal-desc-label">Job Description</p>
+      <div class="job-modal-desc-header">
+        <p class="job-modal-desc-label">Job Description</p>
+        <button type="button" class="jm-copy-btn" id="jobModalCopyDescBtn" title="Copy job description">
+          <span class="material-symbols-outlined" style="font-size:15px;">content_copy</span>
+          Copy
+        </button>
+      </div>
       <p class="job-modal-desc" id="jobModalDescription"></p>
+
+      <div class="jm-email-row" id="jobModalEmailRow">
+        <span class="material-symbols-outlined" style="font-size:16px; color:var(--text-muted,#6b7280);">mail</span>
+        <span class="jm-email-text" id="jobModalEmail"></span>
+        <button type="button" class="jm-copy-btn" id="jobModalCopyEmailBtn" title="Copy email for Email Automation">
+          <span class="material-symbols-outlined" style="font-size:15px;">content_copy</span>
+          Copy
+        </button>
+      </div>
 
       <p class="job-modal-note" id="jobModalNote"></p>
 
@@ -312,9 +327,28 @@
       color: var(--text-muted, #6b7280);
     }
     .job-modal-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .job-modal-desc-label { font-weight: 700; font-size: 13px; margin: 18px 0 6px; }
+    .job-modal-desc-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 18px 0 6px; }
+    .job-modal-desc-label { font-weight: 700; font-size: 13px; margin: 0; }
     .job-modal-desc { font-size: 13.5px; line-height: 1.6; white-space: pre-line; color: var(--text-muted, #4b5563); }
     .job-modal-note { font-size: 12.5px; font-weight: 600; margin: 10px 0 0; min-height: 16px; }
+
+    .jm-email-row {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(20,184,166,0.08); border: 1px solid rgba(20,184,166,0.2);
+      border-radius: 10px; padding: 9px 12px; margin: 14px 0 0;
+    }
+    .jm-email-text {
+      flex: 1; font-size: 13px; font-weight: 600; color: var(--text-color, #111);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .jm-copy-btn {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #14b8a6; color: #06231f; border: none; border-radius: 8px;
+      padding: 6px 10px; font-size: 12px; font-weight: 700; cursor: pointer;
+      font-family: 'Inter', sans-serif; white-space: nowrap;
+    }
+    .jm-copy-btn:hover { filter: brightness(1.05); }
+    .jm-copy-btn.copied { background: #16a34a; }
     .btn-applied { background: rgba(22,163,74,0.12) !important; color: #16a34a !important; }
 
     .notif-panel {
@@ -356,8 +390,10 @@
       
     </div>
     <div class="footer-links">
-      
-      <a href="{{ url_for('contact') }}"class='active'>Contact</a>
+      <a href="privacy_policy.html">Privacy Policy</a>
+      <a href="terms_of_services.html">Terms of Service</a>
+      <a href="#">Cookie Settings</a>
+      <a href="contact.html">Contact Us</a>
     </div>
   </footer>
   <script>
@@ -393,6 +429,7 @@
       document.getElementById('jobModalPosted').textContent =
         cardEl.dataset.posted ? ('Posted ' + cardEl.dataset.posted) : '';
       document.getElementById('jobModalDescription').textContent = cardEl.dataset.description;
+      document.getElementById('jobModalEmail').textContent = cardEl.dataset.email || '';
       document.getElementById('jobModalNote').textContent = '';
 
       const skillsWrap = document.getElementById('jobModalSkills');
@@ -433,6 +470,39 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       const applyBtn = document.getElementById('jobModalApplyBtn');
+      const copyEmailBtn = document.getElementById('jobModalCopyEmailBtn');
+      const copyDescBtn = document.getElementById('jobModalCopyDescBtn');
+
+      function copyTextTo(button, text, sourceEl) {
+        if (!text) return;
+        navigator.clipboard.writeText(text).then(() => {
+          const original = button.innerHTML;
+          button.innerHTML = '<span class="material-symbols-outlined" style="font-size:15px;">check</span> Copied';
+          button.classList.add('copied');
+          setTimeout(() => {
+            button.innerHTML = original;
+            button.classList.remove('copied');
+          }, 1800);
+        }).catch(() => {
+          // Clipboard API unavailable (e.g. non-HTTPS context) -- fall
+          // back to a manual select so the person can still copy it.
+          const range = document.createRange();
+          range.selectNodeContents(sourceEl);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        });
+      }
+
+      copyEmailBtn.addEventListener('click', () => {
+        const emailEl = document.getElementById('jobModalEmail');
+        copyTextTo(copyEmailBtn, emailEl.textContent.trim(), emailEl);
+      });
+
+      copyDescBtn.addEventListener('click', () => {
+        const descEl = document.getElementById('jobModalDescription');
+        copyTextTo(copyDescBtn, descEl.textContent.trim(), descEl);
+      });
 
       applyBtn.addEventListener('click', () => {
         const jobId = applyBtn.dataset.jobId;

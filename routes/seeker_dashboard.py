@@ -30,6 +30,7 @@ from crud import (
     search_jobs,
     create_application,
     list_applied_job_ids,
+    list_applications_by_seeker,
     list_notifications_by_seeker,
     count_unread_notifications,
     mark_all_notifications_read,
@@ -63,6 +64,16 @@ def dashboard():
         notifications=list_notifications_by_seeker(current_user.id),
         unread_notification_count=count_unread_notifications(current_user.id),
     )
+
+
+@seeker_dashboard_bp.route("/seeker/applications")
+@login_required
+def my_applications():
+    """The 'Track Manual Application' page -- shows every job this
+    seeker has applied to (via the in-app Apply button) and the
+    recruiter's current decision on each one, newest first."""
+    applications = list_applications_by_seeker(current_user.id)
+    return render_template("seeker_applications.html", applications=applications)
 
 
 @seeker_dashboard_bp.route("/seeker/notifications/read-all", methods=["POST"])

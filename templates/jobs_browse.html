@@ -60,6 +60,19 @@
       color: #0d9488;
       cursor: default;
     }
+    .jb-email-row {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(0,106,106,0.06); border: 1px solid rgba(0,106,106,0.15);
+      border-radius: 8px; padding: 6px 10px; margin: 8px 0; font-size: 12.5px;
+    }
+    .jb-email-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #111c2c; font-weight: 600; }
+    .jb-copy-btn {
+      background: #006a6a; color: #fff; border: none; border-radius: 6px;
+      padding: 4px 9px; font-size: 11.5px; font-weight: 700; cursor: pointer;
+    }
+    .jb-copy-btn.copied { background: #16a34a; }
+    .jb-desc-preview { font-size: 12.5px; color: #44474c; line-height: 1.5; margin: 6px 0; }
+    .jb-copy-desc-btn { background: none; border: 1px solid #c4c6cd; color: #006a6a; padding: 5px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 700; cursor: pointer; margin-bottom: 4px; }
   </style>
 </head>
 <body>
@@ -75,7 +88,7 @@
 
     <div class="nav-buttons">
       {% if is_logged_in %}
-        
+        <a href="{{ url_for('seeker_auth.seeker_dashboard') if is_seeker else url_for('employer_pages.dashboard') }}" class="btn btn-outline">My Dashboard</a>
       {% else %}
         <a href="{{ url_for('employer_auth.employer_login_register_page') }}" class="btn btn-outline">Employers</a>
         <a href="{{ url_for('seeker_auth.seeker_login_register_page') }}" class="btn btn-outline">Seekers</a>
@@ -141,6 +154,20 @@
         </div>
         {% endif %}
 
+        <p class="jb-desc-preview">{{ job.description[:140] }}{% if job.description|length > 140 %}…{% endif %}</p>
+        <button type="button" class="jb-copy-btn jb-copy-desc-btn" data-description="{{ job.description }}" onclick="copyJobDescription(this)">
+          <span class="material-symbols-outlined" style="font-size:13px; vertical-align:text-bottom;">content_copy</span>
+          Copy Description
+        </button>
+
+        {% if is_seeker %}
+        <div class="jb-email-row" data-email="{{ job.company_email }}">
+          <span class="material-symbols-outlined" style="font-size:15px;">mail</span>
+          <span class="jb-email-text">{{ job.company_email }}</span>
+          <button type="button" class="jb-copy-btn" onclick="copyJobEmail(this)">Copy</button>
+        </div>
+        {% endif %}
+
         <div class="job-meta">
           <span>{{ job.experience_level }}</span>
           <span>Posted {{ job.created_at.strftime('%b %d, %Y') if job.created_at else '' }}</span>
@@ -183,6 +210,30 @@
 
   <script src="{{ url_for('static', filename='js/script.js') }}"></script>
   <script>
+    function copyJobEmail(btn) {
+      const email = btn.closest('.jb-email-row').dataset.email;
+      if (!email) return;
+
+      navigator.clipboard.writeText(email).then(() => {
+        const original = btn.textContent;
+        btn.textContent = 'Copied';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = original; btn.classList.remove('copied'); }, 1800);
+      }).catch(() => {});
+    }
+
+    function copyJobDescription(btn) {
+      const description = btn.dataset.description;
+      if (!description) return;
+
+      navigator.clipboard.writeText(description).then(() => {
+        const original = btn.innerHTML;
+        btn.innerHTML = '<span class="material-symbols-outlined" style="font-size:13px; vertical-align:text-bottom;">check</span> Copied';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 1800);
+      }).catch(() => {});
+    }
+
     async function applyToJob(jobId, btn) {
       btn.disabled = true;
       const original = btn.textContent;
