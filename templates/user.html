@@ -292,6 +292,14 @@
         </button>
       </div>
 
+      <div class="jm-resume-row">
+        <label class="jm-resume-label" for="jobModalResumeInput">
+          <span class="material-symbols-outlined" style="font-size:17px;">upload_file</span>
+          <span id="jobModalResumeLabelText">Attach resume for this application (PDF, DOC, or DOCX) *</span>
+        </label>
+        <input type="file" id="jobModalResumeInput" accept=".pdf,.doc,.docx" />
+      </div>
+
       <p class="job-modal-note" id="jobModalNote"></p>
 
       <button type="button" class="btn btn-primary btn-block" id="jobModalApplyBtn">Apply Now</button>
@@ -354,6 +362,16 @@
     }
     .jm-copy-btn:hover { filter: brightness(1.05); }
     .jm-copy-btn.copied { background: #16a34a; }
+
+    .jm-resume-row { margin: 14px 0 0; }
+    .jm-resume-label {
+      display: flex; align-items: center; gap: 8px; cursor: pointer;
+      border: 1.5px dashed #c4c6cd; border-radius: 10px; padding: 10px 14px;
+      font-size: 12.5px; font-weight: 600; color: #44474c; transition: 0.15s ease;
+    }
+    .jm-resume-label:hover { border-color: #006a6a; color: #006a6a; }
+    .jm-resume-label.has-file { border-style: solid; border-color: #0d9488; color: #0d9488; background: rgba(13,148,136,0.06); }
+    #jobModalResumeInput { display: none; }
     .btn-applied { background: rgba(22,163,74,0.12) !important; color: #16a34a !important; }
 
     .notif-panel {
@@ -395,10 +413,10 @@
       
     </div>
     <div class="footer-links">
-      <a href="privacy_policy.html">Privacy Policy</a>
-      <a href="terms_of_services.html">Terms of Service</a>
+      <a href="{{ url_for('privacy_policy') }}">Privacy Policy</a>
+      <a href="{{ url_for('terms_of_services') }}">Terms of Service</a>
       <a href="#">Cookie Settings</a>
-      <a href="contact.html">Contact Us</a>
+      <a href="{{ url_for('contact') }}">Contact Us</a>
     </div>
   </footer>
   <script>
@@ -449,6 +467,14 @@
       const applyBtn = document.getElementById('jobModalApplyBtn');
       applyBtn.dataset.jobId = cardEl.dataset.jobId;
       setApplyButtonState(applyBtn, cardEl.dataset.applied === '1', false);
+
+      const resumeInput = document.getElementById('jobModalResumeInput');
+      const resumeLabel = document.getElementById('jobModalResumeLabelText');
+      const resumeRow = document.querySelector('.jm-resume-row');
+      resumeInput.value = '';
+      document.querySelector('.jm-resume-label').classList.remove('has-file');
+      resumeLabel.textContent = 'Attach resume for this application (PDF, DOC, or DOCX) *';
+      resumeRow.style.display = cardEl.dataset.applied === '1' ? 'none' : '';
 
       document.getElementById('jobModal').classList.add('open');
       document.body.style.overflow = 'hidden';
@@ -509,16 +535,41 @@
         copyTextTo(copyDescBtn, descEl.textContent.trim(), descEl);
       });
 
+      const resumeInput = document.getElementById('jobModalResumeInput');
+      resumeInput.addEventListener('change', () => {
+        const label = document.getElementById('jobModalResumeLabelText');
+        const labelWrap = document.querySelector('.jm-resume-label');
+        if (resumeInput.files.length) {
+          label.textContent = '✓ ' + resumeInput.files[0].name;
+          labelWrap.classList.add('has-file');
+        } else {
+          label.textContent = 'Attach resume for this application (PDF, DOC, or DOCX) *';
+          labelWrap.classList.remove('has-file');
+        }
+      });
+
       applyBtn.addEventListener('click', () => {
         const jobId = applyBtn.dataset.jobId;
         if (!jobId) return;
 
+        const resumeFile = resumeInput.files[0];
+        const isReapplying = applyBtn.classList.contains('btn-applied');
+
+        if (!isReapplying && !resumeFile) {
+          document.getElementById('jobModalNote').style.color = '#dc2626';
+          document.getElementById('jobModalNote').textContent = 'Please attach your resume to apply.';
+          return;
+        }
+
         setApplyButtonState(applyBtn, false, true);
+
+        const formData = new FormData();
+        formData.append('job_id', jobId);
+        if (resumeFile) formData.append('resume', resumeFile);
 
         fetch(JOB_APPLY_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: 'job_id=' + encodeURIComponent(jobId),
+          body: formData,
         })
           .then((r) => r.json())
           .then((data) => {
@@ -526,6 +577,7 @@
               setApplyButtonState(applyBtn, true, false);
               document.getElementById('jobModalNote').style.color = '#16a34a';
               document.getElementById('jobModalNote').textContent = data.message || 'Application submitted!';
+              document.querySelector('.jm-resume-row').style.display = 'none';
 
               const card = document.querySelector('.job-card[data-job-id="' + jobId + '"]');
               if (card) card.dataset.applied = '1';

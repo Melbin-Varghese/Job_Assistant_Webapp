@@ -3,125 +3,192 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inkwell — Cover Letter Studio</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Cover Letter Generator - CareerMomentum</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+<style>
+  /* Page-specific additions only -- navbar / page-banner / section /
+     form-card / btn-primary all come from style.css to match the
+     rest of the site. */
+  .cl-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 24px;
+    align-items: start;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  @media (max-width: 900px) { .cl-layout { grid-template-columns: 1fr; } }
+
+  .cl-dropzone {
+    display: flex; align-items: center; gap: 12px;
+    border: 1.5px dashed #c4c6cd; border-radius: 12px; padding: 18px;
+    cursor: pointer; background: #fafbff; transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .cl-dropzone:hover, .cl-dropzone.has-file { border-color: #006a6a; background: #eff8f8; }
+  .cl-dropzone input { display: none; }
+  .cl-dropzone strong { display: block; font-size: 13.5px; color: #041627; }
+  .cl-dropzone-sub { font-size: 12px; color: #44474c; }
+  .cl-dropzone-filename { font-size: 12px; color: #006a6a; font-weight: 600; }
+
+  .cl-optional { font-size: 11.5px; color: #8a8f96; font-weight: 500; }
+  .cl-hint { font-size: 12px; color: #44474c; margin-top: 6px; line-height: 1.5; }
+
+  .cl-skills-block { margin-top: 16px; }
+  .cl-skills-title { font-size: 12.5px; font-weight: 700; color: #44474c; margin-bottom: 8px; }
+  .cl-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cl-chip { font-size: 12px; font-weight: 600; padding: 4px 11px; border-radius: 999px; background: rgba(0,106,106,0.1); color: #006a6a; }
+
+  .cl-preview-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .cl-preview-heading h3 { margin: 0; font-size: 15px; color: #041627; }
+  .cl-download-link {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700;
+    color: #006a6a; text-decoration: none;
+  }
+  .cl-download-link:hover { text-decoration: underline; }
+
+  .cl-paper {
+    background: #fff; border: 1px solid #e0e3e5; border-radius: 12px; padding: 28px;
+    min-height: 420px; font-size: 14px; line-height: 1.8; color: #24292e;
+  }
+  .cl-paper p { margin: 0 0 14px; }
+  .cl-paper-empty { text-align: center; color: #8a8f96; padding: 60px 20px; }
+  .cl-paper-empty p.title { font-weight: 700; color: #44474c; margin: 12px 0 6px; }
+
+  .cl-submit {
+    width: 100%; padding: 14px; background: #006a6a; color: #fff; border: none;
+    border-radius: 10px; font-weight: 700; font-size: 14.5px; cursor: pointer;
+    margin-top: 4px; transition: background 0.2s ease; position: relative;
+  }
+  .cl-submit:hover { background: #005555; }
+  .cl-submit .cl-spinner { display: none; }
+  .cl-submit.loading .cl-label { display: none; }
+  .cl-submit.loading .cl-spinner { display: inline; }
+</style>
 </head>
-<body class="letter-page">
+<body>
 
-<header class="letter-header">
-  <p class="eyebrow">Inkwell — 01</p>
-  <h1>Turn your resume into a cover letter worth reading.</h1>
-  <p class="sub">Upload your resume, tell us about the role, and we'll draft body paragraphs grounded in your real skills — never invented ones.</p>
-</header>
-
-<main>
-  <!-- ============ FORM COLUMN ============ -->
-  <section class="form-col">
-
-    {% if error %}
-    <div class="error-banner" role="alert">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-      <span>{{ error }}</span>
+  <!-- ===== Navbar (same as every page) ===== -->
+  <nav class="navbar">
+    <div class="logo">CareerMomentum</div>
+    <div class="nav-links">
+      <a href="{{ url_for('resources') }}">Resources</a>
+      <a href="{{ url_for('index') }}" class="active">Dashboard</a>
     </div>
-    {% endif %}
+    <div class="nav-buttons">
+      <a href="{{ url_for('employer_auth.employer_login_register_page') }}" class="btn btn-outline">Employers</a>
+      <a href="{{ url_for('seeker_auth.seeker_login_register_page') }}" class="btn btn-outline">Seekers</a>
+    </div>
+  </nav>
 
-    <form method="POST" enctype="multipart/form-data" id="cover-form">
+  <!-- ===== Page banner ===== -->
+  <section class="page-banner">
+    <span class="badge">✨ Cover Letter Generator</span>
+    <h1>Turn Your Resume Into a Cover Letter Worth Reading</h1>
+    <p>Upload your resume, tell us about the role, and we'll draft body paragraphs grounded in your real skills — never invented ones.</p>
+  </section>
 
-      <fieldset>
-        <legend>Your resume</legend>
-        <div class="field">
-          <label for="resume">Resume file</label>
-          <div class="dropzone" id="dropzone">
-            <svg class="clip-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"></path></svg>
-            <div class="dropzone-text" id="dropzone-text">
-              <strong>Attach your resume</strong>
-              PDF or DOCX, up to 10MB
-            </div>
-            <input type="file" id="resume" name="resume" accept=".pdf,.docx" required>
+  <section class="section">
+    <div class="cl-layout">
+
+      <!-- ============ FORM COLUMN ============ -->
+      <div class="form-card">
+
+        {% if error %}
+        <div class="form-error" role="alert" style="margin-bottom:16px;">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data" id="cover-form">
+
+          <h3 style="margin-top:0; font-size:14px;">Your resume</h3>
+          <div class="form-group">
+            <label for="resume">Resume file</label>
+            <label class="cl-dropzone" id="dropzone" for="resume">
+              <span style="font-size:20px;">📎</span>
+              <span id="dropzone-text">
+                <strong>Attach your resume</strong>
+                <span class="cl-dropzone-sub">PDF or DOCX, up to 10MB</span>
+              </span>
+              <input type="file" id="resume" name="resume" accept=".pdf,.docx" required>
+            </label>
           </div>
-        </div>
-      </fieldset>
 
-      <fieldset>
-        <legend>The role</legend>
-        <div class="field">
-          <label for="job_role">Job title</label>
-          <input type="text" id="job_role" name="job_role" placeholder="e.g. Product Marketing Manager" required>
-        </div>
-        <div class="field">
-          <label for="company">Company</label>
-          <input type="text" id="company" name="company" placeholder="e.g. Northwind Studios" required>
-        </div>
-        <div class="field">
-          <label for="company_address">Company address <span class="optional">(optional)</span></label>
-          <textarea id="company_address" name="company_address" placeholder="123 Market Street&#10;San Francisco, CA 94105" rows="2"></textarea>
-        </div>
-      </fieldset>
+          <h3 style="font-size:14px;">The role</h3>
+          <div class="form-group">
+            <label for="job_role">Job title</label>
+            <input type="text" id="job_role" name="job_role" placeholder="e.g. Product Marketing Manager" required>
+          </div>
+          <div class="form-group">
+            <label for="company">Company</label>
+            <input type="text" id="company" name="company" placeholder="e.g. Northwind Studios" required>
+          </div>
+          <div class="form-group">
+            <label for="company_address">Company address <span class="cl-optional">(optional)</span></label>
+            <textarea id="company_address" name="company_address" placeholder="123 Market Street&#10;San Francisco, CA 94105" rows="2"></textarea>
+          </div>
 
-      <fieldset>
-        <legend>The details</legend>
-        <div class="field">
-          <label for="job_description">Job description</label>
-          <textarea id="job_description" name="job_description" placeholder="Paste the job posting here — we'll match your skills against what it actually asks for." rows="6" required></textarea>
-        </div>
-        <div class="field">
-          <label for="experience">Relevant experience <span class="optional">(leave blank if you're a fresher)</span></label>
-          <textarea id="experience" name="experience" placeholder="Briefly describe relevant roles, projects, or coursework." rows="4"></textarea>
-          <p class="hint">No experience yet? We'll build the letter around your skills and enthusiasm instead — no invented history.</p>
-        </div>
-      </fieldset>
+          <h3 style="font-size:14px;">The details</h3>
+          <div class="form-group">
+            <label for="job_description">Job description</label>
+            <textarea id="job_description" name="job_description" placeholder="Paste the job posting here — we'll match your skills against what it actually asks for." rows="6" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="experience">Relevant experience <span class="cl-optional">(leave blank if you're a fresher)</span></label>
+            <textarea id="experience" name="experience" placeholder="Briefly describe relevant roles, projects, or coursework." rows="4"></textarea>
+            <p class="cl-hint">No experience yet? We'll build the letter around your skills and enthusiasm instead — no invented history.</p>
+          </div>
 
-      <button type="submit" class="submit" id="submit-btn">
-        <span class="btn-label">Draft my cover letter</span>
-        <span class="spinner">Drafting…</span>
-      </button>
+          <button type="submit" class="cl-submit" id="submit-btn">
+            <span class="cl-label">Draft my cover letter</span>
+            <span class="cl-spinner">Drafting…</span>
+          </button>
 
-      {% if extracted_skills %}
-      <div class="skills-block">
-        <p class="skills-title">Skills we found on your resume</p>
-        <div class="skills-chips">
-          {% for skill in extracted_skills.split(',') %}
-            {% if skill.strip() %}<span class="chip">{{ skill.strip() }}</span>{% endif %}
-          {% endfor %}
+          {% if extracted_skills %}
+          <div class="cl-skills-block">
+            <p class="cl-skills-title">Skills we found on your resume</p>
+            <div class="cl-chips">
+              {% for skill in extracted_skills.split(',') %}
+                {% if skill.strip() %}<span class="cl-chip">{{ skill.strip() }}</span>{% endif %}
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+        </form>
+      </div>
+
+      <!-- ============ PREVIEW COLUMN ============ -->
+      <div>
+        <div class="cl-preview-heading">
+          <h3>The letter</h3>
+          {% if pdf_filename %}
+          <a class="cl-download-link" href="{{ url_for('cover_letter.download', filename=pdf_filename) }}">
+            Download PDF ↓
+          </a>
+          {% endif %}
+        </div>
+
+        <div class="cl-paper">
+          {% if cover_letter_output %}
+            {{ cover_letter_output|safe }}
+          {% else %}
+            <div class="cl-paper-empty">
+              <div style="font-size:36px;">📄</div>
+              <p class="title">Your letter will appear here</p>
+              <p>Fill in the form and attach your resume — the draft renders on this page as soon as it's ready.</p>
+            </div>
+          {% endif %}
         </div>
       </div>
-      {% endif %}
 
-    </form>
-  </section>
-
-  <!-- ============ PREVIEW COLUMN ============ -->
-  <section class="preview-col">
-    <div class="preview-heading">
-      <p class="eyebrow">The letter</p>
-      {% if pdf_filename %}
-      <a class="download-link" href="{{ url_for('cover_letter.download', filename=pdf_filename) }}">
-        Download PDF
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-      </a>
-      {% endif %}
     </div>
-
-    <article class="paper">
-      {% if cover_letter_output %}
-        {{ cover_letter_output|safe }}
-      {% else %}
-        <div class="paper-empty">
-          <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="8" y1="13" x2="16" y2="13"></line><line x1="8" y1="17" x2="13" y2="17"></line></svg>
-          <p class="empty-title">Your letter will appear here</p>
-          <p>Fill in the form and attach your resume — the draft renders on this page as soon as it's ready.</p>
-        </div>
-      {% endif %}
-    </article>
   </section>
-</main>
 
-<footer class="letter-footer">Inkwell drafts from what's actually on your resume — nothing invented, nothing generic.</footer>
-<div>
-  <button type="button" class="btn btn-outline" onclick="history.back()" class="btn btn-ghost">Back</button>
-</div>
+  <div style="text-align:center; margin: 0 0 40px;">
+    <button type="button" class="btn btn-outline" onclick="history.back()">Back</button>
+  </div>
+
 <script>
   const dropzone = document.getElementById('dropzone');
   const fileInput = document.getElementById('resume');
@@ -130,7 +197,7 @@
   fileInput.addEventListener('change', () => {
     if (fileInput.files.length){
       dropzone.classList.add('has-file');
-      dzText.innerHTML = '<strong>Ready to draft</strong><span class="dropzone-filename">' + fileInput.files[0].name + '</span>';
+      dzText.innerHTML = '<strong>Ready to draft</strong><span class="cl-dropzone-filename">' + fileInput.files[0].name + '</span>';
     }
   });
 

@@ -3,31 +3,152 @@
 <head>
   <meta charset="utf-8" />
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
-  <title>Dashboard | CareerMomentum Super Admin</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/css/super_admin.css" />
-  <script>
-    if (!sessionStorage.getItem("cm_admin_session")) { window.location.href = "{{ url_for('super_admin_login') }}"; }
-  </script>
-</head>
-<body>
+  <title>Settings & Support | CareerMomentum</title>
 
-  <nav class="topbar">
-    <div class="topbar-brand">
-      <span class="brand-mark">CM</span>
-      CareerMomentum
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/user.css" />
+
+  <style>
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .settings-grid { grid-template-columns: 1fr; }
+    }
+
+    .settings-card {
+      background: #ffffff;
+      border: 1px solid #e5e8eb;
+      border-radius: 14px;
+      padding: 24px;
+    }
+    .settings-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-dark, #111c2c);
+      margin: 0 0 4px 0;
+    }
+    .settings-card .hint {
+      font-size: 12.5px;
+      color: var(--text-muted, #6b7280);
+      margin: 0 0 18px 0;
+      line-height: 1.5;
+    }
+
+    .settings-field {
+      margin-bottom: 16px;
+    }
+    .settings-field label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-muted, #6b7280);
+      margin-bottom: 6px;
+    }
+    .settings-field input {
+      width: 100%;
+      padding: 11px 13px;
+      border: 1px solid #d8dce0;
+      border-radius: 9px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      background: #fafbfc;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .settings-field input:focus {
+      border-color: #0d9488;
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+      background: #fff;
+    }
+
+    .settings-alert {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+    .settings-alert.error {
+      background: #fdecea;
+      color: #b3261e;
+    }
+    .settings-alert.success {
+      background: #e6f4ea;
+      color: #1e7a4c;
+    }
+
+    .settings-submit {
+      width: 100%;
+      padding: 12px;
+      background: #0d9488;
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.15s ease;
+    }
+    .settings-submit:hover { background: #0b7c72; }
+
+    .support-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #eef0f2;
+    }
+    .support-item:last-child { border-bottom: none; }
+    .support-icon {
+      width: 34px; height: 34px; border-radius: 9px;
+      background: rgba(13, 148, 136, 0.1); color: #0d9488;
+      display: flex; align-items: center; justify-content: center; flex: 0 0 auto;
+    }
+    .support-item p.t { margin: 0; font-size: 13.5px; font-weight: 600; color: var(--text-dark, #111c2c); }
+    .support-item p.d { margin: 2px 0 0; font-size: 12.5px; color: var(--text-muted, #6b7280); line-height: 1.5; }
+    .support-item a { color: #0d9488; text-decoration: none; font-weight: 600; }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="logo">CareerMomentum</div>
+
+    <div class="navbar-search">
+      <div class="job-search-field has-caret">
+        <select required>
+          <option value="" disabled selected hidden>Select job type</option>
+          <option value="internship">Internship</option>
+          <option value="job">Job</option>
+        </select>
+      </div>
+      <div class="job-search-divider"></div>
+      <div class="job-search-field">
+        <input type="text" placeholder="Enter keyword / designation / companies" />
+      </div>
+      <div class="job-search-divider"></div>
+      <div class="job-search-field">
+        <input type="text" placeholder="Enter location" />
+      </div>
+      <button class="job-search-btn" type="button">
+        <span class="material-symbols-outlined">search</span>
+        Search
+      </button>
     </div>
-    <div class="topbar-actions">
-      <button class="topbar-icon-btn"><span class="material-symbols-outlined">notifications</span></button>
+
+    <div class="nav-buttons">
       <div class="topbar-divider"></div>
-      <a href="{{ url_for('super_admin_profile') }}" style="text-decoration:none;">
+      <a href="{{ url_for('seeker_auth.profile') }}" style="text-decoration:none;">
         <div class="user-chip">
-          <div>
-            <p class="user-chip-name" data-identity-name>Super Admin</p>
-            <p class="user-chip-role" data-identity-role>Super Admin</p>
+          <span class="user-role">Profile</span>
+          <div class="user-avatar">
+            <span class="material-symbols-outlined">person</span>
           </div>
-          <div class="avatar-fallback" data-identity-initials>SA</div>
         </div>
       </a>
     </div>
@@ -37,181 +158,162 @@
     <section class="dashboard-hero">
       <div class="dashboard-wrap">
 
-        <!-- Sidebar -->
         <aside class="sidebar">
-          <div class="sidebar-profile">
-            <div class="sidebar-avatar"><span class="material-symbols-outlined">shield_person</span></div>
-            <div>
-              <p class="sidebar-profile-name">CareerMomentum Admin</p>
-              <p class="sidebar-profile-status">Super Admin Access</p>
-            </div>
-          </div>
-
           <nav class="sidebar-nav">
-            <a href="{{ url_for('super_admin_dashboard') }}" class="active">
+            <a href="{{ url_for('seeker_dashboard.dashboard') }}">
               <span class="material-symbols-outlined">dashboard</span>
               <span>Dashboard</span>
             </a>
-            <a href="{{ url_for('super_admin_job') }}">
-              <span class="material-symbols-outlined">work</span>
-              <span>Total Job Posts</span>
+            <a href="{{ url_for('seeker_auth.resume_builder') }}">
+              <span class="material-symbols-outlined">description</span>
+              <span>Resume Builder</span>
             </a>
-            <a href="{{ url_for('super_admin_recruiters') }}">
-              <span class="material-symbols-outlined">business_center</span>
-              <span>Total Recruiters</span>
+            <a href="{{ url_for('ats_checker.ats_checker_page') }}">
+              <span class="material-symbols-outlined">analytics</span>
+              <span>ATS Analysis</span>
             </a>
-            <a href="{{ url_for('super_admin_user') }}">
-              <span class="material-symbols-outlined">manage_accounts</span>
-              <span>Total Users</span>
+            <a href="{{ url_for('recommendation.recommendation_page') }}">
+              <span class="material-symbols-outlined">stars</span>
+              <span>Job Recommendations</span>
             </a>
-            <a href="{{ url_for('super_admin_setting') }}">
-              <span class="material-symbols-outlined">settings</span>
-              <span>Settings</span>
+            <a href="{{ url_for('cover_letter.cover_letter') }}">
+              <span class="material-symbols-outlined">mail</span>
+              <span>Cover Letter</span>
+            </a>
+            <a href="{{ url_for('automation.automation') }}">
+              <span class="material-symbols-outlined">forward_to_inbox</span>
+              <span>Email Automation</span>
+            </a>
+            <a href="{{ url_for('ai_assistant.ai_assistant') }}">
+              <span class="material-symbols-outlined">analytics</span>
+              <span>AI Career Coach</span>
+            </a>
+            <a href="{{ url_for('messaging.seeker_messages') }}">
+              <span class="material-symbols-outlined">chat</span>
+              <span>Messages</span>
+            </a>
+            <a href="{{ url_for('seeker_auth.settings') }}" class="active">
+              <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+              <span>Settings &amp; Support</span>
             </a>
           </nav>
-
-          <div class="sidebar-footer">
-            <button class="sidebar-logout" data-action="logout">
-              <span class="material-symbols-outlined">logout</span>
-              <span>Log Out</span>
-            </button>
-          </div>
         </aside>
 
-        <!-- Main content -->
         <div class="dashboard-main">
           <div class="dashboard-header">
             <div>
-              <h1>System Overview</h1>
-              <p>Real-time performance and user acquisition metrics across CareerMomentum.</p>
+              <h1 style="font-size:22px; color:var(--text-dark); margin-bottom:4px;">Settings &amp; Support</h1>
+              <p style="color:var(--text-muted); font-size:13.5px;">Manage your account details, password, and get help.</p>
             </div>
-            
           </div>
 
-          <!-- Platform counts -->
-          <div class="stats-grid" style="margin-bottom: 20px;">
-            <a href="{{ url_for('super_admin_recruiters') }}" class="stat-card" style="text-decoration:none; color:inherit;">
-              <span class="material-symbols-outlined stat-card-icon">business_center</span>
-              <p class="stat-label">Total Recruiters</p>
-              <div class="stat-value-row">
-                <h3 class="stat-value">{{ stats.total_employers }}</h3>
-              </div>
-              <div class="stat-bar"><div class="stat-bar-fill" style="width: {{ (stats.active_employers / stats.total_employers * 100) | round(0, 'floor') if stats.total_employers else 0 }}%"></div></div>
-              <p class="stat-note">{{ stats.active_employers }} active, {{ stats.suspended_employers }} suspended/blocked.</p>
-            </a>
+          <div class="settings-grid">
 
-            <a href="{{ url_for('super_admin_user') }}" class="stat-card" style="text-decoration:none; color:inherit;">
-              <span class="material-symbols-outlined stat-card-icon">group</span>
-              <p class="stat-label">Total Users</p>
-              <div class="stat-value-row">
-                <h3 class="stat-value">{{ stats.total_seekers }}</h3>
-              </div>
-              <div class="stat-bar"><div class="stat-bar-fill" style="width: {{ (stats.active_seekers / stats.total_seekers * 100) | round(0, 'floor') if stats.total_seekers else 0 }}%"></div></div>
-              <p class="stat-note">{{ stats.flagged_seekers }} flagged for review.</p>
-            </a>
+            <!-- Account Settings -->
+            <div class="settings-card">
+              <h3>Account Details</h3>
+              <p class="hint">Update your name, email, phone number, and location.</p>
 
-            <a href="{{ url_for('super_admin_job') }}" class="stat-card" style="text-decoration:none; color:inherit;">
-              <span class="material-symbols-outlined stat-card-icon">work</span>
-              <p class="stat-label">Total Job Posts</p>
-              <div class="stat-value-row">
-                <h3 class="stat-value">{{ stats.total_jobs }}</h3>
-                {% if stats.pending_jobs > 0 %}
-                <span class="stat-delta warn">
-                  <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">priority_high</span> {{ stats.pending_jobs }} pending
-                </span>
-                {% endif %}
+              {% if account_error %}<div class="settings-alert error">{{ account_error }}</div>{% endif %}
+              {% if account_success %}<div class="settings-alert success">{{ account_success }}</div>{% endif %}
+
+              <form method="POST" action="{{ url_for('seeker_auth.settings_account') }}">
+                <div class="settings-field">
+                  <label for="full_name">Full Name</label>
+                  <input type="text" id="full_name" name="full_name" value="{{ current_user.full_name }}" required />
+                </div>
+                <div class="settings-field">
+                  <label for="email">Email</label>
+                  <input type="email" id="email" name="email" value="{{ current_user.email }}" required />
+                </div>
+                <div class="settings-field">
+                  <label for="mobile_number">Mobile Number</label>
+                  <input type="tel" id="mobile_number" name="mobile_number" value="{{ current_user.mobile_number }}" required />
+                </div>
+                <div class="settings-field">
+                  <label for="location">Location</label>
+                  <input type="text" id="location" name="location" value="{{ profile_location }}" placeholder="e.g. Kochi, Kerala" />
+                </div>
+                <button type="submit" class="settings-submit">Save Changes</button>
+              </form>
+            </div>
+
+            <!-- Password -->
+            <div class="settings-card">
+              <h3>Change Password</h3>
+              <p class="hint">Use a password you don't use anywhere else.</p>
+
+              {% if password_error %}<div class="settings-alert error">{{ password_error }}</div>{% endif %}
+              {% if password_success %}<div class="settings-alert success">{{ password_success }}</div>{% endif %}
+
+              <form method="POST" action="{{ url_for('seeker_auth.settings_password') }}">
+                <div class="settings-field">
+                  <label for="current_password">Current Password</label>
+                  <input type="password" id="current_password" name="current_password" required />
+                </div>
+                <div class="settings-field">
+                  <label for="new_password">New Password</label>
+                  <input type="password" id="new_password" name="new_password" placeholder="Minimum 6 characters" required />
+                </div>
+                <button type="submit" class="settings-submit">Update Password</button>
+              </form>
+            </div>
+
+            <!-- Support -->
+            <div class="settings-card" style="grid-column: 1 / -1;">
+              <h3>Help &amp; Support</h3>
+              <p class="hint">Need help with your account or the platform?</p>
+
+              <div class="support-item">
+                <div class="support-icon"><span class="material-symbols-outlined" style="font-size:18px;">mail</span></div>
+                <div>
+                  <p class="t">Email Support</p>
+                  <p class="d">Reach us at <a href="mailto:support@careermomentum.com">support@careermomentum.com</a> for account or platform issues.</p>
+                </div>
               </div>
-              <div class="stat-bar"><div class="stat-bar-fill" style="width: {{ (stats.approved_jobs / stats.total_jobs * 100) | round(0, 'floor') if stats.total_jobs else 0 }}%"></div></div>
-              <p class="stat-note">{{ stats.pending_jobs }} job posts await your approval.</p>
-            </a>
+
+              <div class="support-item">
+                <div class="support-icon"><span class="material-symbols-outlined" style="font-size:18px;">privacy_tip</span></div>
+                <div>
+                  <p class="t">Privacy Policy</p>
+                  <p class="d"><a href="{{ url_for('privacy_policy') }}">Read how we handle your data</a>.</p>
+                </div>
+              </div>
+
+              <div class="support-item">
+                <div class="support-icon"><span class="material-symbols-outlined" style="font-size:18px;">gavel</span></div>
+                <div>
+                  <p class="t">Terms of Service</p>
+                  <p class="d"><a href="{{ url_for('terms_of_services') }}">Review our platform terms</a>.</p>
+                </div>
+              </div>
+
+              <div class="support-item">
+                <div class="support-icon"><span class="material-symbols-outlined" style="font-size:18px;">logout</span></div>
+                <div>
+                  <p class="t">Log Out</p>
+                  <p class="d"><a href="{{ url_for('seeker_auth.seeker_logout') }}">Sign out of your CareerMomentum account</a>.</p>
+                </div>
+              </div>
+            </div>
+
           </div>
 
-          <!-- Snapshot: pending job posts -->
-          <section class="table-panel" style="margin-bottom: 20px;">
-            <div class="table-panel-header">
-              <div>
-                <h3>Job Postings — Pending Approval</h3>
-                <p>Newest listings awaiting your review.</p>
-              </div>
-              <a href="{{ url_for('super_admin_job') }}" class="table-panel-count" style="text-decoration:none;">View all →</a>
-            </div>
-            <div style="overflow-x:auto;">
-              <table class="data-table">
-                <thead>
-                  <tr><th>Job Title</th><th>Recruiter</th><th>Company</th><th>Submitted</th><th>Status</th></tr>
-                </thead>
-                <tbody>
-                  {% for job in pending_jobs %}
-                  <tr>
-                    <td><p class="candidate-name">{{ job.title }}</p></td>
-                    <td>{{ job.employer.employer_name if job.employer else "—" }}</td>
-                    <td>{{ job.company_name }}</td>
-                    <td>{{ job.created_at.strftime("%b %d, %Y") if job.created_at else "" }}</td>
-                    <td><span class="pill pending">Pending Review</span></td>
-                  </tr>
-                  {% else %}
-                  <tr><td colspan="5" style="text-align:center; color: var(--text-muted);">No jobs pending approval.</td></tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          <!-- Snapshot: recent registrations -->
-          <section class="table-panel">
-            <div class="table-panel-header">
-              <div>
-                <h3>Recent User Registrations</h3>
-                <p>Latest accounts created on the platform.</p>
-              </div>
-              <a href="{{ url_for('super_admin_user') }}" class="table-panel-count" style="text-decoration:none;">View all →</a>
-            </div>
-            <div style="overflow-x:auto;">
-              <table class="data-table">
-                <thead>
-                  <tr><th>User Name</th><th>Email</th><th>Role</th><th>Status</th></tr>
-                </thead>
-                <tbody>
-                  {% for user in recent_users %}
-                  <tr>
-                    <td>
-                      <div class="candidate-cell">
-                        <div class="candidate-avatar">{{ (user.name[:2] if user.name else "??") | upper }}</div>
-                        <div>
-                          <p class="candidate-name">{{ user.name }}</p>
-                          <p class="candidate-email">{{ user.created_at.strftime("%b %d, %Y") if user.created_at else "" }}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>{{ user.email }}</td>
-                    <td><span class="pill role">{{ user.role }}</span></td>
-                    <td>
-                      {% if user.status == "Active" %}
-                      <span class="status-dot-row active"><span class="status-dot"></span> Active</span>
-                      {% elif user.status == "Suspended" %}
-                      <span class="status-dot-row suspended"><span class="status-dot"></span> Suspended</span>
-                      {% else %}
-                      <span class="status-dot-row suspended"><span class="status-dot"></span> Blocked</span>
-                      {% endif %}
-                    </td>
-                  </tr>
-                  {% else %}
-                  <tr><td colspan="4" style="text-align:center; color: var(--text-muted);">No registrations yet.</td></tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-          </section>
         </div>
       </div>
     </section>
   </main>
 
-  <button class="fab" title="Quick Job Post">
-    <span class="material-symbols-outlined">add</span>
-  </button>
-
-  <script src="/static/js/super_admin_auth.js"></script>
-  <script src="/static/js/super_admin_app.js"></script>
+  <footer class="footer">
+    <div>
+      <h1 class="footer-logo">CareerMomentum</h1>
+      <p class="footer-copy">© 2026 CareerMomentum. Powered by Next-Gen Intelligence.</p>
+    </div>
+    <div class="footer-links">
+      <a href="{{ url_for('privacy_policy') }}">Privacy Policy</a>
+      <a href="{{ url_for('terms_of_services') }}">Terms of Service</a>
+      <a href="{{ url_for('contact') }}">Contact Us</a>
+    </div>
+  </footer>
 </body>
 </html>
