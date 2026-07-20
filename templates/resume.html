@@ -3,134 +3,200 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ResumeFit — ATS Resume Improver</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/css/resume.css">
+<title>Resume Tailor - CareerMomentum</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+<style>
+  /* Page-specific additions only -- navbar / page-banner / section /
+     form-card / btn-primary / btn-outline all come from style.css to
+     match the rest of the site. */
+  .rf-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 24px;
+    align-items: start;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  @media (max-width: 900px) { .rf-layout { grid-template-columns: 1fr; } }
+
+  .rf-dropzone {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+    border: 1.5px dashed #c4c6cd; border-radius: 12px; padding: 28px 16px;
+    text-align: center; cursor: pointer; background: #fafbff;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .rf-dropzone:hover, .rf-dropzone.has-file { border-color: #006a6a; background: #eff8f8; }
+  .rf-dz-icon { font-size: 22px; color: #006a6a; }
+  .rf-dz-text { font-size: 13.5px; color: #44474c; }
+  .rf-hint { font-size: 12px; color: #8a8f96; margin-top: 6px; }
+
+  .rf-submit {
+    width: 100%; padding: 14px; background: #006a6a; color: #fff; border: none;
+    border-radius: 10px; font-weight: 700; font-size: 14.5px; cursor: pointer;
+    margin-top: 4px; transition: background 0.2s ease;
+  }
+  .rf-submit:hover { background: #005555; }
+  .rf-submit.loading .rf-submit-label { opacity: 0.7; }
+
+  .rf-results-empty { text-align: center; color: #8a8f96; padding: 70px 20px; }
+  .rf-empty-glyph { font-size: 32px; margin-bottom: 10px; color: #c4c6cd; }
+
+  .rf-score-row { display: flex; align-items: center; justify-content: center; gap: 20px; margin: 4px 0 26px; }
+  .rf-gauge-wrap { position: relative; text-align: center; }
+  .rf-gauge { width: 120px; height: 120px; display: block; }
+  .rf-gauge-track { fill: none; stroke: #eceef0; stroke-width: 12; }
+  .rf-gauge-value {
+    fill: none; stroke: #94979e; stroke-width: 12; stroke-linecap: round;
+    stroke-dasharray: 377; stroke-dashoffset: 377;
+    transform: rotate(-90deg); transform-origin: 50% 50%;
+    transition: stroke-dashoffset 1s ease;
+  }
+  .rf-gauge-wrap.rf-accent .rf-gauge-value { stroke: #006a6a; }
+  .rf-gauge-label {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .rf-gauge-number { font-size: 20px; font-weight: 800; color: #041627; }
+  .rf-gauge-caption { font-size: 11.5px; color: #44474c; }
+  .rf-score-arrow { font-size: 18px; color: #8a8f96; }
+
+  .rf-kw-block { margin-top: 20px; }
+  .rf-kw-block h3 { font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .rf-kw-count { font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 999px; background: #eceef0; color: #44474c; }
+  .rf-kw-count.rf-added { background: rgba(13,148,136,0.12); color: #0d9488; }
+  .rf-kw-count.rf-missing { background: rgba(179,38,30,0.08); color: #b3261e; }
+  .rf-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .rf-tags span { font-size: 12.5px; font-weight: 600; padding: 4px 11px; border-radius: 999px; }
+  .rf-tags-matched span { background: rgba(0,106,106,0.1); color: #006a6a; }
+  .rf-tags-added span { background: rgba(13,148,136,0.12); color: #0d9488; }
+  .rf-tags-missing span { background: rgba(179,38,30,0.08); color: #b3261e; }
+  .rf-kw-note { font-size: 12px; color: #8a8f96; margin-top: 6px; }
+
+  .rf-download-btn {
+    display: block; text-align: center; width: 100%; padding: 14px;
+    background: #006a6a; color: #fff; border-radius: 10px; font-weight: 700;
+    font-size: 14.5px; text-decoration: none; margin-top: 22px; transition: background 0.2s ease;
+  }
+  .rf-download-btn:hover { background: #005555; }
+  .rf-reset-btn { width: 100%; margin-top: 10px; }
+</style>
 </head>
 <body>
 
-<div class="app-shell">
+  <!-- ===== Navbar (same as every page) ===== -->
+  <nav class="navbar">
+    <div class="logo">CareerMomentum</div>
+    
+    
+  </nav>
 
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="brand">
-      <span class="brand-mark">RF</span>
-      <span class="brand-name">ResumeFit</span>
-    </div>
-    <p class="tagline">Tailor your resume to any job description and export a clean, single-page, ATS-ready PDF.</p>
+  <!-- ===== Page banner ===== -->
+  <section class="page-banner">
+    <span class="badge"> Resume Tailor</span>
+    <h1>Match Your Resume to Any Job Description</h1>
+    <p>Upload your CV and the job description. We'll score the ATS match and generate a tailored, single-page, ATS-ready PDF.</p>
+  </section>
 
-    <ol class="steps">
-      <li class="step active" data-step="1">
-        <span class="step-num">01</span>
-        <span class="step-label">Upload resume</span>
-      </li>
-      <li class="step" data-step="2">
-        <span class="step-num">02</span>
-        <span class="step-label">Paste job description</span>
-      </li>
-      <li class="step" data-step="3">
-        <span class="step-num">03</span>
-        <span class="step-label">Review &amp; download</span>
-      </li>
-    </ol>
+  <section class="section">
+    <div class="rf-layout">
 
-    <div class="sidebar-footer">
-      <div class="footer-hint">Runs fully on your own server — files never leave your machine.</div>
-    </div>
-  </aside>
+      <!-- ============ FORM COLUMN ============ -->
+      <div class="form-card">
+        <h3 style="margin-top:0;"><i class="fa-solid fa-file-arrow-up" style="color:#006a6a; margin-right:8px;"></i>Your resume</h3>
 
-  <!-- Main -->
-  <main class="main">
+        <form id="ats-form">
+          <div class="form-group">
+            <label for="resume_file">Resume file</label>
+            <label class="rf-dropzone" id="dropzone" for="resume_file">
+              <span class="rf-dz-icon"><i class="fa-solid fa-cloud-arrow-up"></i></span>
+              <span class="rf-dz-text" id="dz-text">Drop your .pdf or .docx here, or click to browse</span>
+            </label>
+            <input type="file" id="resume_file" name="resume_file" accept=".pdf,.docx" required hidden>
+          </div>
 
-    <section class="panel input-panel">
-      <h1>Match your resume to the job</h1>
-      <p class="sub">Upload your CV and the job description. We'll score the ATS match and generate a tailored, single-page PDF.</p>
+          <div class="form-group">
+            <label for="job_role">Target job role <span class="cl-optional" style="font-size:11.5px; color:#8a8f96; font-weight:500;">(optional — for professional summary)</span></label>
+            <input type="text" id="job_role" name="job_role" placeholder="e.g., AI Engineer, ML Developer, Data Scientist">
+          </div>
 
-      <form id="ats-form">
-        <div class="field">
-          <label for="resume_file">Resume file</label>
-          <label class="dropzone" id="dropzone" for="resume_file">
-            <span class="dz-icon">&#8593;</span>
-            <span class="dz-text" id="dz-text">Drop your .pdf or .docx here, or click to browse</span>
-          </label>
-          <input type="file" id="resume_file" name="resume_file" accept=".pdf,.docx" required hidden>
-        </div>
+          <div class="form-group">
+            <label for="job_description">Job description</label>
+            <textarea id="job_description" name="job_description" rows="8" placeholder="Paste the full job description here..." required></textarea>
+            <p class="rf-hint">We only add skills that already appear in your uploaded resume — nothing is invented.</p>
+          </div>
 
-        <div class="field">
-          <label for="job_role">Target job role <span style="font-size: 12px; color: #666;">(optional - for professional summary)</span></label>
-          <input type="text" id="job_role" name="job_role" placeholder="e.g., AI Engineer, ML Developer, Data Scientist" style="padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; width: 100%; font-family: inherit;" />
-        </div>
-
-        <div class="field">
-          <label for="job_description">Job description</label>
-          <textarea id="job_description" name="job_description" placeholder="Paste the full job description here..." required></textarea>
-        </div>
-
-        <button type="submit" id="submit-btn" class="btn-primary">
-          <span id="submit-label">Analyze &amp; Tailor Resume</span>
-        </button>
-        <div id="form-error" class="form-error" hidden></div>
-      </form>
-    </section>
-
-    <section class="panel results-panel" id="results-panel">
-      <div class="results-empty" id="results-empty">
-        <div class="empty-glyph">&#9679;</div>
-        <p>Your ATS match score and keyword breakdown will appear here.</p>
+          <button type="submit" id="submit-btn" class="rf-submit">
+            <span id="submit-label">Analyze &amp; Tailor Resume</span>
+          </button>
+          <div id="form-error" class="form-error" hidden></div>
+        </form>
       </div>
 
-      <div class="results-content" id="results-content" hidden>
+      <!-- ============ RESULTS COLUMN ============ -->
+      <div class="form-card results-panel" id="results-panel">
+        <div class="rf-results-empty" id="results-empty">
+          <div class="rf-empty-glyph"><i class="fa-solid fa-chart-simple"></i></div>
+          <p>Your ATS match score and keyword breakdown will appear here.</p>
+        </div>
 
-        <div class="score-row">
-          <div class="gauge-wrap">
-            <svg class="gauge" viewBox="0 0 140 140">
-              <circle class="gauge-track" cx="70" cy="70" r="60"></circle>
-              <circle class="gauge-value" id="gauge-before" cx="70" cy="70" r="60"></circle>
-            </svg>
-            <div class="gauge-label">
-              <span class="gauge-number" id="score-before-num">0%</span>
-              <span class="gauge-caption">Original</span>
+        <div class="results-content" id="results-content" hidden>
+
+          <div class="rf-score-row">
+            <div class="rf-gauge-wrap">
+              <svg class="rf-gauge" viewBox="0 0 140 140">
+                <circle class="rf-gauge-track" cx="70" cy="70" r="60"></circle>
+                <circle class="rf-gauge-value" id="gauge-before" cx="70" cy="70" r="60"></circle>
+              </svg>
+              <div class="rf-gauge-label">
+                <span class="rf-gauge-number" id="score-before-num">0%</span>
+                <span class="rf-gauge-caption">Original</span>
+              </div>
+            </div>
+            <div class="rf-score-arrow"><i class="fa-solid fa-arrow-right"></i></div>
+            <div class="rf-gauge-wrap rf-accent">
+              <svg class="rf-gauge" viewBox="0 0 140 140">
+                <circle class="rf-gauge-track" cx="70" cy="70" r="60"></circle>
+                <circle class="rf-gauge-value" id="gauge-after" cx="70" cy="70" r="60"></circle>
+              </svg>
+              <div class="rf-gauge-label">
+                <span class="rf-gauge-number" id="score-after-num">0%</span>
+                <span class="rf-gauge-caption">Tailored</span>
+              </div>
             </div>
           </div>
-          <div class="score-arrow">&#8594;</div>
-          <div class="gauge-wrap accent">
-            <svg class="gauge" viewBox="0 0 140 140">
-              <circle class="gauge-track" cx="70" cy="70" r="60"></circle>
-              <circle class="gauge-value" id="gauge-after" cx="70" cy="70" r="60"></circle>
-            </svg>
-            <div class="gauge-label">
-              <span class="gauge-number" id="score-after-num">0%</span>
-              <span class="gauge-caption">Tailored</span>
-            </div>
+
+          <div class="rf-kw-block">
+            <h3><i class="fa-solid fa-circle-check" style="color:#006a6a;"></i> Matched keywords <span class="rf-kw-count" id="matched-count">0</span></h3>
+            <div class="rf-tags rf-tags-matched" id="matched-tags"></div>
           </div>
-        </div>
 
-        <div class="kw-block">
-          <h3>Matched keywords <span class="kw-count" id="matched-count">0</span></h3>
-          <div class="tags tags-matched" id="matched-tags"></div>
-        </div>
+          <div class="rf-kw-block">
+            <h3><i class="fa-solid fa-plus" style="color:#0d9488;"></i> Added to your tailored resume <span class="rf-kw-count rf-added" id="added-count">0</span></h3>
+            <div class="rf-tags rf-tags-added" id="added-tags"></div>
+            <p class="rf-kw-note">Review these — keep only skills you genuinely have before applying.</p>
+          </div>
 
-        <div class="kw-block">
-          <h3>Added to your tailored resume <span class="kw-count added" id="added-count">0</span></h3>
-          <div class="tags tags-added" id="added-tags"></div>
-          <p class="kw-note">Review these — keep only skills you genuinely have before applying.</p>
-        </div>
+          <div class="rf-kw-block">
+            <h3><i class="fa-solid fa-circle-xmark" style="color:#b3261e;"></i> Still missing <span class="rf-kw-count rf-missing" id="missing-count">0</span></h3>
+            <div class="rf-tags rf-tags-missing" id="missing-tags"></div>
+          </div>
 
-        <div class="kw-block">
-          <h3>Still missing <span class="kw-count missing" id="missing-count">0</span></h3>
-          <div class="tags tags-missing" id="missing-tags"></div>
+          <a id="download-link" class="rf-download-btn" href="#" download>
+            <i class="fa-solid fa-download"></i> Download Tailored Resume (PDF, 1 page)
+          </a>
+          <button type="button" class="btn btn-outline rf-reset-btn" id="reset-btn">Start over</button>
         </div>
-
-        <a id="download-link" class="btn-primary download-btn" href="#" download>
-          Download Tailored Resume (PDF, 1 page)
-        </a>
-        <button type="button" class="btn-secondary" id="reset-btn">Start over</button>
       </div>
-    </section>
 
-  </main>
-</div>
+    </div>
+  </section>
+
+  <div style="text-align:center; margin: 0 0 40px;">
+    <button type="button" class="btn btn-outline" onclick="history.back()">Back</button>
+  </div>
 
 <script src="/static/js/resume.js"></script>
 </body>

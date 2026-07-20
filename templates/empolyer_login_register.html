@@ -18,10 +18,9 @@
 
     <div class="nav-links">
       <a href="{{ url_for('index') }}" class="active">Home</a>
-      <a href="jobs.html">Jobs</a>
       <a href="{{ url_for('resources') }}">Resources</a>
-      <a href="about.html">About</a>
-      <a href="contact.html">Contact</a>
+      <a href="{{ url_for('about') }}">About</a>
+      <a href="{{ url_for('contact') }}">Contact</a>
     </div>
 
    
@@ -42,11 +41,11 @@
 
           <div class="mini-stats">
             <div class="mini-stat">
-              <div class="mini-stat-value">50K+</div>
+              <div class="mini-stat-value">20+</div>
               <div class="mini-stat-label">Professionals reached</div>
             </div>
             <div class="mini-stat">
-              <div class="mini-stat-value">1.5K+</div>
+              <div class="mini-stat-value">15+</div>
               <div class="mini-stat-label">Active listings</div>
             </div>
             <div class="mini-stat">
@@ -76,7 +75,7 @@
           {% endif %}
 
           <div id="loginForm" class="{% if active_tab == 'register' %}hidden{% endif %}">
-            <div class="auth-form-title">Welcome Back 👋</div>
+            <div class="auth-form-title">Welcome Back </div>
             <form action="{{ url_for('employer_auth.employer_login') }}" method="POST">
               <div class="form-group">
                 <input type="email" name="company_email" placeholder="Company Email" required />

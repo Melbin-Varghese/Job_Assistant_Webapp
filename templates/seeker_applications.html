@@ -154,10 +154,9 @@
       <a href="{{ url_for('index') }}" class="btn btn-ghost">Logout</a>
     </div>
     <div class="footer-links">
-      <a href="privacy_policy.html">Privacy Policy</a>
-      <a href="terms_of_services.html">Terms of Service</a>
-      <a href="#">Cookie Settings</a>
-      <a href="contact.html">Contact Us</a>
+      <a href="{{ url_for('privacy_policy') }}">Privacy Policy</a>
+      <a href="{{ url_for('terms_of_services') }}">Terms of Service</a>
+      <a href="{{ url_for('contact') }}">Contact Us</a>
     </div>
   </footer>
 </body>

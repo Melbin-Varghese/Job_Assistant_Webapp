@@ -10,6 +10,86 @@
   <script>
     if (!sessionStorage.getItem("cm_admin_session")) { window.location.href = "{{ url_for('super_admin_login') }}"; }
   </script>
+
+  <style>
+    /* ---- Job details review modal (light theme, matches super_admin.css) ---- */
+    .jm-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .jm-backdrop.open { display: flex; }
+    .jm-modal {
+      position: relative;
+      background: #ffffff;
+      color: #111827;
+      width: 100%;
+      max-width: 600px;
+      max-height: 85vh;
+      overflow-y: auto;
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      border: 1px solid #e5e7eb;
+    }
+    .jm-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #6b7280;
+    }
+    .jm-close:hover { color: #111827; }
+    .jm-title { font-size: 19px; font-weight: 800; margin: 0 0 4px 0; padding-right: 30px; color: #111827; }
+    .jm-sub { font-size: 13.5px; color: #6b7280; margin: 0 0 16px 0; }
+    .jm-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .jm-tag {
+      font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 999px;
+      background: rgba(13,148,136,0.1); color: #0d9488;
+    }
+    .jm-section-label { font-size: 12.5px; font-weight: 700; color: #6b7280; margin: 16px 0 6px; text-transform: uppercase; letter-spacing: 0.03em; }
+    .jm-desc { font-size: 13.5px; line-height: 1.7; white-space: pre-line; color: #374151; }
+    .jm-skills { display: flex; flex-wrap: wrap; gap: 6px; }
+    .jm-skill-tag { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: #f1f3f5; color: #374151; }
+    .jm-info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eef0f2; font-size: 13px; }
+    .jm-info-row:last-child { border-bottom: none; }
+    .jm-info-row span.k { color: #6b7280; }
+    .jm-info-row span.v { color: #111827; font-weight: 600; text-align: right; }
+    .jm-actions { display: flex; gap: 10px; margin-top: 22px; padding-top: 18px; border-top: 1px solid #eef0f2; }
+    .jm-btn {
+      flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 11px; border-radius: 10px; font-size: 13.5px; font-weight: 700; cursor: pointer;
+      border: none; font-family: 'Inter', sans-serif;
+    }
+    .jm-btn-accept { background: #0d9488; color: #fff; }
+    .jm-btn-accept:hover:not(:disabled) { background: #0b7c72; }
+    .jm-btn-reject { background: #dc2626; color: #fff; }
+    .jm-btn-reject:hover:not(:disabled) { background: #b91c1c; }
+    .jm-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .view-btn {
+      background: #eef0f2;
+      color: #374151;
+      border: 1px solid #d8dce0;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: 'Inter', sans-serif;
+    }
+    .view-btn:hover { background: #e2e5e9; border-color: #c4c9cf; }
+  </style>
 </head>
 <body>
 
@@ -19,7 +99,7 @@
       CareerMomentum
     </div>
     <div class="topbar-actions">
-      <button class="topbar-icon-btn"><span class="material-symbols-outlined">notifications</span></button>
+      
       <div class="topbar-divider"></div>
       <a href="{{ url_for('super_admin_profile') }}" style="text-decoration:none;">
         <div class="user-chip">
@@ -86,14 +166,8 @@
               <p>Review new listings from recruiters before they go live.</p>
             </div>
             <div class="dashboard-actions">
-              <button class="btn btn-outline">
-                <span class="material-symbols-outlined" style="font-size:18px;">filter_list</span>
-                Filter
-              </button>
-              <button class="btn btn-primary">
-                <span class="material-symbols-outlined" style="font-size:18px;">download</span>
-                Export
-              </button>
+              
+              
             </div>
           </div>
 
@@ -153,7 +227,18 @@
                 </thead>
                 <tbody id="jobsTableBody">
                   {% for job in pending_jobs %}
-                  <tr data-job-id="{{ job.id }}">
+                  <tr data-job-id="{{ job.id }}"
+                      data-title="{{ job.title }}"
+                      data-company="{{ job.company_name }}"
+                      data-recruiter="{{ job.employer.employer_name if job.employer else '—' }}"
+                      data-location="{{ job.location or 'Not specified' }}"
+                      data-job-type="{{ job.job_type }}"
+                      data-experience="{{ job.experience_level }}"
+                      data-description="{{ job.description }}"
+                      data-skills="{{ job.skills or '' }}"
+                      data-company-email="{{ job.company_email }}"
+                      data-company-website="{{ job.company_website or '' }}"
+                      data-submitted="{{ job.created_at.strftime('%b %d, %Y') if job.created_at else '' }}">
                     <td><p class="candidate-name">{{ job.title }}</p></td>
                     <td>{{ job.employer.employer_name }}</td>
                     <td>{{ job.company_name }}</td>
@@ -161,6 +246,10 @@
                     <td><span class="pill pending">Pending Review</span></td>
                     <td class="right">
                       <div class="action-pill-group">
+                        <button type="button" class="view-btn" onclick="openJobReviewModal(this.closest('tr'))">
+                          <span class="material-symbols-outlined" style="font-size:15px;">visibility</span>
+                          View
+                        </button>
                         <button class="action-pill accept" data-job-id="{{ job.id }}"><span class="material-symbols-outlined">check</span> Accept</button>
                         <button class="action-pill reject" data-job-id="{{ job.id }}"><span class="material-symbols-outlined">close</span> Reject</button>
                       </div>
@@ -190,9 +279,136 @@
     </section>
   </main>
 
+  <!-- Job review modal -->
+  <div class="jm-backdrop" id="jobReviewModal" onclick="if (event.target === this) closeJobReviewModal();">
+    <div class="jm-modal">
+      <button type="button" class="jm-close" onclick="closeJobReviewModal()" aria-label="Close">
+        <span class="material-symbols-outlined">close</span>
+      </button>
 
+      <h3 class="jm-title" id="jrTitle"></h3>
+      <p class="jm-sub" id="jrCompanyLine"></p>
+
+      <div class="jm-meta">
+        <span class="jm-tag" id="jrJobType"></span>
+        <span class="jm-tag" id="jrExperience"></span>
+        <span class="jm-tag" id="jrLocation"></span>
+      </div>
+
+      <p class="jm-section-label">Job Description</p>
+      <p class="jm-desc" id="jrDescription"></p>
+
+      <div id="jrSkillsWrap">
+        <p class="jm-section-label">Required Skills</p>
+        <div class="jm-skills" id="jrSkills"></div>
+      </div>
+
+      <p class="jm-section-label">Posting Details</p>
+      <div class="jm-info-row"><span class="k">Posted by (Recruiter)</span><span class="v" id="jrRecruiter"></span></div>
+      <div class="jm-info-row"><span class="k">Company Email</span><span class="v" id="jrEmail"></span></div>
+      <div class="jm-info-row" id="jrWebsiteRow"><span class="k">Company Website</span><span class="v" id="jrWebsite"></span></div>
+      <div class="jm-info-row"><span class="k">Submitted</span><span class="v" id="jrSubmitted"></span></div>
+
+      <div class="jm-actions">
+        <button type="button" class="jm-btn jm-btn-accept" id="jrAcceptBtn">
+          <span class="material-symbols-outlined" style="font-size:17px;">check</span>
+          Approve &amp; Publish
+        </button>
+        <button type="button" class="jm-btn jm-btn-reject" id="jrRejectBtn">
+          <span class="material-symbols-outlined" style="font-size:17px;">close</span>
+          Reject
+        </button>
+      </div>
+    </div>
+  </div>
 
   <script src="/static/js/super_admin_auth.js"></script>
   <script src="/static/js/super_admin_app.js"></script>
+  <script>
+    let jrCurrentJobId = null;
+    let jrCurrentRow = null;
+
+    function openJobReviewModal(row) {
+      jrCurrentJobId = row.dataset.jobId;
+      jrCurrentRow = row;
+
+      document.getElementById('jrTitle').textContent = row.dataset.title;
+      document.getElementById('jrCompanyLine').textContent = row.dataset.company;
+      document.getElementById('jrJobType').textContent = row.dataset.jobType;
+      document.getElementById('jrExperience').textContent = row.dataset.experience;
+      document.getElementById('jrLocation').textContent = row.dataset.location;
+      document.getElementById('jrDescription').textContent = row.dataset.description;
+      document.getElementById('jrRecruiter').textContent = row.dataset.recruiter;
+      document.getElementById('jrEmail').textContent = row.dataset.companyEmail;
+      document.getElementById('jrSubmitted').textContent = row.dataset.submitted;
+
+      const website = row.dataset.companyWebsite;
+      const websiteRow = document.getElementById('jrWebsiteRow');
+      if (website) {
+        document.getElementById('jrWebsite').textContent = website;
+        websiteRow.style.display = '';
+      } else {
+        websiteRow.style.display = 'none';
+      }
+
+      const skills = (row.dataset.skills || '').split(',').map(s => s.trim()).filter(Boolean);
+      const skillsWrap = document.getElementById('jrSkillsWrap');
+      const skillsEl = document.getElementById('jrSkills');
+      skillsEl.innerHTML = '';
+      if (skills.length) {
+        skills.forEach((skill) => {
+          const tag = document.createElement('span');
+          tag.className = 'jm-skill-tag';
+          tag.textContent = skill;
+          skillsEl.appendChild(tag);
+        });
+        skillsWrap.style.display = '';
+      } else {
+        skillsWrap.style.display = 'none';
+      }
+
+      document.getElementById('jrAcceptBtn').disabled = false;
+      document.getElementById('jrRejectBtn').disabled = false;
+
+      document.getElementById('jobReviewModal').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeJobReviewModal() {
+      document.getElementById('jobReviewModal').classList.remove('open');
+      document.body.style.overflow = '';
+      jrCurrentJobId = null;
+      jrCurrentRow = null;
+    }
+
+    async function jrDecide(action) {
+      if (!jrCurrentJobId) return;
+      const acceptBtn = document.getElementById('jrAcceptBtn');
+      const rejectBtn = document.getElementById('jrRejectBtn');
+      acceptBtn.disabled = true;
+      rejectBtn.disabled = true;
+
+      try {
+        const res = await fetch(`/api/super-admin/jobs/${jrCurrentJobId}/${action}`, { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          throw new Error((data && data.error) || `Request failed (${res.status})`);
+        }
+        if (jrCurrentRow) jrCurrentRow.remove();
+        closeJobReviewModal();
+      } catch (err) {
+        alert(err.message || 'Something went wrong. Please try again.');
+        acceptBtn.disabled = false;
+        rejectBtn.disabled = false;
+      }
+    }
+
+    document.getElementById('jrAcceptBtn').addEventListener('click', () => jrDecide('approve'));
+    document.getElementById('jrRejectBtn').addEventListener('click', () => jrDecide('reject'));
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeJobReviewModal();
+    });
+  </script>
 </body>
 </html>

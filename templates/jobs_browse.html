@@ -88,7 +88,7 @@
 
     <div class="nav-buttons">
       {% if is_logged_in %}
-        <a href="{{ url_for('seeker_dashboard.dashboard') if is_seeker else url_for('employer_pages.dashboard') }}" class="btn btn-outline">My Dashboard</a>
+        
       {% else %}
         <a href="{{ url_for('employer_auth.employer_login_register_page') }}" class="btn btn-outline">Employers</a>
         <a href="{{ url_for('seeker_auth.seeker_login_register_page') }}" class="btn btn-outline">Seekers</a>
@@ -99,7 +99,7 @@
   <!-- ===== Page banner + search ===== -->
   <section class="hero">
     <div class="hero-content">
-      <span class="hero-badge">✨ Browse Jobs</span>
+      <span class="hero-badge"> Browse Jobs</span>
       <h1>{{ category_label + ' Jobs' if category_label else 'Find Your Next Role' }}</h1>
       <p>Open to everyone -- no login needed to look around. Sign in as a seeker when you're ready to apply.</p>
 

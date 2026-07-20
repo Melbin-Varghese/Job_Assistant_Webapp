@@ -17,8 +17,8 @@
     <div class="nav-links">
       <a href="{{ url_for('resources') }}">Resources</a>
       <a href="{{ url_for('index') }}" class="active">Dashboard</a>
-      <a href="about.html" class="nav-link">About</a>
-      <a href="contact.html" class="nav-link">Contact</a>
+      <a href="{{ url_for('about') }}" class="nav-link">About</a>
+      <a href="{{ url_for('contact') }}" class="nav-link">Contact</a>
 
       <div class="nav-buttons">
         <a href="empolyer_login_register.html" class="btn btn-outline">Employers</a>
@@ -31,7 +31,7 @@
       <div class="auth-grid">
         <div class="auth-intro">
           <span class="auth-intro-badge">
-            <span class="material-symbols-outlined">auto_awesome</span>
+            <span class="material-symbols-outlined"></span>
             AI Powered Career Access
           </span>
 
@@ -41,11 +41,11 @@
 
           <div class="stat-row">
             <div class="stat-pill">
-              <div class="stat-pill-value">50K+</div>
+              <div class="stat-pill-value">20+</div>
               <div class="stat-pill-label">Professionals</div>
             </div>
             <div class="stat-pill">
-              <div class="stat-pill-value">1.5K+</div>
+              <div class="stat-pill-value">15+</div>
               <div class="stat-pill-label">Listings</div>
             </div>
             <div class="stat-pill">
@@ -95,15 +95,11 @@
 
             <div class="auth-alt">
               <div class="divider">
-                <span class="line"></span>
-                <span>Or</span>
+                
                 <span class="line"></span>
               </div>
 
-              <button type="button" class="btn-google">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" />
-                Sign in with Google
-              </button>
+              
             </div>
           </form>
 

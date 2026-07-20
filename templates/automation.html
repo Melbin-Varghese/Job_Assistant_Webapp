@@ -3,206 +3,221 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CareerMomentum - AI Job Application Automation</title>
+<title>Job Application Automation - CareerMomentum</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
 <style>
-:root {
-  --bg: #0F172A;
-  --card: #1A1F3A;
-  --text: #F8FAFC;
-  --text-muted: #94A3B8;
-  --border: #334155;
-  --primary: #14B8A6;
-  --primary-hover: #0D9488;
-  --danger: #EF4444;
-  --success: #10B981;
-}
+  /* Page-specific additions only -- navbar / page-banner / section /
+     form-card / btn-primary / btn-outline all come from style.css to
+     match the rest of the site. */
+  .auto-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  @media (max-width: 900px) { .auto-layout { grid-template-columns: 1fr; } }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+  .auto-section-title { font-size: 15px; font-weight: 700; color: #041627; margin: 0 0 14px; display: flex; align-items: center; gap: 8px; }
 
-body {
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  padding: 32px 20px;
-}
+  .auto-upload-box {
+    border: 1.5px dashed #c4c6cd; border-radius: 12px; padding: 24px 16px;
+    text-align: center; cursor: pointer; background: #fafbff;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  .auto-upload-box:hover, .auto-upload-box.active { border-color: #006a6a; background: #eff8f8; }
+  .auto-upload-icon { font-size: 26px; margin-bottom: 8px; color: #006a6a; }
+  .auto-upload-text { font-size: 13.5px; color: #44474c; margin-bottom: 4px; }
+  .auto-upload-sub { font-size: 11.5px; color: #8a8f96; }
 
-.container { max-width: 1400px; margin: 0 auto; }
-.app-shell { background: var(--card); border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
-.app-header { padding: 28px 36px; border-bottom: 1px solid var(--border); }
-.logo { font-size: 28px; font-weight: 700; color: var(--primary); }
-.app-content { padding: 36px; display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
-.section { display: flex; flex-direction: column; gap: 20px; }
-.section-title { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
-.form-label { font-size: 13px; font-weight: 500; color: var(--text-muted); text-transform: uppercase; }
+  .auto-extracted-details {
+    background: rgba(0,106,106,0.06); border: 1px solid rgba(0,106,106,0.3);
+    border-radius: 10px; padding: 14px 16px; margin-top: 12px; display: none;
+  }
+  .auto-extracted-details.show { display: block; }
+  .auto-extracted-title { font-size: 12px; font-weight: 700; color: #006a6a; margin-bottom: 10px; }
+  .auto-detail-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #eceef0; }
+  .auto-detail-row:last-child { border-bottom: none; }
+  .auto-detail-label { font-size: 12px; color: #8a8f96; font-weight: 600; }
+  .auto-detail-value { font-size: 12.5px; color: #041627; }
 
-input, textarea { padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px; background: rgba(255,255,255,0.05); color: var(--text); font-family: inherit; font-size: 14px; }
-input:focus, textarea:focus { outline: none; border-color: var(--primary); background: rgba(20, 184, 166, 0.1); }
-textarea { resize: vertical; min-height: 100px; }
+  .auto-preview-section {
+    background: #fafbff; border: 1px solid #e0e3e5; border-radius: 10px;
+    padding: 16px; margin-top: 14px; max-height: 200px; overflow-y: auto;
+    font-size: 12.5px; color: #44474c; line-height: 1.6; white-space: pre-wrap;
+  }
+  .auto-preview-section.empty { text-align: center; color: #8a8f96; padding: 32px 16px; }
 
-.cv-upload-area { border: 2px dashed var(--primary); border-radius: 12px; padding: 24px; text-align: center; cursor: pointer; background: rgba(20, 184, 166, 0.05); }
-.cv-upload-area.active { background: rgba(20, 184, 166, 0.2); border-color: var(--success); }
-.upload-icon { font-size: 32px; margin-bottom: 12px; }
-.upload-text { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
-.upload-file-input { display: none; }
+  .auto-generate-btn, .auto-send-btn, .auto-add-email-btn {
+    padding: 12px 20px; border: none; border-radius: 10px; font-size: 14px;
+    font-weight: 700; cursor: pointer; transition: background 0.2s ease;
+  }
+  .auto-generate-btn, .auto-add-email-btn { background: #006a6a; color: #fff; width: 100%; margin-top: 14px; }
+  .auto-generate-btn:hover:not(:disabled), .auto-add-email-btn:hover { background: #005555; }
+  .auto-send-btn { background: #0d9488; color: #fff; width: 100%; margin-top: 4px; }
+  .auto-send-btn:hover:not(:disabled) { background: #0b7d73; }
+  .auto-generate-btn:disabled, .auto-send-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-.extracted-details { background: rgba(20, 184, 166, 0.1); border: 1px solid var(--primary); border-radius: 10px; padding: 16px; margin-top: 12px; display: none; }
-.extracted-details.show { display: block; }
-.detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
-.detail-label { font-size: 12px; color: var(--text-muted); font-weight: 500; }
-.detail-value { font-size: 13px; color: var(--text); }
+  .auto-email-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .auto-email-tag {
+    background: rgba(0,106,106,0.1); color: #006a6a; padding: 6px 12px; border-radius: 999px;
+    font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px;
+  }
+  .auto-email-tag button { background: none; border: none; color: inherit; cursor: pointer; font-size: 14px; padding: 0; }
 
-.email-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-.email-tag { background: var(--primary); color: var(--bg); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
-.email-tag button { background: none; border: none; color: inherit; cursor: pointer; font-size: 16px; padding: 0; }
+  .status-message { padding: 12px 14px; border-radius: 8px; font-size: 13px; margin-top: 12px; display: none; }
+  .status-message.show { display: block; }
+  .status-message.success { background: rgba(13,148,136,0.1); border: 1px solid #0d9488; color: #0d9488; }
+  .status-message.error { background: rgba(179,38,30,0.08); border: 1px solid #b3261e; color: #b3261e; }
+  .status-message.info { background: rgba(0,106,106,0.08); border: 1px solid #006a6a; color: #006a6a; }
 
-.preview-section { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-top: 16px; max-height: 200px; overflow-y: auto; font-size: 12px; color: var(--text-muted); }
-.preview-section.empty { text-align: center; padding: 32px 16px; }
-
-.button-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
-.generate-button, .send-button { padding: 12px 20px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
-.generate-button { background: var(--primary); color: var(--bg); }
-.generate-button:hover:not(:disabled) { background: var(--primary-hover); transform: translateY(-2px); }
-.send-button { background: var(--success); color: white; width: 100%; }
-.generate-button:disabled, .send-button:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; z-index: 1000; }
-.modal.show { display: flex; }
-.modal-content { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px; max-width: 500px; width: 90%; }
-.modal-title { font-size: 18px; font-weight: 600; margin-bottom: 12px; }
-.modal-message { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6; }
-.modal-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.modal-btn { padding: 10px 16px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; }
-.modal-btn-primary { background: var(--primary); color: var(--bg); }
-.modal-btn-secondary { background: var(--border); color: var(--text); }
-
-.status-message { padding: 12px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 12px; display: none; }
-.status-message.show { display: block; }
-.status-message.success { background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); color: var(--success); }
-.status-message.error { background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); color: var(--danger); }
-.status-message.info { background: rgba(20, 184, 166, 0.1); border: 1px solid var(--primary); color: var(--primary); }
-
-@media (max-width: 1024px) {
-  .app-content { grid-template-columns: 1fr; gap: 32px; }
-}
+  .auto-modal {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(4,22,39,0.55); justify-content: center; align-items: center; z-index: 1000;
+  }
+  .auto-modal.show { display: flex; }
+  .auto-modal-content { background: #fff; border: 1px solid #e0e3e5; border-radius: 16px; padding: 28px; max-width: 440px; width: 90%; }
+  .auto-modal-title { font-size: 17px; font-weight: 700; color: #041627; margin-bottom: 10px; }
+  .auto-modal-message { font-size: 13.5px; color: #44474c; margin-bottom: 20px; line-height: 1.6; }
+  .auto-modal-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .auto-modal-btn { padding: 10px 16px; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .auto-modal-btn-primary { background: #006a6a; color: #fff; }
+  .auto-modal-btn-secondary { background: #eceef0; color: #44474c; }
 </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="app-shell">
+  <!-- ===== Navbar (same as every page) ===== -->
+  <nav class="navbar">
+    <div class="logo">CareerMomentum</div>
     
-    <div class="app-header">
-      <div class="logo">🚀 CareerMomentum</div>
-      <div style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">AI-Powered Job Application Automation</div>
-    </div>
+    
+  </nav>
 
-    <div class="app-content">
+  <!-- ===== Page banner ===== -->
+  <section class="page-banner">
+    <span class="badge"> AI Application Automation</span>
+    <h1>Apply to Jobs Faster, Automatically</h1>
+    <p>Upload your CV once, generate a tailored cover letter for each role, and send your application straight to HR — all from one place.</p>
+  </section>
 
-      <div class="section">
-        <h2 class="section-title">📄 Your Profile & Application</h2>
+  <section class="section">
+    <div class="auto-layout">
 
-        <div>
-          <label class="form-label">Upload Your CV (PDF)</label>
-          <div class="cv-upload-area" id="cvUploadArea">
-            <div class="upload-icon">📁</div>
-            <div class="upload-text">Click to upload or drag & drop</div>
-            <div style="font-size: 11px; color: var(--text-muted);">PDF • Max 5MB</div>
-            <input type="file" id="cvFileInput" class="upload-file-input" accept=".pdf">
+      <!-- ============ PROFILE & APPLICATION COLUMN ============ -->
+      <div class="form-card">
+        <h3 class="auto-section-title"><i class="fa-solid fa-user" style="color:#006a6a;"></i>Your Profile &amp; Application</h3>
+
+        <div class="form-group">
+          <label>Upload your CV (PDF)</label>
+          <div class="auto-upload-box" id="cvUploadArea">
+            <div class="auto-upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+            <div class="auto-upload-text">Click to upload or drag &amp; drop</div>
+            <div class="auto-upload-sub">PDF • Max 5MB</div>
+            <input type="file" id="cvFileInput" accept=".pdf" hidden>
           </div>
-          
-          <div class="extracted-details" id="extractedDetails">
-            <div style="font-size: 12px; font-weight: 600; color: var(--primary); margin-bottom: 12px;">✅ Details Extracted</div>
-            <div class="detail-row">
-              <span class="detail-label">Name</span>
-              <span class="detail-value" id="detailName">-</span>
+
+          <div class="auto-extracted-details" id="extractedDetails">
+            <div class="auto-extracted-title"><i class="fa-solid fa-circle-check"></i> Details Extracted</div>
+            <div class="auto-detail-row">
+              <span class="auto-detail-label">Name</span>
+              <span class="auto-detail-value" id="detailName">-</span>
             </div>
-            <div class="detail-row">
-              <span class="detail-label">Phone</span>
-              <span class="detail-value" id="detailPhone">-</span>
+            <div class="auto-detail-row">
+              <span class="auto-detail-label">Phone</span>
+              <span class="auto-detail-value" id="detailPhone">-</span>
             </div>
-            <div class="detail-row">
-              <span class="detail-label">Email</span>
-              <span class="detail-value" id="detailEmail">-</span>
+            <div class="auto-detail-row">
+              <span class="auto-detail-label">Email</span>
+              <span class="auto-detail-value" id="detailEmail">-</span>
             </div>
-            <div class="detail-row">
-              <span class="detail-label">LinkedIn</span>
-              <span class="detail-value" id="detailLinkedIn">-</span>
+            <div class="auto-detail-row">
+              <span class="auto-detail-label">LinkedIn</span>
+              <span class="auto-detail-value" id="detailLinkedIn">-</span>
             </div>
-            <div class="detail-row">
-              <span class="detail-label">GitHub</span>
-              <span class="detail-value" id="detailGithub">-</span>
+            <div class="auto-detail-row">
+              <span class="auto-detail-label">GitHub</span>
+              <span class="auto-detail-value" id="detailGithub">-</span>
             </div>
           </div>
         </div>
 
-        <div>
-          <label class="form-label">Company Name</label>
+        <div class="form-group">
+          <label for="company">Company name</label>
           <input type="text" id="company" placeholder="e.g., Google, Microsoft">
         </div>
 
-        <div>
-          <label class="form-label">Job Role</label>
+        <div class="form-group">
+          <label for="jobRole">Job role</label>
           <input type="text" id="jobRole" placeholder="e.g., Software Engineer">
         </div>
 
-        <div>
-          <label class="form-label">Job Description</label>
-          <textarea id="jobDescription" placeholder="Paste job description here..."></textarea>
+        <div class="form-group">
+          <label for="jobDescription">Job description</label>
+          <textarea id="jobDescription" rows="5" placeholder="Paste job description here..."></textarea>
         </div>
 
-        <button class="generate-button" id="generateBtn" onclick="generateCoverLetter()" disabled>
-          📝 Generate Cover Letter
+        <button class="auto-generate-btn" id="generateBtn" onclick="generateCoverLetter()" disabled>
+          <i class="fa-solid fa-pen-nib"></i> Generate Cover Letter
         </button>
 
-        <div class="preview-section empty" id="coverLetterPreview">
+        <div class="auto-preview-section empty" id="coverLetterPreview">
           Fill job details and click "Generate"...
         </div>
       </div>
 
-      <div class="section">
-        <h2 class="section-title">✉️ Send Applications</h2>
+      <!-- ============ SEND APPLICATIONS COLUMN ============ -->
+      <div class="form-card">
+        <h3 class="auto-section-title"><i class="fa-solid fa-paper-plane" style="color:#006a6a;"></i>Send Applications</h3>
 
-        <div>
-          <label class="form-label">HR Email Addresses</label>
+        <div class="form-group">
+          <label for="hrEmailInput">HR email addresses</label>
           <input type="email" id="hrEmailInput" placeholder="hr@company.com" onkeypress="handleEmailKeyPress(event)">
-          <button class="generate-button" onclick="addHREmail()" style="width: 100%; margin-top: 8px;">Add Email</button>
+          <button class="auto-add-email-btn" onclick="addHREmail()">Add Email</button>
         </div>
 
-        <div class="email-tags" id="emailTagsContainer"></div>
+        <div class="auto-email-tags" id="emailTagsContainer"></div>
         <div class="status-message" id="statusMessage"></div>
 
-        <button class="send-button" id="sendBtn" onclick="confirmSendEmails()" disabled>
-          ✉️ Send Applications
+        <button class="auto-send-btn" id="sendBtn" onclick="confirmSendEmails()" disabled>
+          <i class="fa-solid fa-envelope"></i> Send Applications
         </button>
       </div>
     </div>
-  </div>
-</div>
+  </section>
 
-<div class="modal" id="confirmModal">
-  <div class="modal-content">
-    <div class="modal-title">🎯 Ready to Send?</div>
-    <div class="modal-message">
-      Send to <span id="emailCount">0</span> HR contacts with your CV and personalized cover letter?
-    </div>
-    <div class="modal-buttons">
-      <button class="modal-btn modal-btn-secondary" onclick="closeConfirmModal()">Cancel</button>
-      <button class="modal-btn modal-btn-primary" onclick="sendApplications()">Send Now</button>
-    </div>
+  <div style="text-align:center; margin: 0 0 40px;">
+    <button type="button" class="btn btn-outline" onclick="history.back()">Back</button>
   </div>
-</div>
 
-<div class="modal" id="successModal">
-  <div class="modal-content">
-    <div class="modal-title">✅ Success!</div>
-    <div class="modal-message" id="successMessage">
-      Applications sent successfully!
-    </div>
-    <div class="modal-buttons">
-      <button class="modal-btn modal-btn-primary" onclick="resetForm()" style="grid-column: 1 / -1;">New Application</button>
+  <div class="auto-modal" id="confirmModal">
+    <div class="auto-modal-content">
+      <div class="auto-modal-title"><i class="fa-solid fa-paper-plane" style="color:#006a6a;"></i> Ready to Send?</div>
+      <div class="auto-modal-message">
+        Send to <span id="emailCount">0</span> HR contacts with your CV and personalized cover letter?
+      </div>
+      <div class="auto-modal-buttons">
+        <button class="auto-modal-btn auto-modal-btn-secondary" onclick="closeConfirmModal()">Cancel</button>
+        <button class="auto-modal-btn auto-modal-btn-primary" onclick="sendApplications()">Send Now</button>
+      </div>
     </div>
   </div>
-</div>
+
+  <div class="auto-modal" id="successModal">
+    <div class="auto-modal-content">
+      <div class="auto-modal-title"><i class="fa-solid fa-circle-check" style="color:#0d9488;"></i> Success!</div>
+      <div class="auto-modal-message" id="successMessage">
+        Applications sent successfully!
+      </div>
+      <div class="auto-modal-buttons">
+        <button class="auto-modal-btn auto-modal-btn-primary" onclick="resetForm()" style="grid-column: 1 / -1;">New Application</button>
+      </div>
+    </div>
+  </div>
 
 <script>
 let uploadedCVPath = '';
@@ -259,7 +274,7 @@ async function handleCVUpload(event) {
     if (parseData.success && parseData.extracted_data) {
       extractedData = parseData.extracted_data;
       displayExtractedDetails();
-      showStatus('✅ Details extracted from CV!', 'success');
+      showStatus('Details extracted from CV!', 'success');
       updateSendButton();
       updateGenerateButton();
     } else {
@@ -309,7 +324,7 @@ async function generateCoverLetter() {
       coverLetterBody = data.cover_letter;
       document.getElementById('coverLetterPreview').classList.remove('empty');
       document.getElementById('coverLetterPreview').textContent = coverLetterBody;
-      showStatus('✅ Cover letter generated!', 'success');
+      showStatus('Cover letter generated!', 'success');
       updateSendButton();
     } else {
       showStatus('Error: ' + data.error, 'error');
@@ -361,7 +376,7 @@ function removeEmail(email) {
 function displayEmailTags() {
   const container = document.getElementById('emailTagsContainer');
   container.innerHTML = hrEmails.map(email => `
-    <div class="email-tag">
+    <div class="auto-email-tag">
       ${email}
       <button type="button" onclick="removeEmail('${email}')">✕</button>
     </div>
@@ -415,7 +430,7 @@ async function sendApplications() {
     let data = await response.json();
 
     if (data.success) {
-      showStatus('✅ Applications sent!', 'success');
+      showStatus('Applications sent!', 'success');
       document.getElementById('successMessage').textContent = 'Sent to ' + data.sent_count + ' recipients!';
       document.getElementById('successModal').classList.add('show');
     } else {
