@@ -260,24 +260,6 @@
               <input type="text" id="candSearch" placeholder="Search by name, email, or role..." />
             </div>
 
-            <!-- <select class="cand-filter" id="roleFilter">
-              <option value="all">All Roles</option>
-              <option value="Senior Product Designer">Senior Product Designer</option>
-              <option value="UX Strategist">UX Strategist</option>
-              <option value="Recruitment Analyst">Recruitment Analyst</option>
-              <option value="Frontend Engineer">Frontend Engineer</option>
-              <option value="Data Analyst">Data Analyst</option>
-            </select> -->
-
-            <!-- <select class="cand-filter" id="statusFilter">
-              <option value="all">All Statuses</option>
-              <option value="New">New</option>
-              <option value="Shortlisted">Shortlisted</option>
-              <option value="Interview">Interview</option>
-              <option value="Offer">Offer</option>
-              <option value="Rejected">Rejected</option>
-            </select> -->
-
             <span class="cand-count-chip"><strong id="candCount">0</strong> candidates shown</span>
           </div>
 
@@ -288,10 +270,6 @@
                 <h3>All Candidates</h3>
                 <p>Applicants across every role you've posted, newest first.</p>
               </div>
-              <!-- <button class="panel-link" style="background:none; border:none; cursor:pointer;" onclick="window.location.href='/templates/empo_can_page'">
-              <span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle;">add</span>
-              Post a Job
-              </button> -->
             </div>
 
             <div style="overflow-x:auto;">
@@ -340,7 +318,7 @@
     </a>
 
     {% if app.resume_stored_filename %}
-    <a href="{{ url_for('seeker_dashboard.download_application_resume', application_id=app.id) }}"
+    <a href="{{ url_for('employer_pages.download_candidate_resume', application_id=app.id) }}"
        target="_blank"
        class="cand-btn-primary"
        style="background:#101a2c; color:#14b8a6; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">

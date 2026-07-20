@@ -334,6 +334,62 @@ def list_jobs_for_admin(status=None):
     return query.order_by(Job.created_at.desc()).all()
 
 
+def list_recommended_jobs_for_seeker(seeker_id, limit=6):
+    """Approved jobs whose skills overlap with this seeker's profile
+    skills (profile.skills + profile.additional_skills), best matches
+    first (most overlapping skills wins; ties broken by newest job).
+    Used on the seeker dashboard, under the search bar, so they see
+    jobs that fit their resume without having to search manually.
+
+    Falls back to the most recent approved jobs if the seeker has no
+    profile yet, or their profile has no skills on file -- there's
+    nothing to match against, so "most recent" is a reasonable
+    default rather than showing nothing."""
+    profile = get_seeker_profile(seeker_id)
+    seeker_skills = set()
+    if profile:
+        seeker_skills = {
+            s.lower() for s in profile.skills_list() + profile.additional_skills_list()
+        }
+
+    approved_jobs = (
+        Job.query.filter_by(status="Approved")
+        .order_by(Job.created_at.desc())
+        .all()
+    )
+
+    if not seeker_skills:
+        return approved_jobs[:limit]
+
+    scored = []
+    for job in approved_jobs:
+        job_skills = {s.lower() for s in job.skills_list()}
+        overlap_count = len(seeker_skills & job_skills)
+        if overlap_count > 0:
+            scored.append((overlap_count, job))
+
+    # Stable sort keeps the newest-first order as the tiebreaker,
+    # since `scored` was built from `approved_jobs` which is already
+    # newest-first.
+    scored.sort(key=lambda pair: pair[0], reverse=True)
+
+    matched = [job for _, job in scored[:limit]]
+
+    # If skill-matching came up short (e.g. very few overlapping
+    # skills across the board), pad with the most recent approved
+    # jobs not already included, so the section isn't sparse.
+    if len(matched) < limit:
+        matched_ids = {job.id for job in matched}
+        for job in approved_jobs:
+            if len(matched) >= limit:
+                break
+            if job.id not in matched_ids:
+                matched.append(job)
+                matched_ids.add(job.id)
+
+    return matched
+
+
 # ==========================================================================
 # JOB — Approve / Reject (super admin)
 # ==========================================================================
@@ -442,10 +498,15 @@ def upsert_seeker_profile(seeker_id, **fields):
 # ==========================================================================
 # APPLICATION — Create
 # ==========================================================================
-def create_application(job_id, seeker_id):
+def create_application(job_id, seeker_id, resume_stored_filename=None,
+                        resume_original_filename=None):
     """Creates an Application (a seeker applying to a job). Returns the
     new Application. Raises ValueError if this seeker already applied
-    to this job, or if the job doesn't exist."""
+    to this job, or if the job doesn't exist.
+
+    resume_stored_filename / resume_original_filename record the CV the
+    seeker attached to THIS application (separate from their profile),
+    so the employer can view/download exactly what was submitted."""
 
     if not get_job_by_id(job_id):
         raise ValueError("That job no longer exists.")
@@ -453,7 +514,12 @@ def create_application(job_id, seeker_id):
     if has_applied(job_id, seeker_id):
         raise ValueError("You've already applied to this job.")
 
-    application = Application(job_id=job_id, seeker_id=seeker_id)
+    application = Application(
+        job_id=job_id,
+        seeker_id=seeker_id,
+        resume_stored_filename=resume_stored_filename,
+        resume_original_filename=resume_original_filename,
+    )
     db.session.add(application)
     db.session.commit()
     return application
@@ -570,6 +636,59 @@ def mark_all_notifications_read(seeker_id):
         {"is_read": True}
     )
     db.session.commit()
+
+# ==========================================================================
+# JOB RECOMMENDATIONS (seeker dashboard -- match profile skills to jobs)
+# ==========================================================================
+def recommend_jobs_for_seeker(seeker_id, limit=6):
+    """Returns up to `limit` Approved jobs ranked by how many of the
+    seeker's profile skills overlap with the job's listed skills, best
+    matches first. Falls back to newest-first when the seeker has no
+    profile / no skills saved yet (or no jobs match any skill), so the
+    dashboard always has something to show instead of an empty state.
+
+    Returns a list of dicts: {"job": Job, "matched_skills": [...], "match_count": int}
+    """
+    profile = get_seeker_profile(seeker_id)
+    seeker_skills = set()
+    if profile:
+        seeker_skills = {
+            s.lower() for s in (profile.skills_list() + profile.additional_skills_list())
+        }
+
+    approved_jobs = Job.query.filter_by(status="Approved").order_by(Job.created_at.desc()).all()
+
+    if not seeker_skills:
+        # No CV/profile skills on file yet -- just show the newest
+        # approved jobs so the section isn't empty.
+        return [
+            {"job": job, "matched_skills": [], "match_count": 0}
+            for job in approved_jobs[:limit]
+        ]
+
+    scored = []
+    for job in approved_jobs:
+        job_skills = job.skills_list()
+        matched = [s for s in job_skills if s.lower() in seeker_skills]
+        scored.append({"job": job, "matched_skills": matched, "match_count": len(matched)})
+
+    # Best matches first; ties broken by newest job (already the query order).
+    scored.sort(key=lambda item: item["match_count"], reverse=True)
+
+    top_matches = [item for item in scored if item["match_count"] > 0][:limit]
+
+    if len(top_matches) < limit:
+        # Pad with newest jobs that didn't match any skill, so the
+        # section still shows `limit` jobs when matches are scarce.
+        already_shown_ids = {item["job"].id for item in top_matches}
+        for item in scored:
+            if len(top_matches) >= limit:
+                break
+            if item["job"].id not in already_shown_ids:
+                top_matches.append(item)
+
+    return top_matches
+
 
 # ==========================================================================
 # CANDIDATE SEARCH (employer searching seekers)

@@ -10,7 +10,9 @@ still use demo data; wire those up the same way once you have real
 models for them.
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, jsonify
+import os
+
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify, send_from_directory, abort
 from flask_login import login_required, current_user
 
 from crud import (
@@ -27,6 +29,12 @@ from crud import (
 )
 
 employer_pages_bp = Blueprint("employer_pages", __name__)
+
+# Must match seeker_dashboard.py's APPLICATION_RESUME_DIR -- that's
+# where per-application resumes get saved when a seeker applies.
+APPLICATION_RESUME_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "uploads", "application_resumes"
+)
 
 
 @employer_pages_bp.route("/employer/dashboard-home")
@@ -211,6 +219,29 @@ def update_candidate_status(application_id):
         )
 
     return jsonify({"ok": True, "status": updated.status})
+
+
+@employer_pages_bp.route("/employer/candidates/<int:application_id>/resume")
+@login_required
+def download_candidate_resume(application_id):
+    """Lets the employer view/download the resume the candidate
+    attached to THIS specific application. Only the employer who owns
+    the job this application is for can fetch it -- matches the same
+    ownership pattern as update_candidate_status()."""
+    application = get_application_by_id(application_id)
+
+    if not application or application.job.employer_id != current_user.id:
+        abort(404)
+
+    if not application.resume_stored_filename:
+        abort(404)
+
+    return send_from_directory(
+        APPLICATION_RESUME_DIR,
+        application.resume_stored_filename,
+        as_attachment=False,
+        download_name=application.resume_original_filename,
+    )
 
 
 @employer_pages_bp.route("/employer/settings")

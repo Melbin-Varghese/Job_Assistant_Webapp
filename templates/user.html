@@ -8,6 +8,18 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/css/user.css" />
+
+  <style>
+    /* Highlights the skills on a recommended job that overlap with the
+       seeker's own profile skills -- everything else about .match-tag
+       still comes from user.css. */
+    .match-tag-hit {
+      background: rgba(13, 148, 136, 0.16);
+      color: #0d9488;
+      font-weight: 700;
+      border: 1px solid rgba(13, 148, 136, 0.35);
+    }
+  </style>
 </head>
 
 <body>
@@ -233,9 +245,84 @@
           </div>
           {% endif %}
 
+          {% if not search_active %}
+          <div class="panel" style="margin-bottom: 24px;">
+            <div class="panel-header">
+              <h4>
+                Recommended for You
+                <span class="stat-note" style="display:inline; margin-left:6px;">matched against the skills on your profile</span>
+              </h4>
+            </div>
 
-         
-          
+            {% if recommended_jobs %}
+            <div class="content-grid" style="grid-template-columns: repeat(2, 1fr); gap: 16px;">
+              {% for item in recommended_jobs %}
+              {% set job = item.job %}
+              <div class="match-card job-card" style="cursor:pointer;"
+                   data-job-id="{{ job.id }}"
+                   data-title="{{ job.title }}"
+                   data-company="{{ job.company_name }}"
+                   data-location="{{ job.location or '' }}"
+                   data-job-type="{{ job.job_type }}"
+                   data-experience="{{ job.experience_level }}"
+                   data-skills="{{ job.skills or '' }}"
+                   data-description="{{ job.description }}"
+                   data-email="{{ job.company_email }}"
+                   data-posted="{{ job.created_at.strftime('%b %d, %Y') if job.created_at else '' }}"
+                   data-applied="{{ '1' if job.id in applied_job_ids else '0' }}"
+                   onclick="openJobModal(this)">
+                <div class="match-top">
+                  <div class="match-role">
+                    <div class="match-icon">
+                      <span class="material-symbols-outlined">work</span>
+                    </div>
+                    <div>
+                      <h5 class="match-title">{{ job.title }}</h5>
+                      <p class="match-company">{{ job.company_name }}{% if job.location %} · {{ job.location }}{% endif %}</p>
+                    </div>
+                  </div>
+                  <div class="match-score">
+                    {% if item.match_count %}
+                    <span class="match-percent-label" style="color:#0d9488; font-weight:700;">{{ item.match_count }} skill{{ '' if item.match_count == 1 else 's' }} matched</span>
+                    {% else %}
+                    <span class="match-percent-label">{{ job.job_type }}</span>
+                    {% endif %}
+                  </div>
+                </div>
+
+                {% if job.skills %}
+                <div class="match-tags">
+                  {% for skill in job.skills.split(',') %}
+                  {% set skill_clean = skill.strip() %}
+                  <span class="match-tag{{ ' match-tag-hit' if skill_clean in item.matched_skills else '' }}">{{ skill_clean }}</span>
+                  {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="match-tip">
+                  <span class="material-symbols-outlined" style="font-size: 14px; color: var(--secondary);">schedule</span>
+                  Posted {{ job.created_at.strftime('%b %d, %Y') if job.created_at else '' }}
+                </div>
+
+                {% if job.id in applied_job_ids %}
+                <div class="btn btn-block" style="text-align:center; background: rgba(22,163,74,0.12); color:#16a34a; pointer-events:none;">
+                  <span class="material-symbols-outlined" style="font-size:16px; vertical-align:middle;">check_circle</span>
+                  Applied
+                </div>
+                {% else %}
+                <button type="button" class="btn btn-primary btn-block">
+                  View &amp; Apply
+                </button>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <p class="stat-note">No approved jobs yet — check back soon.</p>
+            {% endif %}
+          </div>
+          {% endif %}
+
               <div class="action-grid">
                
                  

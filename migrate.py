@@ -1,96 +1,63 @@
 """
-super_admin_api.py
-JSON API endpoints the super admin pages call via fetch() to persist
-job approvals and employer/seeker status changes. Kept separate from
-your main routes file -- just register the blueprint once:
+migrate.py
+One-off migration script for existing databases created before the
+per-application resume feature was added. Adds the two new columns
+to `applications` (resume_stored_filename, resume_original_filename)
+if they aren't already there.
 
-    from super_admin_api import super_admin_api
-    app.register_blueprint(super_admin_api)
+`db.create_all()` only creates tables that don't exist yet -- it never
+alters an existing table to add new columns, which is why this script
+is needed for databases created before this feature.
 
-NOTE: There's no server-side check here confirming the caller is a
-super admin, because the current login (super_admin_auth.js) is a
-client-side-only demo with sessionStorage and no real backend
-session/token. Before this goes anywhere near production, these
-routes need a real @login_required-style guard tied to an actual
-super admin session -- right now anyone who can reach these URLs
-(not just people who passed the login screen) can call them.
+Run once, from the project root, with the same Python environment /
+.env you use for the app:
+
+    python migrate.py
+
+Safe to run more than once -- it checks for each column before adding
+it, so re-running it after it's already been applied is a no-op.
 """
 
-from flask import Blueprint, jsonify
+from sqlalchemy import inspect, text
 
-import crud
+from app import app
+from extensions import db
 
-super_admin_api = Blueprint("super_admin_api", __name__, url_prefix="/api/super-admin")
-
-
-# ==========================================================================
-# Jobs — approve / reject
-# ==========================================================================
-@super_admin_api.route("/jobs/<int:job_id>/approve", methods=["POST"])
-def approve_job(job_id):
-    job = crud.approve_job(job_id)
-    if not job:
-        return jsonify({"ok": False, "error": "Job not found."}), 404
-    return jsonify({"ok": True, "job_id": job.id, "status": job.status})
+COLUMNS_TO_ADD = [
+    ("resume_stored_filename", "VARCHAR(255) NULL"),
+    ("resume_original_filename", "VARCHAR(255) NULL"),
+]
 
 
-@super_admin_api.route("/jobs/<int:job_id>/reject", methods=["POST"])
-def reject_job(job_id):
-    job = crud.reject_job(job_id)
-    if not job:
-        return jsonify({"ok": False, "error": "Job not found."}), 404
-    return jsonify({"ok": True, "job_id": job.id, "status": job.status})
+def column_exists(inspector, table_name, column_name):
+    existing_columns = {col["name"] for col in inspector.get_columns(table_name)}
+    return column_name in existing_columns
 
 
-# ==========================================================================
-# Employers (recruiters) — suspend / unsuspend / block / unblock
-# ==========================================================================
-@super_admin_api.route("/employers/<int:employer_id>/suspend", methods=["POST"])
-def suspend_employer(employer_id):
-    employer = crud.suspend_employer(employer_id)
-    if not employer:
-        return jsonify({"ok": False, "error": "Recruiter not found."}), 404
-    return jsonify({"ok": True, "employer_id": employer.id, "status": employer.status})
+def main():
+    with app.app_context():
+        inspector = inspect(db.engine)
+
+        if "applications" not in inspector.get_table_names():
+            print("No 'applications' table found -- run the app once first "
+                  "so db.create_all() can create the base tables, then "
+                  "re-run this script.")
+            return
+
+        for column_name, column_def in COLUMNS_TO_ADD:
+            if column_exists(inspector, "applications", column_name):
+                print(f"[skip] applications.{column_name} already exists.")
+                continue
+
+            print(f"[add]  applications.{column_name} ...")
+            with db.engine.begin() as connection:
+                connection.execute(
+                    text(f"ALTER TABLE applications ADD COLUMN {column_name} {column_def}")
+                )
+            print(f"[done] applications.{column_name} added.")
+
+        print("\nMigration complete.")
 
 
-@super_admin_api.route("/employers/<int:employer_id>/unsuspend", methods=["POST"])
-def unsuspend_employer(employer_id):
-    employer = crud.unsuspend_employer(employer_id)
-    if not employer:
-        return jsonify({"ok": False, "error": "Recruiter not found."}), 404
-    return jsonify({"ok": True, "employer_id": employer.id, "status": employer.status})
-
-
-@super_admin_api.route("/employers/<int:employer_id>/block", methods=["POST"])
-def block_employer(employer_id):
-    employer = crud.block_employer(employer_id)
-    if not employer:
-        return jsonify({"ok": False, "error": "Recruiter not found."}), 404
-    return jsonify({"ok": True, "employer_id": employer.id, "status": employer.status})
-
-
-@super_admin_api.route("/employers/<int:employer_id>/unblock", methods=["POST"])
-def unblock_employer(employer_id):
-    employer = crud.unblock_employer(employer_id)
-    if not employer:
-        return jsonify({"ok": False, "error": "Recruiter not found."}), 404
-    return jsonify({"ok": True, "employer_id": employer.id, "status": employer.status})
-
-
-# ==========================================================================
-# Seekers (users) — block / unblock
-# ==========================================================================
-@super_admin_api.route("/seekers/<int:seeker_id>/block", methods=["POST"])
-def block_seeker(seeker_id):
-    seeker = crud.block_seeker(seeker_id)
-    if not seeker:
-        return jsonify({"ok": False, "error": "User not found."}), 404
-    return jsonify({"ok": True, "seeker_id": seeker.id, "status": seeker.status})
-
-
-@super_admin_api.route("/seekers/<int:seeker_id>/unblock", methods=["POST"])
-def unblock_seeker(seeker_id):
-    seeker = crud.unblock_seeker(seeker_id)
-    if not seeker:
-        return jsonify({"ok": False, "error": "User not found."}), 404
-    return jsonify({"ok": True, "seeker_id": seeker.id, "status": seeker.status})
+if __name__ == "__main__":
+    main()

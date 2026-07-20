@@ -202,6 +202,14 @@ class Application(db.Model):
     # set by the employer from the Candidates page.
     status = db.Column(db.String(30), nullable=False, default="Applied")
 
+    # The resume the seeker attached to THIS specific application (may
+    # differ from whatever's on their profile). Same stored/original
+    # filename pattern as Message attachments -- stored_filename is the
+    # random on-disk name (avoids collisions/path traversal from the
+    # original filename); original_filename is what's shown/downloaded.
+    resume_stored_filename = db.Column(db.String(255), nullable=True)
+    resume_original_filename = db.Column(db.String(255), nullable=True)
+
     applied_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     job = db.relationship("Job", backref=db.backref("applications", lazy=True))
