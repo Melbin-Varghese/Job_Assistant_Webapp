@@ -5,341 +5,734 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ATS Score Checker - CareerMomentum</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
     <style>
-        /* Page-specific additions only -- structure (navbar, page-banner,
-           section, form-card, btn-primary, etc.) all come from style.css
-           so this page matches the rest of the site. */
-        .atc-upload-box {
-            border: 1.5px dashed #c4c6cd;
+        :root {
+            --primary: #041627;
+            --secondary: #006a6a;
+            --accent: #79f6f5;
+            --error: #b3261e;
+            --warning: #b5760b;
+            --gray-bg: #fafbff;
+            --gray-border: #eceef0;
+            --gray-text: #44474c;
+        }
+
+        /* Upload Box */
+        .upload-box {
+            border: 1.5px dashed var(--gray-border);
             border-radius: 12px;
             padding: 28px 16px;
             text-align: center;
             cursor: pointer;
-            background: #fafbff;
+            background: var(--gray-bg);
             transition: border-color 0.2s ease, background 0.2s ease;
         }
-        .atc-upload-box:hover { border-color: #006a6a; background: #eff8f8; }
-        .atc-file-label { margin-top: 10px; font-size: 13.5px; color: #44474c; }
-
-        .atc-tab-row { display: flex; gap: 8px; margin-bottom: 14px; }
-        .atc-tab {
-            flex: 1; text-align: center; padding: 10px; border-radius: 8px;
-            background: #f1f3f4; color: #44474c; font-weight: 600; font-size: 13.5px;
-            cursor: pointer; transition: 0.2s ease;
+        .upload-box:hover { 
+            border-color: var(--secondary); 
+            background: #eff8f8; 
         }
-        .atc-tab.atc-active { background: #006a6a; color: #fff; }
-        .atc-jd-section { display: none; }
-        .atc-jd-section.atc-active { display: block; }
-        .atc-jd-section textarea {
-            width: 100%; min-height: 160px; padding: 12px; border: 1px solid #e0e3e5;
-            border-radius: 10px; font-family: inherit; font-size: 13.5px; resize: vertical;
+        .upload-box input[type="file"] { 
+            display: none; 
+        }
+        .file-label { 
+            margin-top: 10px; 
+            font-size: 13.5px; 
+            color: var(--gray-text); 
+        }
+        .file-remove {
+            cursor: pointer;
+            color: var(--error);
+            font-weight: bold;
+            margin-left: 8px;
+            display: none;
         }
 
-        .atc-analyze-btn {
-            width: 100%; padding: 14px; background: #006a6a; color: #fff; border: none;
-            border-radius: 10px; font-weight: 700; font-size: 14.5px; cursor: pointer;
-            margin-top: 8px; transition: background 0.2s ease;
+        /* Tab Navigation */
+        .tab-row { 
+            display: flex; 
+            gap: 8px; 
+            margin-bottom: 14px; 
         }
-        .atc-analyze-btn:hover { background: #005555; }
+        .tab {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            background: var(--gray-bg);
+            color: var(--gray-text);
+            font-weight: 600;
+            font-size: 13.5px;
+            cursor: pointer;
+            border: none;
+            transition: 0.2s ease;
+        }
+        .tab:hover { 
+            background: #e8eaec; 
+        }
+        .tab.active { 
+            background: var(--secondary); 
+            color: #fff; 
+        }
+        .tab-content { 
+            display: none; 
+        }
+        .tab-content.active { 
+            display: block; 
+        }
+        .tab-content textarea {
+            width: 100%;
+            min-height: 160px;
+            padding: 12px;
+            border: 1px solid var(--gray-border);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 13.5px;
+            resize: vertical;
+        }
 
-        .atc-spinner, .atc-error { display: none; text-align: center; margin-top: 16px; font-weight: 600; }
-        .atc-error { color: #b3261e; }
+        /* Action Button */
+        .analyze-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--secondary);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14.5px;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s ease;
+        }
+        .analyze-btn:hover:not(:disabled) { 
+            background: #005555; 
+        }
+        .analyze-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
 
-        .atc-score-card { display: flex; justify-content: center; margin: 20px 0; }
-        .atc-progress-circle { position: relative; width: 220px; height: 220px; }
-        .atc-bg-circle { fill: none; stroke: #eceef0; stroke-width: 16; }
-        .atc-progress {
-            fill: none; stroke: #006a6a; stroke-width: 16; stroke-linecap: round;
-            stroke-dasharray: 565.5; stroke-dashoffset: 565.5;
-            transform: rotate(-90deg); transform-origin: 50% 50%;
+        /* Feedback States */
+        .spinner, .error-message { 
+            display: none; 
+            text-align: center; 
+            margin-top: 16px; 
+            font-weight: 600; 
+        }
+        .error-message { 
+            color: var(--error); 
+        }
+
+        /* Results Section */
+        .result-card { 
+            display: none; 
+        }
+        .score-card { 
+            display: flex; 
+            justify-content: center; 
+            margin: 20px 0; 
+        }
+        .progress-circle { 
+            position: relative; 
+            width: 220px; 
+            height: 220px; 
+        }
+        .circle-bg { 
+            fill: none; 
+            stroke: var(--gray-border); 
+            stroke-width: 16; 
+        }
+        .circle-progress {
+            fill: none;
+            stroke: var(--secondary);
+            stroke-width: 16;
+            stroke-linecap: round;
+            stroke-dasharray: 565.5;
+            stroke-dashoffset: 565.5;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
             transition: stroke-dashoffset 1s ease;
         }
-        .atc-score-text {
-            position: absolute; inset: 0; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
+        .score-text {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
-        .atc-score-text span { font-size: 34px; font-weight: 800; color: #041627; }
-        .atc-score-text p { margin: 4px 0 2px; font-size: 13px; color: #44474c; }
-        .atc-score-text small { font-size: 12px; font-weight: 700; color: #006a6a; }
+        .score-text .value { 
+            font-size: 34px; 
+            font-weight: 800; 
+            color: var(--primary); 
+        }
+        .score-text .label { 
+            margin: 4px 0 2px; 
+            font-size: 13px; 
+            color: var(--gray-text); 
+        }
+        .score-text .remark { 
+            font-size: 12px; 
+            font-weight: 700; 
+            color: var(--secondary); 
+        }
 
-        .atc-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 20px 0; }
-        .atc-stat-card { text-align: center; padding: 16px 8px; border-radius: 10px; background: #fafbff; border: 1px solid #eceef0; }
-        .atc-stat-card i { font-size: 18px; color: #006a6a; }
-        .atc-stat-card h3 { margin: 6px 0 2px; font-size: 20px; color: #041627; }
-        .atc-stat-card p { margin: 0; font-size: 12px; color: #44474c; }
+        /* Stats Grid */
+        .stats-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); 
+            gap: 12px; 
+            margin: 20px 0; 
+        }
+        .stat-card { 
+            text-align: center; 
+            padding: 16px 8px; 
+            border-radius: 10px; 
+            background: var(--gray-bg); 
+            border: 1px solid var(--gray-border); 
+        }
+        .stat-card i { 
+            font-size: 18px; 
+            color: var(--secondary); 
+        }
+        .stat-card h4 { 
+            margin: 6px 0 2px; 
+            font-size: 20px; 
+            color: var(--primary); 
+        }
+        .stat-card p { 
+            margin: 0; 
+            font-size: 12px; 
+            color: var(--gray-text); 
+        }
 
-        .atc-meter { height: 8px; border-radius: 999px; background: #eceef0; overflow: hidden; margin: 16px 0; }
-        .atc-meter-fill { height: 100%; background: linear-gradient(90deg, #006a6a, #0d9488); transition: width 1s ease; }
+        /* Progress Meter */
+        .meter { 
+            height: 8px; 
+            border-radius: 999px; 
+            background: var(--gray-border); 
+            overflow: hidden; 
+            margin: 16px 0; 
+        }
+        .meter-fill { 
+            height: 100%; 
+            background: linear-gradient(90deg, var(--secondary), #0d9488); 
+            transition: width 1s ease; 
+        }
 
-        .atc-kw-section { margin-top: 20px; }
-        .atc-kw-section h3 { font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-        .atc-kw-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
-        .atc-kw { font-size: 12.5px; font-weight: 600; padding: 4px 11px; border-radius: 999px; }
-        .atc-kw.atc-match { background: rgba(0,106,106,0.1); color: #006a6a; }
-        .atc-kw.atc-miss { background: rgba(179,38,30,0.08); color: #b3261e; }
+        /* Keyword Sections */
+        .keyword-section { 
+            margin-top: 20px; 
+        }
+        .keyword-section h3 { 
+            font-size: 14px; 
+            margin-bottom: 8px; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+        }
+        .keyword-wrap { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 6px; 
+        }
+        .keyword-tag { 
+            font-size: 12.5px; 
+            font-weight: 600; 
+            padding: 6px 12px; 
+            border-radius: 999px; 
+        }
+        .keyword-tag.matched { 
+            background: rgba(0, 106, 106, 0.1); 
+            color: var(--secondary); 
+        }
+        .keyword-tag.missing { 
+            background: rgba(179, 38, 30, 0.08); 
+            color: var(--error); 
+        }
 
-        #strengthSection, #weaknessSection { margin-top: 18px; }
-        #strengthSection h4, #weaknessSection h4 { font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-        #strengthList, #weaknessList { margin: 0; padding-left: 20px; font-size: 13.5px; color: #44474c; line-height: 1.7; }
+        /* Lists */
+        .feedback-section { 
+            margin-top: 18px; 
+        }
+        .feedback-section h4 { 
+            font-size: 14px; 
+            margin-bottom: 8px; 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+        }
+        .feedback-section ul { 
+            margin: 0; 
+            padding-left: 20px; 
+            font-size: 13.5px; 
+            color: var(--gray-text); 
+            line-height: 1.7; 
+        }
 
-        .atc-result-card { display: none; }
+        /* Breakdown Scores */
+        .breakdown-scores {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
+        .breakdown-item {
+            padding: 10px;
+            background: var(--gray-bg);
+            border-radius: 8px;
+            border-left: 3px solid var(--secondary);
+        }
+        .breakdown-item b {
+            display: block;
+            font-size: 13px;
+            color: var(--gray-text);
+            margin-bottom: 4px;
+        }
+        .breakdown-item .score {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .progress-circle {
+                width: 160px;
+                height: 160px;
+            }
+            .score-text .value {
+                font-size: 24px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .tab-row {
+                flex-direction: column;
+            }
+            .breakdown-scores {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Section Headings */
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 26px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title i {
+            color: var(--secondary);
+        }
     </style>
 </head>
 <body>
 
-  <!-- ===== Navbar (same as every page) ===== -->
+  <!-- ===== Navbar ===== -->
   <nav class="navbar">
     <div class="logo">CareerMomentum</div>
-    
-    
   </nav>
 
-  <!-- ===== Page banner ===== -->
+  <!-- ===== Page Banner ===== -->
   <section class="page-banner">
-    <span class="badge"> ATS Score Checker</span>
+    <span class="badge">ATS Score Checker</span>
     <h1>Scan Your Resume. Match the Job. Land the Interview.</h1>
     <p>Upload your resume and a job description to get an instant ATS compatibility score, keyword match breakdown, and resume quality feedback.</p>
   </section>
 
+  <!-- ===== Main Content ===== -->
   <section class="section">
     <div class="form-card" style="max-width: 720px; margin: 0 auto;">
 
-      <h3 style="margin-top:0;"><i class="fa-solid fa-file-arrow-up" style="color:#006a6a; margin-right:8px;"></i>Upload Resume</h3>
-      <div class="atc-upload-box" onclick="document.getElementById('resumeInput').click()">
-          <div style="font-size:2rem;margin-bottom:8px">📁</div>
-          <p>
-              <i class="fa-solid fa-cloud-arrow-up"></i>
-              Click to upload your resume
-          </p>
-          <small>Supports PDF • DOCX</small>
-          <div class="atc-file-label">
-              <span id="resumeLabel">No file chosen</span>
-              <span id="removeResume"
-              onclick="event.stopPropagation(); removeResume()"
-              style="display:none; cursor:pointer; color:#b3261e; font-weight:bold; margin-left:8px;">
-              ❌
-              </span>
-          </div>
-          <input type="file" id="resumeInput" accept=".pdf,.docx" style="display:none;">
+      <!-- Resume Upload -->
+      <div class="section-title">
+        <i class="fa-solid fa-file-arrow-up"></i>
+        <span>Upload Resume</span>
+      </div>
+      <div class="upload-box" id="resumeBox" role="button" tabindex="0" aria-label="Click to upload resume">
+        <div style="font-size: 2rem; margin-bottom: 8px;">📁</div>
+        <p>
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+          Click to upload your resume
+        </p>
+        <small>Supports PDF • DOCX (Max 10MB)</small>
+        <div class="file-label">
+          <span id="resumeFileName">No file chosen</span>
+          <span class="file-remove" id="removeResume" role="button" tabindex="0" aria-label="Remove resume">❌</span>
+        </div>
+        <input type="file" id="resumeInput" accept=".pdf,.docx" aria-label="Resume file input">
       </div>
 
-      <h3 style="margin-top:26px;"><i class="fa-solid fa-briefcase" style="color:#006a6a; margin-right:8px;"></i>Job Description</h3>
-      <div class="atc-tab-row">
-          <div class="atc-tab atc-active" onclick="switchTab('paste')">✏️ Paste JD</div>
-          <div class="atc-tab" onclick="switchTab('upload')">📂 Upload JD File</div>
+      <!-- Job Description Section -->
+      <div class="section-title">
+        <i class="fa-solid fa-briefcase"></i>
+        <span>Job Description</span>
+      </div>
+      
+      <div class="tab-row" role="tablist">
+        <button class="tab active" id="tab-paste" role="tab" aria-selected="true" aria-controls="paste-panel">
+          ✏️ Paste JD
+        </button>
+        <button class="tab" id="tab-upload" role="tab" aria-selected="false" aria-controls="upload-panel">
+          📂 Upload JD File
+        </button>
       </div>
 
-      <div class="atc-jd-section atc-active" id="pasteSection">
-          <textarea id="jdText" placeholder="Paste the job description here..."></textarea>
-      </div>
-      <div class="atc-jd-section" id="uploadSection">
-          <div class="atc-upload-box" onclick="document.getElementById('jdInput').click()">
-              <div style="font-size:2rem;margin-bottom:8px">📂</div>
-              <p>Upload JD file (PDF, DOCX)</p>
-              <div class="atc-file-label" id="jdLabel">No file chosen</div>
-              <input type="file" id="jdInput" accept=".pdf,.docx" style="display:none;">
-          </div>
+      <div class="tab-content active" id="paste-panel" role="tabpanel" aria-labelledby="tab-paste">
+        <textarea id="jdText" placeholder="Paste the job description here..." aria-label="Job description text"></textarea>
       </div>
 
-      <button onclick="checkATS()" class="atc-analyze-btn">
-          <i class="fa-solid fa-wand-magic-sparkles"></i>
-          Analyze Resume
+      <div class="tab-content" id="upload-panel" role="tabpanel" aria-labelledby="tab-upload">
+        <div class="upload-box" role="button" tabindex="0" aria-label="Click to upload job description file">
+          <div style="font-size: 2rem; margin-bottom: 8px;">📂</div>
+          <p>Upload JD file (PDF, DOCX)</p>
+          <div class="file-label" id="jdFileName">No file chosen</div>
+          <input type="file" id="jdInput" accept=".pdf,.docx" aria-label="Job description file input">
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <button id="analyzeBtn" class="analyze-btn">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        Analyze Resume
       </button>
 
-      <div class="atc-spinner" id="spinner">⏳ Analyzing your resume...</div>
-      <div class="atc-error" id="errorBox"></div>
+      <!-- Feedback States -->
+      <div class="spinner" id="spinner" role="status" aria-live="polite">
+        <i class="fa-solid fa-spinner fa-spin"></i> Analyzing your resume...
+      </div>
+      <div class="error-message" id="errorBox" role="alert"></div>
     </div>
 
-    <div class="response-card atc-result-card" id="resultCard" style="max-width: 720px; margin: 20px auto 0;">
-        <h3 style="text-align:center;">📊 ATS Analysis Result</h3>
-        <p id="analysisMode"
-        style="text-align:center;color:#44474c;font-weight:600;margin-bottom:15px;">
-        </p>
+    <!-- Results Card -->
+    <div class="form-card result-card" id="resultCard" style="max-width: 720px; margin: 20px auto 0;">
+      <h3 style="text-align: center; margin-top: 0;">📊 ATS Analysis Result</h3>
+      <p id="analysisMode" style="text-align: center; color: var(--gray-text); font-weight: 600; margin-bottom: 15px;"></p>
 
-        <div class="atc-score-card">
-            <div class="atc-progress-circle">
-                <svg width="220" height="220">
-                    <circle class="atc-bg-circle" cx="110" cy="110" r="90"></circle>
-                    <circle id="progressCircle" class="atc-progress" cx="110" cy="110" r="90"></circle>
-                </svg>
-                <div class="atc-score-text">
-                    <span id="overallScore">0%</span>
-                    <p>Overall ATS Score</p>
-                    <small id="scoreRemark"></small>
-                </div>
-            </div>
+      <!-- Overall Score Circle -->
+      <div class="score-card">
+        <div class="progress-circle">
+          <svg width="220" height="220" viewBox="0 0 220 220">
+            <circle class="circle-bg" cx="110" cy="110" r="90"></circle>
+            <circle id="progressCircle" class="circle-progress" cx="110" cy="110" r="90"></circle>
+          </svg>
+          <div class="score-text">
+            <span class="value" id="overallScore">0</span>
+            <p class="label">ATS Score</p>
+            <small class="remark" id="scoreRemark">Analyzing...</small>
+          </div>
         </div>
+      </div>
 
-        <div class="atc-stats">
-            <div class="atc-stat-card">
-                <i class="fa-solid fa-circle-check"></i>
-                <h3 id="matchedCount">0</h3>
-                <p>Matched Skills</p>
-            </div>
-            <div class="atc-stat-card">
-                <i class="fa-solid fa-list-check"></i>
-                <h3 id="totalCount">0</h3>
-                <p>Skills Checked</p>
-            </div>
-            <div class="atc-stat-card">
-                <i class="fa-solid fa-circle-xmark"></i>
-                <h3 id="missingCount">0</h3>
-                <p>Missing Skills</p>
-            </div>
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <i class="fa-solid fa-circle-check"></i>
+          <h4 id="matchedCount">0</h4>
+          <p>Matched Skills</p>
         </div>
-
-        <div class="atc-meter"><div class="atc-meter-fill" id="meterFill" style="width:0%"></div></div>
-
-        <div style="margin-top:20px">
-            <p><b>Keyword Match</b> : <span id="keywordScore"></span>%</p>
-            <p><b>Experience</b> : <span id="experienceScore"></span>%</p>
-            <p><b>Formatting</b> : <span id="formattingScore"></span>%</p>
-            <p><b>Education</b> : <span id="educationScore"></span>%</p>
-            <p><b>Resume Quality</b> : <span id="qualityScore"></span>%</p>
+        <div class="stat-card">
+          <i class="fa-solid fa-list-check"></i>
+          <h4 id="totalCount">0</h4>
+          <p>Skills Checked</p>
         </div>
-
-        <div class="atc-kw-section">
-            <h3><i class="fa-solid fa-circle-check" style="color:#006a6a;"></i> Matched Keywords</h3>
-            <div class="atc-kw-wrap" id="matchedKw"></div>
+        <div class="stat-card">
+          <i class="fa-solid fa-circle-xmark"></i>
+          <h4 id="missingCount">0</h4>
+          <p>Missing Skills</p>
         </div>
+      </div>
 
-        <div class="atc-kw-section">
-            <h3><i class="fa-solid fa-circle-xmark" style="color:#b3261e;"></i> Missing Keywords</h3>
-            <div class="atc-kw-wrap" id="missingKw"></div>
-        </div>
+      <!-- Progress Meter -->
+      <div class="meter">
+        <div class="meter-fill" id="meterFill" style="width: 0%"></div>
+      </div>
 
-        <div id="strengthSection">
-            <h4><i class="fa-solid fa-thumbs-up" style="color:#006a6a;"></i> Strengths</h4>
-            <ul id="strengthList"></ul>
+      <!-- Breakdown Scores -->
+      <div class="breakdown-scores">
+        <div class="breakdown-item">
+          <b>Keyword Match</b>
+          <div class="score"><span id="keywordScore">0</span>%</div>
         </div>
+        <div class="breakdown-item">
+          <b>Experience</b>
+          <div class="score"><span id="experienceScore">0</span>%</div>
+        </div>
+        <div class="breakdown-item">
+          <b>Formatting</b>
+          <div class="score"><span id="formattingScore">0</span>%</div>
+        </div>
+        <div class="breakdown-item">
+          <b>Education</b>
+          <div class="score"><span id="educationScore">0</span>%</div>
+        </div>
+        <div class="breakdown-item">
+          <b>Resume Quality</b>
+          <div class="score"><span id="qualityScore">0</span>%</div>
+        </div>
+      </div>
 
-        <div id="weaknessSection">
-            <h4><i class="fa-solid fa-lightbulb" style="color:#b5760b;"></i> Suggestions for Improvement</h4>
-            <ul id="weaknessList"></ul>
-        </div>
+      <!-- Matched Keywords -->
+      <div class="keyword-section">
+        <h3><i class="fa-solid fa-circle-check" style="color: var(--secondary);"></i> Matched Keywords</h3>
+        <div class="keyword-wrap" id="matchedKw"></div>
+      </div>
+
+      <!-- Missing Keywords -->
+      <div class="keyword-section">
+        <h3><i class="fa-solid fa-circle-xmark" style="color: var(--error);"></i> Missing Keywords</h3>
+        <div class="keyword-wrap" id="missingKw"></div>
+      </div>
+
+      <!-- Strengths -->
+      <div class="feedback-section">
+        <h4><i class="fa-solid fa-thumbs-up" style="color: var(--secondary);"></i> Strengths</h4>
+        <ul id="strengthList"></ul>
+      </div>
+
+      <!-- Suggestions -->
+      <div class="feedback-section">
+        <h4><i class="fa-solid fa-lightbulb" style="color: var(--warning);"></i> Suggestions for Improvement</h4>
+        <ul id="weaknessList"></ul>
+      </div>
     </div>
   </section>
 
-  <div style="text-align:center; margin: 0 0 40px;">
+  <!-- Back Button -->
+  <div style="text-align: center; margin: 0 0 40px;">
     <button type="button" class="btn btn-outline" onclick="history.back()">Back</button>
   </div>
 
 <script>
-    let activeTab = 'paste';
+  // ===== State Management =====
+  let activeTab = 'paste';
 
-    document.getElementById('resumeInput').addEventListener('change', function () {
-        if (this.files.length > 0) {
-            document.getElementById("resumeLabel").textContent = "✅ " + this.files[0].name;
-            document.getElementById("removeResume").style.display = "inline";
-        } else {
-            document.getElementById("resumeLabel").textContent = "No file chosen";
-            document.getElementById("removeResume").style.display = "none";
-        }
-    });
+  // ===== Event Listeners =====
+  document.getElementById('resumeBox').addEventListener('click', () => {
+    document.getElementById('resumeInput').click();
+  });
+  document.getElementById('resumeBox').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') document.getElementById('resumeInput').click();
+  });
 
-    document.getElementById('jdInput').addEventListener('change', function() {
-        document.getElementById('jdLabel').textContent = this.files[0] ? '✅ ' + this.files[0].name : 'No file chosen';
-    });
+  document.getElementById('resumeInput').addEventListener('change', handleResumeSelect);
+  document.getElementById('removeResume').addEventListener('click', removeResume);
+  document.getElementById('removeResume').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') removeResume();
+  });
 
-    function switchTab(tab) {
-        activeTab = tab;
-        document.querySelectorAll('.atc-tab').forEach((t, i) => {
-            t.classList.toggle('atc-active', (i === 0 && tab === 'paste') || (i === 1 && tab === 'upload'));
-        });
-        document.getElementById('pasteSection').classList.toggle('atc-active', tab === 'paste');
-        document.getElementById('uploadSection').classList.toggle('atc-active', tab === 'upload');
+  document.getElementById('jdInput').addEventListener('change', handleJdSelect);
+
+  document.getElementById('tab-paste').addEventListener('click', () => switchTab('paste'));
+  document.getElementById('tab-upload').addEventListener('click', () => switchTab('upload'));
+
+  document.getElementById('analyzeBtn').addEventListener('click', checkATS);
+
+  // ===== Resume Upload Handler =====
+  function handleResumeSelect() {
+    const input = document.getElementById('resumeInput');
+    const file = input.files[0];
+
+    if (!file) {
+      document.getElementById('resumeFileName').textContent = 'No file chosen';
+      document.getElementById('removeResume').style.display = 'none';
+      return;
     }
 
-    function removeResume() {
-        const input = document.getElementById("resumeInput");
-        input.value = "";
-        document.getElementById("resumeLabel").textContent = "No file chosen";
-        document.getElementById("removeResume").style.display = "none";
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      showError('Resume file is too large. Max size is 10MB.');
+      input.value = '';
+      document.getElementById('resumeFileName').textContent = 'No file chosen';
+      return;
     }
 
-    function getScoreColor(score) {
-        if (score >= 75) return '#006a6a';
-        if (score >= 50) return '#b5760b';
-        return '#b3261e';
+    document.getElementById('resumeFileName').textContent = '✅ ' + file.name;
+    document.getElementById('removeResume').style.display = 'inline';
+  }
+
+  function removeResume() {
+    document.getElementById('resumeInput').value = '';
+    document.getElementById('resumeFileName').textContent = 'No file chosen';
+    document.getElementById('removeResume').style.display = 'none';
+  }
+
+  // ===== JD Upload Handler =====
+  function handleJdSelect() {
+    const input = document.getElementById('jdInput');
+    const file = input.files[0];
+    const label = document.getElementById('jdFileName');
+
+    if (file) {
+      const maxSize = 10 * 1024 * 1024;
+      if (file.size > maxSize) {
+        showError('Job description file is too large. Max size is 10MB.');
+        input.value = '';
+        label.textContent = 'No file chosen';
+        return;
+      }
+      label.textContent = '✅ ' + file.name;
+    } else {
+      label.textContent = 'No file chosen';
+    }
+  }
+
+  // ===== Tab Switching =====
+  function switchTab(tab) {
+    activeTab = tab;
+    
+    // Update tab buttons
+    document.getElementById('tab-paste').classList.toggle('active', tab === 'paste');
+    document.getElementById('tab-paste').setAttribute('aria-selected', tab === 'paste');
+    document.getElementById('tab-upload').classList.toggle('active', tab === 'upload');
+    document.getElementById('tab-upload').setAttribute('aria-selected', tab === 'upload');
+
+    // Update tab panels
+    document.getElementById('paste-panel').classList.toggle('active', tab === 'paste');
+    document.getElementById('upload-panel').classList.toggle('active', tab === 'upload');
+  }
+
+  // ===== Score Color Logic =====
+  function getScoreColor(score) {
+    if (score >= 75) return '#006a6a';
+    if (score >= 50) return '#b5760b';
+    return '#b3261e';
+  }
+
+  // ===== Main ATS Check =====
+  async function checkATS() {
+    const resumeFile = document.getElementById('resumeInput').files[0];
+    if (!resumeFile) {
+      showError('Please upload your resume (PDF or DOCX file)');
+      return;
     }
 
-    async function checkATS() {
-        const resumeFile = document.getElementById('resumeInput').files[0];
-        if (!resumeFile) { showError('Please upload your resume (PDF or DOCX file)'); return; }
+    const jdText = document.getElementById('jdText').value.trim();
+    const jdFile = document.getElementById('jdInput').files[0];
 
-        const jdText = document.getElementById('jdText').value.trim();
-        const jdFile = document.getElementById('jdInput').files[0];
-
-        document.getElementById('spinner').style.display = 'block';
-        document.getElementById('errorBox').style.display = 'none';
-        document.getElementById('resultCard').style.display = 'none';
-
-        const formData = new FormData();
-        formData.append('resume', resumeFile);
-
-        if (jdText) {
-            formData.append('jd_text', jdText);
-        } else if (jdFile) {
-            formData.append('jd_file', jdFile);
-        }
-
-        try {
-            const res = await fetch('/check-ats', { method: 'POST', body: formData });
-            const data = await res.json();
-
-            if (data.error) { showError(data.error); return; }
-
-            const score = data.overall_score;
-
-            document.getElementById("overallScore").textContent = score + "%";
-            const circle = document.getElementById("progressCircle");
-            const radius = 90;
-            const circumference = 2 * Math.PI * radius;
-            circle.style.strokeDasharray = circumference;
-            circle.style.strokeDashoffset = circumference - (score / 100) * circumference;
-            circle.style.stroke = getScoreColor(score);
-
-            let remark = "";
-            if (score >= 80) remark = "Excellent Match";
-            else if (score >= 60) remark = "Good Match";
-            else if (score >= 40) remark = "Average Match";
-            else remark = "Needs Improvement";
-
-            document.getElementById("scoreRemark").textContent = remark;
-            document.getElementById("keywordScore").textContent = data.breakdown.keyword;
-            document.getElementById("experienceScore").textContent = data.breakdown.experience;
-            document.getElementById("formattingScore").textContent = data.breakdown.formatting;
-            document.getElementById("educationScore").textContent = data.breakdown.education;
-            document.getElementById("qualityScore").textContent = data.breakdown.quality;
-
-            document.getElementById('matchedCount').textContent = data.matched.length;
-            document.getElementById('totalCount').textContent = data.total_skills;
-            document.getElementById('missingCount').textContent = data.missing.length;
-            document.getElementById('meterFill').style.width = score + '%';
-
-            document.getElementById('matchedKw').innerHTML = data.matched.map(k => `<span class="atc-kw atc-match">${k}</span>`).join('');
-            document.getElementById('missingKw').innerHTML = data.missing.map(k => `<span class="atc-kw atc-miss">${k}</span>`).join('');
-
-            document.getElementById("strengthList").innerHTML = (data.strengths || []).map(item => `<li>${item}</li>`).join("");
-            document.getElementById("weaknessList").innerHTML = (data.weaknesses || []).map(item => `<li>${item}</li>`).join("");
-
-            document.getElementById('resultCard').style.display = 'block';
-        } catch(e) {
-            showError('Something went wrong. Try again.');
-        }
-        document.getElementById('spinner').style.display = 'none';
+    if (!jdText && !jdFile) {
+      showError('Please provide a job description (paste text or upload file)');
+      return;
     }
 
-    function showError(msg) {
-        const el = document.getElementById('errorBox');
-        el.textContent = '❌ ' + msg;
-        el.style.display = 'block';
-        document.getElementById('spinner').style.display = 'none';
+    // Show loading state
+    document.getElementById('analyzeBtn').disabled = true;
+    document.getElementById('spinner').style.display = 'block';
+    document.getElementById('errorBox').style.display = 'none';
+    document.getElementById('resultCard').style.display = 'none';
+
+    const formData = new FormData();
+    formData.append('resume', resumeFile);
+    if (jdText) formData.append('jd_text', jdText);
+    if (jdFile) formData.append('jd_file', jdFile);
+
+    try {
+      const response = await fetch('/check-ats', { method: 'POST', body: formData });
+      
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      if (data.error) {
+        showError(data.error);
+        return;
+      }
+
+      displayResults(data);
+    } catch (error) {
+      console.error('ATS Check Error:', error);
+      showError('Something went wrong. Please try again.');
+    } finally {
+      document.getElementById('analyzeBtn').disabled = false;
+      document.getElementById('spinner').style.display = 'none';
     }
+  }
+
+  // ===== Display Results =====
+  function displayResults(data) {
+    const score = data.overall_score || 0;
+
+    // Overall score
+    document.getElementById('overallScore').textContent = score + '%';
+
+    // Animated progress circle
+    const circle = document.getElementById('progressCircle');
+    const radius = 90;
+    const circumference = 2 * Math.PI * radius;
+    circle.style.strokeDasharray = circumference;
+    circle.style.strokeDashoffset = circumference - (score / 100) * circumference;
+    circle.style.stroke = getScoreColor(score);
+
+    // Score remark
+    let remark = 'Analyzing...';
+    if (score >= 80) remark = 'Excellent Match ✨';
+    else if (score >= 60) remark = 'Good Match 👍';
+    else if (score >= 40) remark = 'Average Match';
+    else remark = 'Needs Improvement';
+    document.getElementById('scoreRemark').textContent = remark;
+
+    // Breakdown scores
+    document.getElementById('keywordScore').textContent = data.breakdown?.keyword || 0;
+    document.getElementById('experienceScore').textContent = data.breakdown?.experience || 0;
+    document.getElementById('formattingScore').textContent = data.breakdown?.formatting || 0;
+    document.getElementById('educationScore').textContent = data.breakdown?.education || 0;
+    document.getElementById('qualityScore').textContent = data.breakdown?.quality || 0;
+
+    // Stats
+    document.getElementById('matchedCount').textContent = (data.matched || []).length;
+    document.getElementById('totalCount').textContent = data.total_skills || 0;
+    document.getElementById('missingCount').textContent = (data.missing || []).length;
+
+    // Meter
+    document.getElementById('meterFill').style.width = score + '%';
+
+    // Keywords
+    document.getElementById('matchedKw').innerHTML = (data.matched || [])
+      .map(k => `<span class="keyword-tag matched">${escapeHtml(k)}</span>`)
+      .join('');
+    
+    document.getElementById('missingKw').innerHTML = (data.missing || [])
+      .map(k => `<span class="keyword-tag missing">${escapeHtml(k)}</span>`)
+      .join('');
+
+    // Strengths and weaknesses
+    document.getElementById('strengthList').innerHTML = (data.strengths || [])
+      .map(item => `<li>${escapeHtml(item)}</li>`)
+      .join('');
+    
+    document.getElementById('weaknessList').innerHTML = (data.weaknesses || [])
+      .map(item => `<li>${escapeHtml(item)}</li>`)
+      .join('');
+
+    // Show results
+    document.getElementById('resultCard').style.display = 'block';
+    document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // ===== Error Handling =====
+  function showError(msg) {
+    const el = document.getElementById('errorBox');
+    el.textContent = '❌ ' + msg;
+    el.style.display = 'block';
+    document.getElementById('analyzeBtn').disabled = false;
+  }
+
+  // ===== XSS Protection =====
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
 </script>
+
 </body>
 </html>
